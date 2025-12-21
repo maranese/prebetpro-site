@@ -126,3 +126,22 @@ body.dark footer {
   background: #14161c;
   color: #aaaaaa;
 }
+#logo {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+#logo:hover {
+  opacity: 0.9;
+}
+.logo-accent {
+  color: #ff7a00;
+  margin-right: 6px;
+}
+
+.logo-accent {
+  color: #ff7a00;
+  margin-right: 6px;
+}
