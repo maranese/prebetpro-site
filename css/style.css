@@ -53,3 +53,11 @@ footer {
   background: #1c1c1c;
   font-size: 14px;
 }
+.no-data {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 6px;
+  text-align: center;
+  color: #cccccc;
+  margin-top: 15px;
+}
