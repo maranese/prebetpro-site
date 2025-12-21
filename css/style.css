@@ -1,8 +1,8 @@
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #0f1115;
-  color: #eaeaea;
+  background-color: #ffffff;
+  color: #222222;
   line-height: 1.6;
 }
 
@@ -10,6 +10,7 @@ header {
   background: linear-gradient(90deg, #ff7a00, #ff9f1a);
   padding: 30px 20px;
   text-align: center;
+  color: #ffffff;
 }
 
 header h1 {
@@ -21,11 +22,11 @@ header h1 {
 header p {
   margin-top: 8px;
   font-size: 1.1rem;
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 nav {
-  background: #14161c;
+  background: #ffffff;
   display: flex;
   justify-content: center;
   gap: 25px;
@@ -33,17 +34,18 @@ nav {
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 1px solid #eeeeee;
 }
 
 nav a {
-  color: #ff9f1a;
+  color: #ff7a00;
   text-decoration: none;
   font-weight: bold;
   transition: color 0.3s ease;
 }
 
 nav a:hover {
-  color: #ffffff;
+  color: #222222;
 }
 
 main {
@@ -61,20 +63,23 @@ section h2 {
   padding-left: 12px;
   margin-bottom: 20px;
   font-size: 1.6rem;
+  color: #222222;
 }
 
 .no-data {
-  background: #1c1f26;
+  background: #f5f6f8;
   padding: 25px;
   border-radius: 8px;
   text-align: center;
-  color: #cfcfcf;
+  color: #555555;
+  border: 1px solid #e6e6e6;
 }
 
 footer {
-  background: #14161c;
+  background: #f8f8f8;
   text-align: center;
   padding: 20px;
   font-size: 0.9rem;
-  color: #aaaaaa;
+  color: #666666;
+  border-top: 1px solid #eeeeee;
 }
