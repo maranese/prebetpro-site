@@ -1,31 +1,52 @@
-fetch("data/placeholder.json")
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById("matches");
+const matchesContainer = document.getElementById("matches");
 
-    if (!data.matches || data.matches.length === 0) {
-      container.innerHTML = `
+async function loadTodayMatches() {
+  try {
+    const response = await fetch(
+      "https://prebetpro-api.vincenzodiguida.workers.dev"
+    );
+
+    const data = await response.json();
+
+    // Caso: nessuna partita
+    if (!data.fixtures || data.fixtures.length === 0) {
+      matchesContainer.innerHTML = `
         <div class="no-data">
-          No matches available today for the monitored leagues.<br>
-          Check statistics and historical reports.
+          Oggi non ci sono partite disponibili per i campionati monitorati.<br>
+          Consulta le statistiche e i report storici.
         </div>
       `;
       return;
     }
 
-    data.matches.forEach(match => {
-      container.innerHTML += `
-        <div class="match">
-          <strong>${match.home} vs ${match.away}</strong><br>
-          Prediction: ${match.prediction || "ND"}
+    // Caso: partite presenti
+    matchesContainer.innerHTML = "";
+
+    data.fixtures.forEach(match => {
+      const home = match.teams.home.name;
+      const away = match.teams.away.name;
+      const league = match.league.name;
+      const time = match.fixture.date
+        ? new Date(match.fixture.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "ND";
+
+      matchesContainer.innerHTML += `
+        <div class="match-card">
+          <div class="league">${league}</div>
+          <div class="teams">${home} vs ${away}</div>
+          <div class="time">${time}</div>
         </div>
       `;
     });
-  })
-  .catch(() => {
-    document.getElementById("matches").innerHTML = `
+
+  } catch (error) {
+    matchesContainer.innerHTML = `
       <div class="no-data">
-        Data temporarily unavailable. Please try again later.
+        Dati temporaneamente non disponibili.<br>
+        Riprova più tardi.
       </div>
     `;
-  });
+  }
+}
+
+loadTodayMatches();
