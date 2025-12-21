@@ -83,3 +83,46 @@ footer {
   color: #666666;
   border-top: 1px solid #eeeeee;
 }
+
+
+/* Toggle button */
+#theme-toggle {
+  margin-top: 15px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  background: #ffffff;
+  color: #ff7a00;
+}
+
+/* DARK MODE */
+body.dark {
+  background-color: #0f1115;
+  color: #eaeaea;
+}
+
+body.dark nav {
+  background: #14161c;
+  border-bottom: none;
+}
+
+body.dark nav a {
+  color: #ff9f1a;
+}
+
+body.dark section h2 {
+  color: #ffffff;
+}
+
+body.dark .no-data {
+  background: #1c1f26;
+  color: #cccccc;
+  border: none;
+}
+
+body.dark footer {
+  background: #14161c;
+  color: #aaaaaa;
+}
