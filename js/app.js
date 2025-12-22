@@ -38,7 +38,7 @@ async function loadMatches() {
     matchesBox.innerHTML = "";
 
     renderStatistics(fixtures);
-
+    renderPredictions(fixtures);
     fixtures.forEach(match => {
       const card = document.createElement("div");
       card.className = "match-card";
