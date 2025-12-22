@@ -181,3 +181,33 @@ body.dark footer {
 .match-card .status {
   font-weight: 600;
 }
+.match-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--card-bg, #fff);
+}
+
+.match-league {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.match-league img {
+  width: 20px;
+  height: 20px;
+}
+
+.match-teams {
+  font-size: 1.1rem;
+  margin: 6px 0;
+}
+
+.match-info {
+  font-size: 0.85rem;
+  color: #777;
+}
