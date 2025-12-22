@@ -178,3 +178,32 @@ body.dark .match-info,
 body.dark footer {
   color: var(--text-muted-dark);
 }
+/* =========================
+   PREDICTIONS
+========================= */
+.prediction-card {
+  background: var(--card-light);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+body.dark .prediction-card {
+  background: var(--card-dark);
+}
+
+.prediction-header {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.prediction-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.prediction-row strong {
+  color: var(--accent);
+}
