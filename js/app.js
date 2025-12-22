@@ -155,10 +155,37 @@ function renderPredictions(fixtures) {
     const card = document.createElement("div");
     card.className = "prediction-card";
 
-   card.innerHTML = `
+  card.innerHTML = `
   <div class="prediction-header">
     ${match.teams.home.name} vs ${match.teams.away.name}
   </div>
+
+  <div class="prediction-grid">
+
+    <div class="prediction-block">
+      <div class="prediction-section-title">Match Result</div>
+      ${predictionRow("1", probs1X2["1"], null)}
+      ${predictionRow("X", probs1X2["X"], null)}
+      ${predictionRow("2", probs1X2["2"], null)}
+    </div>
+
+    <div class="prediction-block">
+      <div class="prediction-section-title">Double Chance</div>
+      ${predictionRow("1X", probs1X2["1X"], null)}
+      ${predictionRow("X2", probs1X2["X2"], null)}
+      ${predictionRow("12", probs1X2["12"], null)}
+    </div>
+
+    <div class="prediction-block">
+      <div class="prediction-section-title">Goals</div>
+      ${predictionRow("Over 1.5", probs.over15, over15Win)}
+      ${predictionRow("Over 2.5", probs.over25, over25Win)}
+      ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
+    </div>
+
+  </div>
+`;
+
 
   <div class="prediction-section-title">Goals</div>
   ${predictionRow("Over 1.5", probs.over15, over15Win)}
