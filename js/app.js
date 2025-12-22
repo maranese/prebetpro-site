@@ -1,53 +1,100 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadMatches();
   loadDailyReport();
+  initBackToTop();
 });
 
-/* MATCHES */
+/* =========================
+   LOAD TODAY MATCHES
+========================= */
 async function loadMatches() {
-  const box = document.getElementById("matches");
-  const noBox = document.getElementById("no-matches");
+  const matchesBox = document.getElementById("matches");
+  const noMatchesBox = document.getElementById("no-matches");
+  const statsBox = document.getElementById("stats-summary");
+
+  if (!matchesBox) return;
+
+  matchesBox.innerHTML = "⏳ Loading matches...";
 
   try {
-    const r = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    const d = await r.json();
+    const response = await fetch(
+      "https://prebetpro-api.vincenzodiguida.workers.dev"
+    );
 
-    if (!d.fixtures || d.fixtures.length === 0) {
-      noBox.style.display = "block";
+    if (!response.ok) throw new Error("API error");
+
+    const data = await response.json();
+    const fixtures = data.fixtures || [];
+
+    // Nessuna partita
+    if (fixtures.length === 0) {
+      matchesBox.innerHTML = "";
+      if (noMatchesBox) noMatchesBox.style.display = "block";
+      if (statsBox) statsBox.innerHTML = "";
       return;
     }
 
-    box.innerHTML = "";
-    noBox.style.display = "none";
+    if (noMatchesBox) noMatchesBox.style.display = "none";
+    matchesBox.innerHTML = "";
 
-    renderStatistics(d.fixtures);
+    renderStatistics(fixtures);
 
-    d.fixtures.forEach(m => {
-      const el = document.createElement("div");
-      el.className = "match-card";
-     el.innerHTML = `
-  <div class="match-league">
-    ${m.league.logo ? `<img src="${m.league.logo}" alt="" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;">` : ""}
-    ${m.league.name}
-  </div>
+    fixtures.forEach(match => {
+      const card = document.createElement("div");
+      card.className = "match-card";
 
-  <div class="match-teams">
-    ${m.teams.home.name} <strong>vs</strong> ${m.teams.away.name}
-  </div>
+      const leagueName = match.league?.name || "Unknown league";
+      const leagueLogo = match.league?.logo || "";
+      const home = match.teams?.home?.name || "Home";
+      const away = match.teams?.away?.name || "Away";
+      const status = match.fixture?.status?.short || "ND";
 
-  <div class="match-info">
-    ${m.fixture.status.short}
-  </div>
-`;
+      const time = match.fixture?.date
+        ? new Date(match.fixture.date).toLocaleTimeString("it-IT", {
+            hour: "2-digit",
+            minute: "2-digit"
+          })
+        : "ND";
 
+      card.innerHTML = `
+        <div class="match-league">
+          ${
+            leagueLogo
+              ? `<img src="${leagueLogo}" alt="" style="width:18px;height:18px;margin-right:6px;vertical-align:middle;">`
+              : ""
+          }
+          ${leagueName}
+        </div>
+
+        <div class="match-teams">
+          ${home} <strong>vs</strong> ${away}
+        </div>
+
+        <div class="match-info">
+          <span>🕒 ${time}</span>
+          <span><strong>${status}</strong></span>
+        </div>
       `;
-      box.appendChild(el);
+
+      matchesBox.appendChild(card);
     });
-  } catch {
-    box.innerHTML = `<div class="no-data">Data unavailable</div>`;
+
+  } catch (error) {
+    console.error("Errore loadMatches:", error);
+    matchesBox.innerHTML = `
+      <div class="no-data">
+        Matches temporarily unavailable.<br>
+        Please try again later.
+      </div>
+    `;
+    if (noMatchesBox) noMatchesBox.style.display = "none";
+    if (statsBox) statsBox.innerHTML = "";
   }
 }
 
+/* =========================
+   STATISTICS
+========================= */
 function renderStatistics(fixtures) {
   const box = document.getElementById("stats-summary");
   if (!box) return;
@@ -57,11 +104,11 @@ function renderStatistics(fixtures) {
   let finished = 0;
 
   fixtures.forEach(f => {
-    const s = f.fixture.status.short;
+    const s = f.fixture?.status?.short;
 
     if (s === "NS") notStarted++;
-    else if (["1H","HT","2H","ET"].includes(s)) live++;
-    else if (["FT","AET","PEN"].includes(s)) finished++;
+    else if (["1H", "HT", "2H", "ET"].includes(s)) live++;
+    else if (["FT", "AET", "PEN"].includes(s)) finished++;
   });
 
   box.innerHTML = `
@@ -86,36 +133,78 @@ function renderStatistics(fixtures) {
     </div>
   `;
 }
-/* REPORT */
+
+/* =========================
+   DAILY REPORT
+========================= */
 async function loadDailyReport() {
-  const s = document.getElementById("report-summary");
-  const m = document.getElementById("report-matches");
-  const e = document.getElementById("report-empty");
+  const summaryBox = document.getElementById("report-summary");
+  const matchesBox = document.getElementById("report-matches");
+  const emptyBox = document.getElementById("report-empty");
+
+  if (!summaryBox || !matchesBox || !emptyBox) return;
+
+  summaryBox.innerHTML = "";
+  matchesBox.innerHTML = "";
+  emptyBox.style.display = "none";
 
   try {
-    const r = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/report");
-    const d = await r.json();
+    const response = await fetch(
+      "https://prebetpro-api.vincenzodiguida.workers.dev/report"
+    );
 
-    if (!d.matches || d.matches.length === 0) {
-      e.style.display = "block";
+    if (!response.ok) throw new Error("Report API error");
+
+    const data = await response.json();
+
+    if (!data || !data.matches || data.matches.length === 0) {
+      emptyBox.style.display = "block";
+      emptyBox.innerHTML = `
+        No report available yet.<br>
+        Matches may not be finished.
+      `;
       return;
     }
 
-    s.innerHTML = `<div class="stat-card"><h3>${d.matches.length}</h3><p>Finished</p></div>`;
-    d.matches.forEach(x => {
-      const el = document.createElement("div");
-      el.className = "report-match";
-      el.innerHTML = `${x.home} ${x.goals_home} – ${x.goals_away} ${x.away}`;
-      m.appendChild(el);
+    summaryBox.innerHTML = `
+      <div class="stat-card">
+        <h3>${data.matches.length}</h3>
+        <p>Finished matches</p>
+      </div>
+    `;
+
+    data.matches.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "report-match";
+      div.innerHTML = `
+        <div class="teams">
+          ${m.home} ${m.goals_home} – ${m.goals_away} ${m.away}
+        </div>
+      `;
+      matchesBox.appendChild(div);
     });
-  } catch {
-    e.style.display = "block";
+
+  } catch (error) {
+    console.error("Errore loadDailyReport:", error);
+    emptyBox.style.display = "block";
+    emptyBox.innerHTML = `
+      Unable to load report at the moment.
+    `;
   }
 }
 
-/* BACK TO TOP */
-const topBtn = document.getElementById("back-to-top");
-window.addEventListener("scroll", () => {
-  topBtn.style.display = window.scrollY > 300 ? "block" : "none";
-});
-topBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+/* =========================
+   BACK TO TOP
+========================= */
+function initBackToTop() {
+  const btn = document.getElementById("back-to-top");
+  if (!btn) return;
+
+  window.addEventListener("scroll", () => {
+    btn.style.display = window.scrollY > 300 ? "block" : "none";
+  });
+
+  btn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
