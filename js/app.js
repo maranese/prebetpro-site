@@ -184,13 +184,26 @@ function renderPredictions(fixtures) {
 function predictionRow(label, perc, win) {
   let cls = "";
   let icon = "";
-  if (win === true) { cls = "prediction-win"; icon = "✅"; }
-  if (win === false) { cls = "prediction-lose"; icon = "❌"; }
 
-  return `<div class="prediction-row ${cls}">
-    <span>${label}</span><strong>${perc}% ${icon}</strong>
-  </div>`;
+  if (perc >= 70) cls += " high-confidence";
+
+  if (win === true) {
+    cls += " prediction-win";
+    icon = "✅";
+  }
+  if (win === false) {
+    cls += " prediction-lose";
+    icon = "❌";
+  }
+
+  return `
+    <div class="prediction-row${cls}">
+      <span>${label}</span>
+      <strong>${perc}% ${icon}</strong>
+    </div>
+  `;
 }
+
 
 /* =========================
    POISSON CORE
