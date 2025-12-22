@@ -74,10 +74,14 @@ async function loadMatches() {
         </div>
 
         <div class="match-info">
-          <span>🕒 ${time}</span>
-          <span><strong>${status}</strong></span>
-        </div>
-      `;
+  ${
+    isFinished && goalsHome !== null && goalsAway !== null
+      ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
+      : `<span>🕒 ${time}</span>`
+  }
+  <span><strong>${status}</strong></span>
+</div>
+
 
       matchesBox.appendChild(card);
     });
