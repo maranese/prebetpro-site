@@ -48,16 +48,44 @@ async function loadMatches() {
   }
 }
 
-/* STATS */
 function renderStatistics(fixtures) {
-  const s = document.getElementById("stats-summary");
-  if (!s) return;
+  const box = document.getElementById("stats-summary");
+  if (!box) return;
 
-  s.innerHTML = `
-    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total matches</p></div>
+  let notStarted = 0;
+  let live = 0;
+  let finished = 0;
+
+  fixtures.forEach(f => {
+    const s = f.fixture.status.short;
+
+    if (s === "NS") notStarted++;
+    else if (["1H","HT","2H","ET"].includes(s)) live++;
+    else if (["FT","AET","PEN"].includes(s)) finished++;
+  });
+
+  box.innerHTML = `
+    <div class="stat-card">
+      <h3>${fixtures.length}</h3>
+      <p>Total matches</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>${notStarted}</h3>
+      <p>Not started</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>${live}</h3>
+      <p>Live</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>${finished}</h3>
+      <p>Finished</p>
+    </div>
   `;
 }
-
 /* REPORT */
 async function loadDailyReport() {
   const s = document.getElementById("report-summary");
