@@ -26,7 +26,7 @@ async function loadMatches() {
 
     if (noDataBox) noDataBox.style.display = "none";
     container.innerHTML = "";
-
+    renderStatistics(data.fixtures);
     data.fixtures.forEach(match => {
       const card = document.createElement("div");
       card.className = "match-card";
