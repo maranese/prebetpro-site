@@ -118,3 +118,63 @@ function renderStatistics(fixtures) {
 
   statsBox.innerHTML = html;
 }
+async function loadDailyReport() {
+  const summaryBox = document.getElementById("report-summary");
+  const matchesBox = document.getElementById("report-matches");
+  const emptyBox = document.getElementById("report-empty");
+
+  if (!summaryBox || !matchesBox) return;
+
+  try {
+    const response = await fetch(
+      "https://prebetpro-api.vincenzodiguida.workers.dev/report"
+    );
+
+    const data = await response.json();
+
+    // Se report non disponibile
+    if (!data.matches || data.matches.length === 0) {
+      summaryBox.innerHTML = "";
+      matchesBox.innerHTML = "";
+      emptyBox.style.display = "block";
+      return;
+    }
+
+    emptyBox.style.display = "none";
+
+    // SUMMARY
+    summaryBox.innerHTML = `
+      <div class="stat-card">
+        <h3>${data.total_matches}</h3>
+        <p>Total matches</p>
+      </div>
+      <div class="stat-card">
+        <h3>${data.finished_matches}</h3>
+        <p>Finished</p>
+      </div>
+      <div class="stat-card">
+        <h3>${data.competitions.length}</h3>
+        <p>Competitions</p>
+      </div>
+    `;
+
+    // MATCHES
+    matchesBox.innerHTML = "";
+
+    data.matches.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "report-match";
+
+      div.innerHTML = `
+        <div class="league">${m.league}</div>
+        <div class="teams">${m.home} vs ${m.away}</div>
+        <div class="score">${m.goals_home} – ${m.goals_away}</div>
+      `;
+
+      matchesBox.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Errore caricamento report:", err);
+  }
+}
