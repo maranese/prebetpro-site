@@ -75,7 +75,14 @@ function renderStatistics(fixtures) {
   ).length;
 
   box.innerHTML = `
-    <div class="stat-card"><h3>${total}</h3><p>Total matches</p></div>
+   <div class="stat-card">
+  <h3>${total}</h3>
+  <p>
+    Total matches
+    <span class="info" data-tooltip="Numero totale di partite analizzate oggi">ⓘ</span>
+  </p>
+</div>
+
     <div class="stat-card"><h3>${finished}</h3><p>Finished</p></div>
   `;
 }
