@@ -351,3 +351,30 @@ body.dark .report-match .teams {
 #back-to-top:hover {
   background: #e56c00;
 }
+.info {
+  cursor: help;
+  position: relative;
+  font-size: 0.85rem;
+  color: #ff7a00;
+}
+
+.info::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.info:hover::after {
+  opacity: 1;
+}
