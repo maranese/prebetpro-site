@@ -1,4 +1,7 @@
-document.addEventListener("DOMContentLoaded", loadMatches);
+document.addEventListener("DOMContentLoaded", () => {
+  loadMatches();
+  loadDailyReport();
+});
 
 async function loadMatches() {
   const container = document.getElementById("matches");
