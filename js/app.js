@@ -20,13 +20,11 @@ async function loadMatches() {
     const response = await fetch(
       "https://prebetpro-api.vincenzodiguida.workers.dev"
     );
-
     if (!response.ok) throw new Error("API error");
 
     const data = await response.json();
     const fixtures = data.fixtures || [];
 
-    // Nessuna partita
     if (fixtures.length === 0) {
       matchesBox.innerHTML = "";
       if (noMatchesBox) noMatchesBox.style.display = "block";
@@ -39,6 +37,7 @@ async function loadMatches() {
 
     renderStatistics(fixtures);
     renderPredictions(fixtures);
+
     fixtures.forEach(match => {
       const card = document.createElement("div");
       card.className = "match-card";
@@ -50,8 +49,8 @@ async function loadMatches() {
       const status = match.fixture?.status?.short || "ND";
       const goalsHome = match.goals?.home;
       const goalsAway = match.goals?.away;
-
       const isFinished = ["FT", "AET", "PEN"].includes(status);
+
       const time = match.fixture?.date
         ? new Date(match.fixture.date).toLocaleTimeString("it-IT", {
             hour: "2-digit",
@@ -74,14 +73,14 @@ async function loadMatches() {
         </div>
 
         <div class="match-info">
-  ${
-    isFinished && goalsHome !== null && goalsAway !== null
-      ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
-      : `<span>🕒 ${time}</span>`
-  }
-  <span><strong>${status}</strong></span>
-</div>
-
+          ${
+            isFinished && goalsHome !== null && goalsAway !== null
+              ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
+              : `<span>🕒 ${time}</span>`
+          }
+          <span><strong>${status}</strong></span>
+        </div>
+      `;
 
       matchesBox.appendChild(card);
     });
@@ -112,32 +111,16 @@ function renderStatistics(fixtures) {
 
   fixtures.forEach(f => {
     const s = f.fixture?.status?.short;
-
     if (s === "NS") notStarted++;
     else if (["1H", "HT", "2H", "ET"].includes(s)) live++;
     else if (["FT", "AET", "PEN"].includes(s)) finished++;
   });
 
   box.innerHTML = `
-    <div class="stat-card">
-      <h3>${fixtures.length}</h3>
-      <p>Total matches</p>
-    </div>
-
-    <div class="stat-card">
-      <h3>${notStarted}</h3>
-      <p>Not started</p>
-    </div>
-
-    <div class="stat-card">
-      <h3>${live}</h3>
-      <p>Live</p>
-    </div>
-
-    <div class="stat-card">
-      <h3>${finished}</h3>
-      <p>Finished</p>
-    </div>
+    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total matches</p></div>
+    <div class="stat-card"><h3>${notStarted}</h3><p>Not started</p></div>
+    <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
+    <div class="stat-card"><h3>${finished}</h3><p>Finished</p></div>
   `;
 }
 
@@ -159,7 +142,6 @@ async function loadDailyReport() {
     const response = await fetch(
       "https://prebetpro-api.vincenzodiguida.workers.dev/report"
     );
-
     if (!response.ok) throw new Error("Report API error");
 
     const data = await response.json();
@@ -194,9 +176,7 @@ async function loadDailyReport() {
   } catch (error) {
     console.error("Errore loadDailyReport:", error);
     emptyBox.style.display = "block";
-    emptyBox.innerHTML = `
-      Unable to load report at the moment.
-    `;
+    emptyBox.innerHTML = `Unable to load report at the moment.`;
   }
 }
 
@@ -215,13 +195,13 @@ function initBackToTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
+
 /* =========================
    PREDICTIONS (RULE-BASED)
 ========================= */
 function renderPredictions(fixtures) {
   const box = document.getElementById("predictions-list");
   const empty = document.getElementById("predictions-empty");
-
   if (!box) return;
 
   if (!fixtures || fixtures.length === 0) {
@@ -234,13 +214,11 @@ function renderPredictions(fixtures) {
   box.innerHTML = "";
 
   fixtures.forEach(match => {
-    // Base probabilities
     let over15 = 65;
     let over25 = 50;
     let goal = 55;
 
-    // League adjustments (very simple v1)
-    const leagueName = match.league.name.toLowerCase();
+    const leagueName = match.league?.name?.toLowerCase() || "";
 
     if (
       leagueName.includes("premier") ||
@@ -252,7 +230,6 @@ function renderPredictions(fixtures) {
       goal += 5;
     }
 
-    // Safety caps
     over15 = Math.min(over15, 85);
     over25 = Math.min(over25, 80);
     goal = Math.min(goal, 80);
@@ -264,21 +241,9 @@ function renderPredictions(fixtures) {
       <div class="prediction-header">
         ${match.teams.home.name} vs ${match.teams.away.name}
       </div>
-
-      <div class="prediction-row">
-        <span>Over 1.5</span>
-        <strong>${over15}%</strong>
-      </div>
-
-      <div class="prediction-row">
-        <span>Over 2.5</span>
-        <strong>${over25}%</strong>
-      </div>
-
-      <div class="prediction-row">
-        <span>Goal (BTTS)</span>
-        <strong>${goal}%</strong>
-      </div>
+      <div class="prediction-row"><span>Over 1.5</span><strong>${over15}%</strong></div>
+      <div class="prediction-row"><span>Over 2.5</span><strong>${over25}%</strong></div>
+      <div class="prediction-row"><span>Goal (BTTS)</span><strong>${goal}%</strong></div>
     `;
 
     box.appendChild(card);
