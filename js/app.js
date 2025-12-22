@@ -208,3 +208,72 @@ function initBackToTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
+/* =========================
+   PREDICTIONS (RULE-BASED)
+========================= */
+function renderPredictions(fixtures) {
+  const box = document.getElementById("predictions-list");
+  const empty = document.getElementById("predictions-empty");
+
+  if (!box) return;
+
+  if (!fixtures || fixtures.length === 0) {
+    empty.style.display = "block";
+    box.innerHTML = "";
+    return;
+  }
+
+  empty.style.display = "none";
+  box.innerHTML = "";
+
+  fixtures.forEach(match => {
+    // Base probabilities
+    let over15 = 65;
+    let over25 = 50;
+    let goal = 55;
+
+    // League adjustments (very simple v1)
+    const leagueName = match.league.name.toLowerCase();
+
+    if (
+      leagueName.includes("premier") ||
+      leagueName.includes("bundesliga") ||
+      leagueName.includes("eredivisie")
+    ) {
+      over15 += 5;
+      over25 += 5;
+      goal += 5;
+    }
+
+    // Safety caps
+    over15 = Math.min(over15, 85);
+    over25 = Math.min(over25, 80);
+    goal = Math.min(goal, 80);
+
+    const card = document.createElement("div");
+    card.className = "prediction-card";
+
+    card.innerHTML = `
+      <div class="prediction-header">
+        ${match.teams.home.name} vs ${match.teams.away.name}
+      </div>
+
+      <div class="prediction-row">
+        <span>Over 1.5</span>
+        <strong>${over15}%</strong>
+      </div>
+
+      <div class="prediction-row">
+        <span>Over 2.5</span>
+        <strong>${over25}%</strong>
+      </div>
+
+      <div class="prediction-row">
+        <span>Goal (BTTS)</span>
+        <strong>${goal}%</strong>
+      </div>
+    `;
+
+    box.appendChild(card);
+  });
+}
