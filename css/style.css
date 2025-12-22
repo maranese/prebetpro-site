@@ -33,6 +33,12 @@ body {
    HEADER
 ========================= */
 header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+header {
   background: linear-gradient(90deg, #ff7a00, #ff9f1a);
   padding: 32px 20px;
   text-align: center;
@@ -254,29 +260,35 @@ body.dark footer {
 }
 
 .stat-card {
-  background: var(--bg-soft);
-  border: 1px solid var(--border-light);
+  background: #ffffff;
   border-radius: 12px;
   padding: 18px;
   text-align: center;
+  border: 1px solid #e5e5e5;
 }
 
 .stat-card h3 {
-  margin: 0;
-  font-size: 1.6rem;
-  color: var(--accent);
+  font-size: 1.8rem;
+  color: #ff7a00;
+  margin-bottom: 6px;
 }
 
 .stat-card p {
-  margin-top: 6px;
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: #444444;
+  font-weight: 600;
 }
 
+/* DARK MODE */
 body.dark .stat-card {
-  background: var(--bg-dark-soft);
+  background: #1b1f27;
   border-color: #2a2f3a;
 }
+
+body.dark .stat-card p {
+  color: #e0e0e0;   /* 🔥 FIX VISIBILITÀ */
+}
+
 /* =========================
    REPORTS
 ========================= */
