@@ -72,3 +72,49 @@ async function loadMatches() {
     `;
   }
 }
+function renderStatistics(fixtures) {
+  const statsBox = document.getElementById("stats-summary");
+  if (!statsBox) return;
+
+  const total = fixtures.length;
+
+  const byStatus = {
+    NS: 0,
+    LIVE: 0,
+    FINISHED: 0
+  };
+
+  const byLeague = {};
+
+  fixtures.forEach(m => {
+    const status = m.fixture.status.short;
+
+    if (status === "NS") byStatus.NS++;
+    else if (["1H","HT","2H","ET"].includes(status)) byStatus.LIVE++;
+    else if (["FT","AET","PEN"].includes(status)) byStatus.FINISHED++;
+
+    const league = m.league.name;
+    byLeague[league] = (byLeague[league] || 0) + 1;
+  });
+
+  let html = `
+    <div class="stat-card">
+      <h3>${total}</h3>
+      <p>Total matches</p>
+    </div>
+    <div class="stat-card">
+      <h3>${byStatus.NS}</h3>
+      <p>Not started</p>
+    </div>
+    <div class="stat-card">
+      <h3>${byStatus.LIVE}</h3>
+      <p>Live</p>
+    </div>
+    <div class="stat-card">
+      <h3>${byStatus.FINISHED}</h3>
+      <p>Finished</p>
+    </div>
+  `;
+
+  statsBox.innerHTML = html;
+}
