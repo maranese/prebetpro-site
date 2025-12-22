@@ -247,3 +247,33 @@ body.dark footer {
   background: var(--bg-dark-soft);
   color: var(--text-dark-secondary);
 }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+
+.stat-card p {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+body.dark .stat-card {
+  background: var(--bg-dark-soft);
+  border-color: #2a2f3a;
+}
