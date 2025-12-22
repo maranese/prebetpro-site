@@ -37,12 +37,21 @@ async function loadMatches() {
       });
 
       card.innerHTML = `
-        <div class="match-league">${match.league.name}</div>
-        <div class="match-teams">${match.teams.home.name} vs ${match.teams.away.name}</div>
-        <div class="match-info">
-          <span>🕒 ${time}</span>
-          <strong>${match.fixture.status.short}</strong>
-        </div>
+  <div class="match-league">
+    ${match.league.logo ? `<img src="${match.league.logo}" />` : ""}
+    ${match.league.name}
+  </div>
+
+  <div class="match-teams">
+    ${match.teams.home.name} <strong>vs</strong> ${match.teams.away.name}
+  </div>
+
+  <div class="match-info">
+    <span>🕒 ${time}</span>
+    <strong>${match.fixture.status.short}</strong>
+  </div>
+`;
+
       `;
 
       container.appendChild(card);
