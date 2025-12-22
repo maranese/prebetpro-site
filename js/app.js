@@ -1,6 +1,9 @@
-const matchesContainer = document.getElementById("matches");
+document.addEventListener("DOMContentLoaded", loadMatches);
 
 async function loadMatches() {
+  const container = document.getElementById("matches");
+  container.innerHTML = "⏳ Caricamento partite in corso...";
+
   try {
     const response = await fetch(
       "https://prebetpro-api.vincenzodiguida.workers.dev"
@@ -8,53 +11,46 @@ async function loadMatches() {
 
     const data = await response.json();
 
-    // Caso: nessuna partita
     if (!data.fixtures || data.fixtures.length === 0) {
-      matchesContainer.innerHTML = `
+      container.innerHTML = `
         <div class="no-data">
-          Oggi non ci sono partite disponibili per i campionati monitorati.<br>
-          Puoi consultare statistiche, report storici o le principali competizioni.
-        </div>
-      `;
+          Oggi non ci sono partite disponibili per i campionati monitorati.
+        </div>`;
       return;
     }
 
-    // Partite presenti
-    matchesContainer.innerHTML = "";
+    container.innerHTML = "";
 
     data.fixtures.forEach(match => {
-      const league = match.league?.name || "ND";
-      const country = match.league?.country || "";
-      const home = match.teams?.home?.name || "ND";
-      const away = match.teams?.away?.name || "ND";
-      const status = match.fixture?.status?.short || "ND";
-      const date = match.fixture?.date
-        ? new Date(match.fixture.date).toLocaleTimeString("it-IT", {
-            hour: "2-digit",
-            minute: "2-digit"
-          })
-        : "ND";
+      const div = document.createElement("div");
+      div.className = "match-card";
 
-      matchesContainer.innerHTML += `
-        <div class="match-card">
-          <div class="league">${league} ${country ? `(${country})` : ""}</div>
-          <div class="teams">${home} <span>vs</span> ${away}</div>
-          <div class="meta">
-            <span class="time">${date}</span>
-            <span class="status">${status}</span>
-          </div>
+      const status = match.fixture.status.short;
+      const time = new Date(match.fixture.date)
+        .toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+
+      div.innerHTML = `
+        <div class="match-league">
+          <img src="${match.league.logo}" alt="${match.league.name}" />
+          ${match.league.name}
+        </div>
+
+        <div class="match-teams">
+          <span>${match.teams.home.name}</span>
+          <strong>vs</strong>
+          <span>${match.teams.away.name}</span>
+        </div>
+
+        <div class="match-info">
+          🕒 ${time} — ${status}
         </div>
       `;
+
+      container.appendChild(div);
     });
 
   } catch (error) {
-    matchesContainer.innerHTML = `
-      <div class="no-data">
-        Dati temporaneamente non disponibili.<br>
-        Riprova più tardi.
-      </div>
-    `;
+    container.innerHTML = "❌ Errore nel caricamento delle partite.";
+    console.error(error);
   }
 }
-
-loadMatches();
