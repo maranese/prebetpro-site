@@ -277,3 +277,46 @@ body.dark .stat-card {
   background: var(--bg-dark-soft);
   border-color: #2a2f3a;
 }
+/* =========================
+   REPORTS
+========================= */
+
+#report-matches {
+  margin-top: 30px;
+}
+
+.report-match {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.report-match .league {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.report-match .teams {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.report-match .score {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-top: 6px;
+}
+
+body.dark .report-match {
+  background: var(--bg-dark-soft);
+  border-color: #2a2f3a;
+}
+
+body.dark .report-match .teams {
+  color: var(--text-dark-main);
+}
