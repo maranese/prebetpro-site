@@ -1,48 +1,42 @@
 <!DOCTYPE html>
-<html lang="en" data-lang="en">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>PreBetPro – AI Football Predictions & Statistics</title>
-  <meta name="description" content="AI-powered football predictions, statistics and daily reports for top leagues worldwide." />
+  <title>PreBetPro – Football Predictions & Statistics</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
 
-<header>
-  <h1>
-    <a href="#" id="logo">
-      <span class="logo-accent">▶</span> PreBetPro
-    </a>
-  </h1>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="brand">
+      <a href="#" class="logo">▶ PreBetPro</a>
+      <span class="tagline">Data-driven football insights</span>
+    </div>
 
-  <p>AI Football Predictions & Advanced Statistics</p>
+    <nav class="main-nav">
+      <a href="#today">Today</a>
+      <a href="#predictions">Predictions</a>
+      <a href="#statistics">Statistics</a>
+      <a href="#reports">Reports</a>
+      <a href="#leagues">Leagues</a>
+    </nav>
 
-  <button id="theme-toggle">🌙 Dark mode</button>
+    <button id="theme-toggle">🌙</button>
+  </div>
 </header>
 
-<nav>
-  <a href="#today">Today</a>
-  <a href="#predictions">Predictions</a>
-  <a href="#statistics">Statistics</a>
-  <a href="#reports">Reports</a>
-  <a href="#leagues">Leagues</a>
-</nav>
+<main>
 
-<main id="content">
-
-  <!-- TODAY MATCHES -->
+  <!-- TODAY -->
   <section id="today">
     <h2>Today’s Matches</h2>
-
-    <!-- QUI IL JS INSERISCE LE PARTITE -->
     <div id="matches"></div>
 
-    <!-- MOSTRATO SOLO SE NON CI SONO PARTITE -->
     <div id="no-matches" class="no-data" style="display:none;">
-      Today there are no available matches for the monitored leagues.<br />
-      You can explore statistics, past reports or top competitions.
+      No matches available today for monitored leagues.
     </div>
   </section>
 
@@ -50,50 +44,38 @@
   <section id="predictions">
     <h2>Predictions</h2>
     <div class="no-data">
-      Predictions will be available soon.<br />
-      Our AI models are being optimized.
+      Predictions will be available soon.
     </div>
   </section>
 
   <!-- STATISTICS -->
- <section id="statistics">
-  <h2>Statistics</h2>
-
-  <div id="stats-summary" class="stats-grid">
-    <!-- riempito da JS -->
-  </div>
-</section>
-
+  <section id="statistics">
+    <h2>Statistics</h2>
+    <div id="stats-summary" class="stats-grid"></div>
+  </section>
 
   <!-- REPORTS -->
- <section id="reports">
-  <h2>Daily Report</h2>
+  <section id="reports">
+    <h2>Daily Report</h2>
 
-  <div id="report-summary" class="stats-grid">
-    <!-- riempito da JS -->
-  </div>
+    <div id="report-summary" class="stats-grid"></div>
+    <div id="report-matches"></div>
 
-  <div id="report-matches">
-    <!-- risultati -->
-  </div>
-
-  <div id="report-empty" class="no-data" style="display:none;">
-    Il report di oggi non è ancora disponibile.<br>
-    Le partite potrebbero non essere ancora concluse.
-  </div>
-</section>
-
+    <div id="report-empty" class="no-data" style="display:none;">
+      No report available yet.<br>
+      Matches may not be finished.
+    </div>
+  </section>
 
 </main>
 
 <footer>
-  <p>© 2025 PreBetPro.com – Data-driven football insights</p>
+  © 2025 PreBetPro.com – Football data & predictions
 </footer>
 
-<script src="js/lang.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/app.js"></script>
 <button id="back-to-top">↑</button>
 
+<script src="js/theme.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
