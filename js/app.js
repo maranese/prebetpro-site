@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", loadMatches);
 
 async function loadMatches() {
   const container = document.getElementById("matches");
+  const noDataBox = document.getElementById("no-matches");
+
   container.innerHTML = "⏳ Caricamento partite in corso...";
 
   try {
@@ -9,48 +11,64 @@ async function loadMatches() {
       "https://prebetpro-api.vincenzodiguida.workers.dev"
     );
 
+    if (!response.ok) {
+      throw new Error("Risposta non valida dal server");
+    }
+
     const data = await response.json();
 
+    // Se fixtures non esistono o sono vuote
     if (!data.fixtures || data.fixtures.length === 0) {
-      container.innerHTML = `
-        <div class="no-data">
-          Oggi non ci sono partite disponibili per i campionati monitorati.
-        </div>`;
+      container.innerHTML = "";
+      if (noDataBox) noDataBox.style.display = "block";
       return;
     }
 
+    if (noDataBox) noDataBox.style.display = "none";
     container.innerHTML = "";
 
     data.fixtures.forEach(match => {
-      const div = document.createElement("div");
-      div.className = "match-card";
+      const card = document.createElement("div");
+      card.className = "match-card";
 
-      const status = match.fixture.status.short;
-      const time = new Date(match.fixture.date)
-        .toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+      const league = match.league?.name || "ND";
+      const home = match.teams?.home?.name || "ND";
+      const away = match.teams?.away?.name || "ND";
+      const status = match.fixture?.status?.short || "ND";
 
-      div.innerHTML = `
+      const time = match.fixture?.date
+        ? new Date(match.fixture.date).toLocaleTimeString("it-IT", {
+            hour: "2-digit",
+            minute: "2-digit"
+          })
+        : "ND";
+
+      card.innerHTML = `
         <div class="match-league">
-          <img src="${match.league.logo}" alt="${match.league.name}" />
-          ${match.league.name}
+          ${match.league?.logo ? `<img src="${match.league.logo}" />` : ""}
+          ${league}
         </div>
 
         <div class="match-teams">
-          <span>${match.teams.home.name}</span>
-          <strong>vs</strong>
-          <span>${match.teams.away.name}</span>
+          ${home} <strong>vs</strong> ${away}
         </div>
 
         <div class="match-info">
-          🕒 ${time} — ${status}
+          <span>🕒 ${time}</span>
+          <span class="match-status">${status}</span>
         </div>
       `;
 
-      container.appendChild(div);
+      container.appendChild(card);
     });
 
   } catch (error) {
-    container.innerHTML = "❌ Errore nel caricamento delle partite.";
-    console.error(error);
+    console.error("Errore caricamento partite:", error);
+    container.innerHTML = `
+      <div class="no-data">
+        Dati temporaneamente non disponibili.<br>
+        Riprova più tardi.
+      </div>
+    `;
   }
 }
