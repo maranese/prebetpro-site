@@ -72,15 +72,27 @@ async function loadMatches() {
           ${home} <strong>vs</strong> ${away}
         </div>
 
-        <div class="match-info">
-          ${
-            isFinished && goalsHome !== null && goalsAway !== null
-              ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
-              : `<span>🕒 ${time}</span>`
-          }
-          <span><strong>${status}</strong></span>
-        </div>
-      `;
+       <div class="match-info">
+  ${
+    isFinished
+      ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
+      : `<span>🕒 ${time}</span>`
+  }
+  <span><strong>${status}</strong></span>
+</div>
+
+${isFinished ? `
+<details class="match-details">
+  <summary>Match details ▾</summary>
+  <div class="details-content">
+    <div>1st Half: ${match.score?.halftime?.home ?? "ND"} – ${match.score?.halftime?.away ?? "ND"}</div>
+    <div>2nd Half: ${match.score?.fulltime?.home ?? "ND"} – ${match.score?.fulltime?.away ?? "ND"}</div>
+    ${match.score?.extratime ? `<div>Extra Time: ${match.score.extratime.home} – ${match.score.extratime.away}</div>` : ""}
+    ${match.score?.penalty ? `<div>Penalties: ${match.score.penalty.home} – ${match.score.penalty.away}</div>` : ""}
+  </div>
+</details>
+` : ""}
+
 
       matchesBox.appendChild(card);
     });
@@ -248,4 +260,46 @@ function renderPredictions(fixtures) {
 
     box.appendChild(card);
   });
+}
+/* =========================
+   POISSON UTILITIES
+========================= */
+function poisson(k, lambda) {
+  return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+}
+
+function factorial(n) {
+  if (n === 0) return 1;
+  let res = 1;
+  for (let i = 1; i <= n; i++) res *= i;
+  return res;
+}
+
+/* =========================
+   POISSON PROBABILITIES
+========================= */
+function calculatePoissonProbabilities(lambdaHome, lambdaAway) {
+  let probOver15 = 0;
+  let probOver25 = 0;
+  let probGoal = 0;
+
+  for (let h = 0; h <= 5; h++) {
+    for (let a = 0; a <= 5; a++) {
+      const p =
+        poisson(h, lambdaHome) *
+        poisson(a, lambdaAway);
+
+      const totalGoals = h + a;
+
+      if (totalGoals >= 2) probOver15 += p;
+      if (totalGoals >= 3) probOver25 += p;
+      if (h > 0 && a > 0) probGoal += p;
+    }
+  }
+
+  return {
+    over15: Math.round(probOver15 * 100),
+    over25: Math.round(probOver25 * 100),
+    goal: Math.round(probGoal * 100)
+  };
 }
