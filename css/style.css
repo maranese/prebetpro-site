@@ -207,3 +207,23 @@ body.dark .prediction-card {
 .prediction-row strong {
   color: var(--accent);
 }
+.match-details {
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
+
+.match-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.details-content {
+  margin-top: 6px;
+  padding-left: 10px;
+  color: var(--text-secondary);
+}
+
+body.dark .details-content {
+  color: var(--text-dark-secondary);
+}
