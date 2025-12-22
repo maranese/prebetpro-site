@@ -48,7 +48,10 @@ async function loadMatches() {
       const home = match.teams?.home?.name || "Home";
       const away = match.teams?.away?.name || "Away";
       const status = match.fixture?.status?.short || "ND";
+      const goalsHome = match.goals?.home;
+      const goalsAway = match.goals?.away;
 
+      const isFinished = ["FT", "AET", "PEN"].includes(status);
       const time = match.fixture?.date
         ? new Date(match.fixture.date).toLocaleTimeString("it-IT", {
             hour: "2-digit",
