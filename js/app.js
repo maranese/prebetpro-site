@@ -3,149 +3,80 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDailyReport();
 });
 
-/* =========================
-   MATCHES
-========================= */
+/* MATCHES */
 async function loadMatches() {
-  const container = document.getElementById("matches");
-  const noDataBox = document.getElementById("no-matches");
-
-  container.innerHTML = "⏳ Caricamento partite in corso...";
+  const box = document.getElementById("matches");
+  const noBox = document.getElementById("no-matches");
 
   try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    const data = await res.json();
+    const r = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+    const d = await r.json();
 
-    if (!data.fixtures || data.fixtures.length === 0) {
-      container.innerHTML = "";
-      if (noDataBox) noDataBox.style.display = "block";
+    if (!d.fixtures || d.fixtures.length === 0) {
+      noBox.style.display = "block";
       return;
     }
 
-    if (noDataBox) noDataBox.style.display = "none";
-    container.innerHTML = "";
+    box.innerHTML = "";
+    noBox.style.display = "none";
 
-    renderStatistics(data.fixtures);
+    renderStatistics(d.fixtures);
 
-    data.fixtures.forEach(match => {
-      const card = document.createElement("div");
-      card.className = "match-card";
-
-      const time = new Date(match.fixture.date).toLocaleTimeString("it-IT", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-
-      card.innerHTML = `
-  <div class="match-league">
-    ${match.league.logo ? `<img src="${match.league.logo}" />` : ""}
-    ${match.league.name}
-  </div>
-
-  <div class="match-teams">
-    ${match.teams.home.name} <strong>vs</strong> ${match.teams.away.name}
-  </div>
-
-  <div class="match-info">
-    <span>🕒 ${time}</span>
-    <strong>${match.fixture.status.short}</strong>
-  </div>
-`;
-
+    d.fixtures.forEach(m => {
+      const el = document.createElement("div");
+      el.className = "match-card";
+      el.innerHTML = `
+        <div class="match-league">${m.league.name}</div>
+        <div class="match-teams">${m.teams.home.name} vs ${m.teams.away.name}</div>
+        <div class="match-info">${m.fixture.status.short}</div>
       `;
-
-      container.appendChild(card);
+      box.appendChild(el);
     });
-
   } catch {
-    container.innerHTML = `<div class="no-data">Dati non disponibili</div>`;
+    box.innerHTML = `<div class="no-data">Data unavailable</div>`;
   }
 }
 
-/* =========================
-   STATISTICS
-========================= */
+/* STATS */
 function renderStatistics(fixtures) {
-  const box = document.getElementById("stats-summary");
-  if (!box) return;
+  const s = document.getElementById("stats-summary");
+  if (!s) return;
 
-  const total = fixtures.length;
-  const finished = fixtures.filter(f =>
-    ["FT","AET","PEN"].includes(f.fixture.status.short)
-  ).length;
-
-  box.innerHTML = `
-   <div class="stat-card">
-  <h3>${total}</h3>
-  <p>
-    Total matches
-    <span class="info" data-tooltip="Numero totale di partite analizzate oggi">ⓘ</span>
-  </p>
-</div>
-
-    <div class="stat-card"><h3>${finished}</h3><p>Finished</p></div>
+  s.innerHTML = `
+    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total matches</p></div>
   `;
 }
 
-/* =========================
-   REPORT FIX (FONDAMENTALE)
-========================= */
+/* REPORT */
 async function loadDailyReport() {
-  const summary = document.getElementById("report-summary");
-  const matches = document.getElementById("report-matches");
-  const empty = document.getElementById("report-empty");
-
-  if (!summary || !matches || !empty) return;
+  const s = document.getElementById("report-summary");
+  const m = document.getElementById("report-matches");
+  const e = document.getElementById("report-empty");
 
   try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/report");
-    const data = await res.json();
+    const r = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/report");
+    const d = await r.json();
 
-    if (!data || !data.matches || data.matches.length === 0) {
-      summary.innerHTML = "";
-      matches.innerHTML = "";
-      empty.style.display = "block";
-      empty.innerHTML = `
-        Nessun report disponibile al momento.<br>
-        Le partite di oggi non sono ancora concluse.
-      `;
+    if (!d.matches || d.matches.length === 0) {
+      e.style.display = "block";
       return;
     }
 
-    empty.style.display = "none";
-
-    summary.innerHTML = `
-      <div class="stat-card"><h3>${data.total_matches}</h3><p>Total</p></div>
-      <div class="stat-card"><h3>${data.finished_matches}</h3><p>Finished</p></div>
-    `;
-
-    matches.innerHTML = "";
-    data.matches.forEach(m => {
-      const div = document.createElement("div");
-      div.className = "report-match";
-      div.innerHTML = `
-        <div class="league">${m.league}</div>
-        <div class="teams">${m.home} vs ${m.away}</div>
-        <div class="score">${m.goals_home} – ${m.goals_away}</div>
-      `;
-      matches.appendChild(div);
+    s.innerHTML = `<div class="stat-card"><h3>${d.matches.length}</h3><p>Finished</p></div>`;
+    d.matches.forEach(x => {
+      const el = document.createElement("div");
+      el.className = "report-match";
+      el.innerHTML = `${x.home} ${x.goals_home} – ${x.goals_away} ${x.away}`;
+      m.appendChild(el);
     });
-
   } catch {
-    empty.style.display = "block";
-    empty.innerHTML = "Errore nel caricamento del report.";
+    e.style.display = "block";
   }
 }
 
-/* =========================
-   BACK TO TOP
-========================= */
-const backToTop = document.getElementById("back-to-top");
-
+/* BACK TO TOP */
+const topBtn = document.getElementById("back-to-top");
 window.addEventListener("scroll", () => {
-  backToTop.style.display = window.scrollY > 300 ? "block" : "none";
+  topBtn.style.display = window.scrollY > 300 ? "block" : "none";
 });
-
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+topBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
