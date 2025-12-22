@@ -1,6 +1,6 @@
 const matchesContainer = document.getElementById("matches");
 
-async function loadTodayMatches() {
+async function loadMatches() {
   try {
     const response = await fetch(
       "https://prebetpro-api.vincenzodiguida.workers.dev"
@@ -13,28 +13,36 @@ async function loadTodayMatches() {
       matchesContainer.innerHTML = `
         <div class="no-data">
           Oggi non ci sono partite disponibili per i campionati monitorati.<br>
-          Consulta le statistiche e i report storici.
+          Puoi consultare statistiche, report storici o le principali competizioni.
         </div>
       `;
       return;
     }
 
-    // Caso: partite presenti
+    // Partite presenti
     matchesContainer.innerHTML = "";
 
     data.fixtures.forEach(match => {
-      const home = match.teams.home.name;
-      const away = match.teams.away.name;
-      const league = match.league.name;
-      const time = match.fixture.date
-        ? new Date(match.fixture.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      const league = match.league?.name || "ND";
+      const country = match.league?.country || "";
+      const home = match.teams?.home?.name || "ND";
+      const away = match.teams?.away?.name || "ND";
+      const status = match.fixture?.status?.short || "ND";
+      const date = match.fixture?.date
+        ? new Date(match.fixture.date).toLocaleTimeString("it-IT", {
+            hour: "2-digit",
+            minute: "2-digit"
+          })
         : "ND";
 
       matchesContainer.innerHTML += `
         <div class="match-card">
-          <div class="league">${league}</div>
-          <div class="teams">${home} vs ${away}</div>
-          <div class="time">${time}</div>
+          <div class="league">${league} ${country ? `(${country})` : ""}</div>
+          <div class="teams">${home} <span>vs</span> ${away}</div>
+          <div class="meta">
+            <span class="time">${date}</span>
+            <span class="status">${status}</span>
+          </div>
         </div>
       `;
     });
@@ -49,4 +57,4 @@ async function loadTodayMatches() {
   }
 }
 
-loadTodayMatches();
+loadMatches();
