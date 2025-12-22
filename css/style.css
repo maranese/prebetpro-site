@@ -14,7 +14,7 @@
   --bg-dark: #0f1115;
   --bg-dark-soft: #1a1d24;
   --text-dark-main: #f1f1f1;
-  --text-dark-secondary: #b5b5b5;
+  --text-dark-secondary: #d1d5db;
 }
 
 * {
@@ -30,15 +30,12 @@ body {
 }
 
 /* =========================
-   HEADER
+   HEADER (HERO)
 ========================= */
 header {
   position: sticky;
   top: 0;
   z-index: 999;
-}
-
-header {
   background: linear-gradient(90deg, #ff7a00, #ff9f1a);
   padding: 32px 20px;
   text-align: center;
@@ -67,11 +64,6 @@ header p {
 
 #logo:hover {
   opacity: 0.9;
-}
-
-.logo-accent {
-  color: #ffffff;
-  margin-right: 6px;
 }
 
 /* =========================
@@ -118,7 +110,6 @@ section h2 {
   padding-left: 12px;
   margin-bottom: 20px;
   font-size: 1.6rem;
-  color: var(--text-main);
 }
 
 /* =========================
@@ -143,34 +134,22 @@ section h2 {
   border-radius: 12px;
   padding: 14px 16px;
   margin-bottom: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 
-/* League row */
 .match-league {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent);
-  margin-bottom: 6px;
 }
 
-.match-league img {
-  width: 20px;
-  height: 20px;
-}
-
-/* Teams */
 .match-teams {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-main);
-  margin: 6px 0;
 }
 
-/* Meta info */
 .match-info {
   display: flex;
   justify-content: space-between;
@@ -178,81 +157,9 @@ section h2 {
   color: var(--text-secondary);
 }
 
-.match-status {
-  font-weight: 700;
-}
-
 /* =========================
-   FOOTER
+   STATISTICS
 ========================= */
-footer {
-  background: #f8f8f8;
-  text-align: center;
-  padding: 20px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  border-top: 1px solid var(--border-light);
-}
-
-/* =========================
-   THEME TOGGLE
-========================= */
-#theme-toggle {
-  margin-top: 16px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 700;
-  background: #ffffff;
-  color: var(--accent);
-}
-
-/* =========================
-   DARK MODE
-========================= */
-body.dark {
-  background-color: var(--bg-dark);
-  color: var(--text-dark-main);
-}
-
-body.dark nav {
-  background: var(--bg-dark-soft);
-  border-bottom: none;
-}
-
-body.dark nav a {
-  color: var(--accent-dark);
-}
-
-body.dark section h2 {
-  color: var(--text-dark-main);
-}
-
-body.dark .no-data {
-  background: var(--bg-dark-soft);
-  color: var(--text-dark-secondary);
-  border: none;
-}
-
-body.dark .match-card {
-  background: var(--bg-dark-soft);
-  border: 1px solid #2a2f3a;
-  box-shadow: none;
-}
-
-body.dark .match-teams {
-  color: var(--text-dark-main);
-}
-
-body.dark .match-info {
-  color: var(--text-dark-secondary);
-}
-
-body.dark footer {
-  background: var(--bg-dark-soft);
-  color: var(--text-dark-secondary);
-}
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -264,35 +171,24 @@ body.dark footer {
   border-radius: 12px;
   padding: 18px;
   text-align: center;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--border-light);
 }
 
 .stat-card h3 {
   font-size: 1.8rem;
-  color: #ff7a00;
+  color: var(--accent);
   margin-bottom: 6px;
 }
 
 .stat-card p {
   font-size: 0.9rem;
-  color: #444444;
   font-weight: 600;
-}
-
-/* DARK MODE */
-body.dark .stat-card {
-  background: #1b1f27;
-  border-color: #2a2f3a;
-}
-
-body.dark .stat-card p {
-  color: #e0e0e0;   /* 🔥 FIX VISIBILITÀ */
+  color: #444;
 }
 
 /* =========================
    REPORTS
 ========================= */
-
 #report-matches {
   margin-top: 30px;
 }
@@ -309,72 +205,57 @@ body.dark .stat-card p {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--accent);
-  margin-bottom: 6px;
 }
 
 .report-match .teams {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-main);
 }
 
 .report-match .score {
   font-size: 1.2rem;
   font-weight: 800;
-  margin-top: 6px;
 }
 
+/* =========================
+   DARK MODE
+========================= */
+body.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-dark-main);
+}
+
+body.dark nav {
+  background: var(--bg-dark-soft);
+}
+
+body.dark .no-data,
+body.dark .match-card,
+body.dark .stat-card,
 body.dark .report-match {
   background: var(--bg-dark-soft);
   border-color: #2a2f3a;
 }
 
-body.dark .report-match .teams {
-  color: var(--text-dark-main);
+body.dark .match-info,
+body.dark .stat-card p {
+  color: var(--text-dark-secondary);
 }
+
+/* =========================
+   BACK TO TOP
+========================= */
 #back-to-top {
   position: fixed;
   bottom: 25px;
   right: 25px;
-  background: #ff7a00;
+  background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 50%;
   width: 44px;
   height: 44px;
-  font-size: 1.2rem;
   cursor: pointer;
   display: none;
   z-index: 1000;
-}
-
-#back-to-top:hover {
-  background: #e56c00;
-}
-.info {
-  cursor: help;
-  position: relative;
-  font-size: 0.85rem;
-  color: #ff7a00;
-}
-
-.info::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #222;
-  color: #fff;
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-
-.info:hover::after {
-  opacity: 1;
 }
