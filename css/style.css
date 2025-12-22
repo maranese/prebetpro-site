@@ -145,3 +145,39 @@ body.dark footer {
   color: #ff7a00;
   margin-right: 6px;
 }
+.match-card {
+  background: var(--card-bg, #ffffff);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.match-card .league {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ff7a00;
+  margin-bottom: 6px;
+}
+
+.match-card .teams {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.match-card .teams span {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.match-card .meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.match-card .status {
+  font-weight: 600;
+}
