@@ -1,261 +1,177 @@
-/* =========================
-   ROOT & RESET
-========================= */
 :root {
   --accent: #ff7a00;
-  --accent-dark: #ff9f1a;
-
   --bg-light: #ffffff;
-  --bg-soft: #f3f4f6;
-  --text-main: #1a1a1a;
-  --text-secondary: #4b5563;
-  --border-light: #e5e7eb;
-
   --bg-dark: #0f1115;
-  --bg-dark-soft: #1a1d24;
-  --text-dark-main: #f1f1f1;
-  --text-dark-secondary: #d1d5db;
+  --card-light: #f3f4f6;
+  --card-dark: #1a1d24;
+  --text-light: #111111;
+  --text-dark: #f1f1f1;
+  --text-muted-light: #444;
+  --text-muted-dark: #ccc;
 }
 
-* {
-  box-sizing: border-box;
-}
-
+/* RESET */
+* { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background-color: var(--bg-light);
-  color: var(--text-main);
-  line-height: 1.6;
+  font-family: system-ui, Arial, sans-serif;
+  background: var(--bg-light);
+  color: var(--text-light);
 }
 
-/* =========================
-   HEADER (HERO)
-========================= */
-header {
-  position: sticky;
-  top: 0;
-  z-index: 999;
+/* HERO */
+.hero {
   background: linear-gradient(90deg, #ff7a00, #ff9f1a);
-  padding: 32px 20px;
-  text-align: center;
-  color: #ffffff;
+  padding: 12px 16px;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2.4rem;
-  letter-spacing: 1px;
+.hero-inner {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-header p {
-  margin-top: 8px;
-  font-size: 1.05rem;
-  opacity: 0.95;
+.brand {
+  display: flex;
+  flex-direction: column;
 }
 
-/* LOGO */
-#logo {
-  text-decoration: none;
-  color: #ffffff;
+.logo {
+  color: #fff;
   font-weight: 800;
-  letter-spacing: 2px;
+  text-decoration: none;
+  font-size: 1.4rem;
 }
 
-#logo:hover {
+.tagline {
+  font-size: 0.8rem;
+  color: #fff;
   opacity: 0.9;
 }
 
-/* =========================
-   NAVIGATION
-========================= */
-nav {
-  background: #ffffff;
+/* NAV */
+.main-nav {
   display: flex;
-  justify-content: center;
-  gap: 28px;
-  padding: 14px 10px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom: 1px solid var(--border-light);
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-nav a {
-  color: var(--accent);
-  text-decoration: none;
+.main-nav a {
+  color: #fff;
   font-weight: 700;
-  font-size: 0.95rem;
+  text-decoration: none;
+  font-size: 0.9rem;
 }
 
-nav a:hover {
-  color: var(--text-main);
+#theme-toggle {
+  border: none;
+  background: #fff;
+  color: #ff7a00;
+  padding: 6px 10px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-/* =========================
-   MAIN CONTENT
-========================= */
+/* MAIN */
 main {
   max-width: 1100px;
   margin: auto;
-  padding: 40px 20px;
+  padding: 30px 16px;
 }
 
-section {
-  margin-bottom: 60px;
-}
-
-section h2 {
+section { margin-bottom: 50px; }
+h2 {
   border-left: 4px solid var(--accent);
-  padding-left: 12px;
-  margin-bottom: 20px;
-  font-size: 1.6rem;
+  padding-left: 10px;
 }
 
-/* =========================
-   NO DATA BOX
-========================= */
+/* CARDS */
+.match-card,
+.stat-card,
+.report-match,
 .no-data {
-  background: var(--bg-soft);
-  padding: 26px;
+  background: var(--card-light);
+  padding: 16px;
   border-radius: 10px;
-  text-align: center;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
-  font-size: 0.95rem;
-}
-
-/* =========================
-   MATCH CARDS
-========================= */
-.match-card {
-  background: #ffffff;
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .match-league {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
   font-weight: 700;
   color: var(--accent);
 }
 
 .match-teams {
-  font-size: 1.05rem;
   font-weight: 700;
+  margin: 6px 0;
 }
 
 .match-info {
-  display: flex;
-  justify-content: space-between;
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: var(--text-muted-light);
 }
 
-/* =========================
-   STATISTICS
-========================= */
+/* STATS */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-.stat-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 18px;
-  text-align: center;
-  border: 1px solid var(--border-light);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
 }
 
 .stat-card h3 {
-  font-size: 1.8rem;
+  margin: 0;
+  font-size: 1.6rem;
   color: var(--accent);
-  margin-bottom: 6px;
 }
 
 .stat-card p {
-  font-size: 0.9rem;
+  margin: 4px 0 0;
+  color: var(--text-light);
   font-weight: 600;
-  color: #444;
 }
 
-/* =========================
-   REPORTS
-========================= */
-#report-matches {
-  margin-top: 30px;
-}
-
-.report-match {
-  background: #ffffff;
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 14px;
-}
-
-.report-match .league {
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
   font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--accent);
+  color: var(--text-muted-light);
 }
 
-.report-match .teams {
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.report-match .score {
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-/* =========================
-   DARK MODE
-========================= */
-body.dark {
-  background-color: var(--bg-dark);
-  color: var(--text-dark-main);
-}
-
-body.dark nav {
-  background: var(--bg-dark-soft);
-}
-
-body.dark .no-data,
-body.dark .match-card,
-body.dark .stat-card,
-body.dark .report-match {
-  background: var(--bg-dark-soft);
-  border-color: #2a2f3a;
-}
-
-body.dark .match-info,
-body.dark .stat-card p {
-  color: var(--text-dark-secondary);
-}
-
-/* =========================
-   BACK TO TOP
-========================= */
+/* BACK TO TOP */
 #back-to-top {
   position: fixed;
-  bottom: 25px;
-  right: 25px;
+  bottom: 20px;
+  right: 20px;
   background: var(--accent);
   color: #fff;
   border: none;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  cursor: pointer;
   display: none;
-  z-index: 1000;
+  cursor: pointer;
+}
+
+/* DARK MODE */
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+body.dark .match-card,
+body.dark .stat-card,
+body.dark .report-match,
+body.dark .no-data {
+  background: var(--card-dark);
+}
+
+body.dark .match-info,
+body.dark footer {
+  color: var(--text-muted-dark);
 }
