@@ -227,3 +227,18 @@ body.dark .prediction-card {
 body.dark .details-content {
   color: var(--text-dark-secondary);
 }
+.prediction-win strong {
+  color: #16a34a;
+}
+
+.prediction-lose strong {
+  color: #dc2626;
+}
+
+body.dark .prediction-win strong {
+  color: #22c55e;
+}
+
+body.dark .prediction-lose strong {
+  color: #ef4444;
+}
