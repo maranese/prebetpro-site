@@ -25,10 +25,21 @@ async function loadMatches() {
     d.fixtures.forEach(m => {
       const el = document.createElement("div");
       el.className = "match-card";
-      el.innerHTML = `
-        <div class="match-league">${m.league.name}</div>
-        <div class="match-teams">${m.teams.home.name} vs ${m.teams.away.name}</div>
-        <div class="match-info">${m.fixture.status.short}</div>
+     el.innerHTML = `
+  <div class="match-league">
+    ${m.league.logo ? `<img src="${m.league.logo}" alt="" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;">` : ""}
+    ${m.league.name}
+  </div>
+
+  <div class="match-teams">
+    ${m.teams.home.name} <strong>vs</strong> ${m.teams.away.name}
+  </div>
+
+  <div class="match-info">
+    ${m.fixture.status.short}
+  </div>
+`;
+
       `;
       box.appendChild(el);
     });
