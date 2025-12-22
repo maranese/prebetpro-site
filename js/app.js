@@ -17,9 +17,7 @@ async function loadMatches() {
   matchesBox.innerHTML = "⏳ Loading matches...";
 
   try {
-    const response = await fetch(
-      "https://prebetpro-api.vincenzodiguida.workers.dev"
-    );
+    const response = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
     if (!response.ok) throw new Error("API error");
 
     const data = await response.json();
@@ -50,13 +48,9 @@ async function loadMatches() {
       const goalsH = match.goals.home;
       const goalsA = match.goals.away;
       const finished = ["FT", "AET", "PEN"].includes(status);
+      const time = new Date(match.fixture.date).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
 
-      const time = new Date(match.fixture.date)
-        .toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
-
-      let scoreHtml = finished
-        ? `<strong>${goalsH} – ${goalsA}</strong>`
-        : `🕒 ${time}`;
+      const scoreHtml = finished ? `<strong>${goalsH} – ${goalsA}</strong>` : `🕒 ${time}`;
 
       let detailsHtml = "";
       if (finished) {
@@ -66,16 +60,8 @@ async function loadMatches() {
             <div class="details-content">
               <div>1st Half: ${match.score.halftime.home} – ${match.score.halftime.away}</div>
               <div>Full Time: ${match.score.fulltime.home} – ${match.score.fulltime.away}</div>
-              ${
-                match.score.extratime
-                  ? `<div>Extra Time: ${match.score.extratime.home} – ${match.score.extratime.away}</div>`
-                  : ""
-              }
-              ${
-                match.score.penalty
-                  ? `<div>Penalties: ${match.score.penalty.home} – ${match.score.penalty.away}</div>`
-                  : ""
-              }
+              ${match.score.extratime ? `<div>Extra Time: ${match.score.extratime.home} – ${match.score.extratime.away}</div>` : ""}
+              ${match.score.penalty ? `<div>Penalties: ${match.score.penalty.home} – ${match.score.penalty.away}</div>` : ""}
             </div>
           </details>
         `;
@@ -83,7 +69,7 @@ async function loadMatches() {
 
       card.innerHTML = `
         <div class="match-league">
-          ${logo ? `<img src="${logo}" style="width:18px;vertical-align:middle">` : ""}
+          ${logo ? `<img src="${logo}" style="width:18px;vertical-align:middle;margin-right:4px;">` : ""}
           ${league}
         </div>
         <div class="match-teams">${home} <strong>vs</strong> ${away}</div>
@@ -128,7 +114,7 @@ function renderStatistics(fixtures) {
 }
 
 /* =========================
-   PREDICTIONS — POISSON
+   PREDICTIONS — POISSON + 1X2
 ========================= */
 function renderPredictions(fixtures) {
   const box = document.getElementById("predictions-list");
@@ -155,54 +141,34 @@ function renderPredictions(fixtures) {
     const card = document.createElement("div");
     card.className = "prediction-card";
 
-  card.innerHTML = `
-  <div class="prediction-header">
-    ${match.teams.home.name} vs ${match.teams.away.name}
-  </div>
+    card.innerHTML = `
+      <div class="prediction-header">
+        ${match.teams.home.name} vs ${match.teams.away.name}
+      </div>
 
-  <div class="prediction-grid">
+      <div class="prediction-grid">
+        <div class="prediction-block">
+          <div class="prediction-section-title">Match Result</div>
+          ${predictionRow("1", probs1X2["1"], null)}
+          ${predictionRow("X", probs1X2["X"], null)}
+          ${predictionRow("2", probs1X2["2"], null)}
+        </div>
 
-    <div class="prediction-block">
-      <div class="prediction-section-title">Match Result</div>
-      ${predictionRow("1", probs1X2["1"], null)}
-      ${predictionRow("X", probs1X2["X"], null)}
-      ${predictionRow("2", probs1X2["2"], null)}
-    </div>
+        <div class="prediction-block">
+          <div class="prediction-section-title">Double Chance</div>
+          ${predictionRow("1X", probs1X2["1X"], null)}
+          ${predictionRow("X2", probs1X2["X2"], null)}
+          ${predictionRow("12", probs1X2["12"], null)}
+        </div>
 
-    <div class="prediction-block">
-      <div class="prediction-section-title">Double Chance</div>
-      ${predictionRow("1X", probs1X2["1X"], null)}
-      ${predictionRow("X2", probs1X2["X2"], null)}
-      ${predictionRow("12", probs1X2["12"], null)}
-    </div>
-
-    <div class="prediction-block">
-      <div class="prediction-section-title">Goals</div>
-      ${predictionRow("Over 1.5", probs.over15, over15Win)}
-      ${predictionRow("Over 2.5", probs.over25, over25Win)}
-      ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
-    </div>
-
-  </div>
-`;
-
-
-  <div class="prediction-section-title">Goals</div>
-  ${predictionRow("Over 1.5", probs.over15, over15Win)}
-  ${predictionRow("Over 2.5", probs.over25, over25Win)}
-  ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
-
-  <div class="prediction-section-title">Match Result</div>
-  <div class="prediction-row"><span>1</span><strong>${probs1X2["1"]}%</strong></div>
-  <div class="prediction-row"><span>X</span><strong>${probs1X2["X"]}%</strong></div>
-  <div class="prediction-row"><span>2</span><strong>${probs1X2["2"]}%</strong></div>
-
-  <div class="prediction-section-title">Double Chance</div>
-  <div class="prediction-row"><span>1X</span><strong>${probs1X2["1X"]}%</strong></div>
-  <div class="prediction-row"><span>X2</span><strong>${probs1X2["X2"]}%</strong></div>
-  <div class="prediction-row"><span>12</span><strong>${probs1X2["12"]}%</strong></div>
-`;
-
+        <div class="prediction-block">
+          <div class="prediction-section-title">Goals</div>
+          ${predictionRow("Over 1.5", probs.over15, over15Win)}
+          ${predictionRow("Over 2.5", probs.over25, over25Win)}
+          ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
+        </div>
+      </div>
+    `;
 
     box.appendChild(card);
   });
@@ -213,15 +179,8 @@ function predictionRow(label, perc, win) {
   let icon = "";
 
   if (perc >= 70) cls += " high-confidence";
-
-  if (win === true) {
-    cls += " prediction-win";
-    icon = "✅";
-  }
-  if (win === false) {
-    cls += " prediction-lose";
-    icon = "❌";
-  }
+  if (win === true) { cls += " prediction-win"; icon = "✅"; }
+  if (win === false) { cls += " prediction-lose"; icon = "❌"; }
 
   return `
     <div class="prediction-row${cls}">
@@ -230,7 +189,6 @@ function predictionRow(label, perc, win) {
     </div>
   `;
 }
-
 
 /* =========================
    POISSON CORE
@@ -263,34 +221,22 @@ function calculatePoissonProbabilities(lh, la) {
 }
 
 /* =========================
-   1X2 & DOUBLE CHANCE (v1)
+   1X2 & DOUBLE CHANCE
 ========================= */
 function calculate1X2Probabilities(match) {
-  // Valori base neutri (v1)
-  let p1 = 40;
-  let px = 30;
-  let p2 = 30;
+  let p1 = 40, px = 30, p2 = 30;
+  p1 += 5; p2 -= 5;
 
-  // Piccolo vantaggio casa
-  p1 += 5;
-  p2 -= 5;
-
-  // Normalizzazione
   const total = p1 + px + p2;
   p1 = Math.round((p1 / total) * 100);
   px = Math.round((px / total) * 100);
   p2 = 100 - p1 - px;
 
   return {
-    "1": p1,
-    "X": px,
-    "2": p2,
-    "1X": p1 + px,
-    "X2": px + p2,
-    "12": p1 + p2
+    "1": p1, "X": px, "2": p2,
+    "1X": p1 + px, "X2": px + p2, "12": p1 + p2
   };
 }
-
 
 /* =========================
    BACK TO TOP
