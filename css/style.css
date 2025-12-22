@@ -242,3 +242,14 @@ body.dark .prediction-win strong {
 body.dark .prediction-lose strong {
   color: #ef4444;
 }
+.prediction-section-title {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+body.dark .prediction-section-title {
+  color: var(--text-dark-secondary);
+}
