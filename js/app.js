@@ -72,15 +72,27 @@ async function loadMatches() {
           ${home} <strong>vs</strong> ${away}
         </div>
 
-        <div class="match-info">
-          ${
-            isFinished && goalsHome !== null && goalsAway !== null
-              ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
-              : `<span>🕒 ${time}</span>`
-          }
-          <span><strong>${status}</strong></span>
-        </div>
-      `;
+       <div class="match-info">
+  ${
+    isFinished
+      ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
+      : `<span>🕒 ${time}</span>`
+  }
+  <span><strong>${status}</strong></span>
+</div>
+
+${isFinished ? `
+<details class="match-details">
+  <summary>Match details ▾</summary>
+  <div class="details-content">
+    <div>1st Half: ${match.score?.halftime?.home ?? "ND"} – ${match.score?.halftime?.away ?? "ND"}</div>
+    <div>2nd Half: ${match.score?.fulltime?.home ?? "ND"} – ${match.score?.fulltime?.away ?? "ND"}</div>
+    ${match.score?.extratime ? `<div>Extra Time: ${match.score.extratime.home} – ${match.score.extratime.away}</div>` : ""}
+    ${match.score?.penalty ? `<div>Penalties: ${match.score.penalty.home} – ${match.score.penalty.away}</div>` : ""}
+  </div>
+</details>
+` : ""}
+
 
       matchesBox.appendChild(card);
     });
