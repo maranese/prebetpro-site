@@ -263,6 +263,28 @@ function calculate1X2Probabilities(match) {
     "12": p1 + p2
   };
 }
+/* =========================
+   VALIDATION ENGINE
+========================= */
+function validatePredictions(match, predictions) {
+  const gh = match.goals.home;
+  const ga = match.goals.away;
+  const total = gh + ga;
+
+  return {
+    over15: total >= 2 ? "WIN" : "LOSS",
+    over25: total >= 3 ? "WIN" : "LOSS",
+    goal: gh > 0 && ga > 0 ? "WIN" : "LOSS",
+
+    "1": gh > ga ? "WIN" : "LOSS",
+    "X": gh === ga ? "WIN" : "LOSS",
+    "2": gh < ga ? "WIN" : "LOSS",
+
+    "1X": gh >= ga ? "WIN" : "LOSS",
+    "X2": ga >= gh ? "WIN" : "LOSS",
+    "12": gh !== ga ? "WIN" : "LOSS"
+  };
+}
 
 /* =========================
    BACK TO TOP
