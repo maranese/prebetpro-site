@@ -11,6 +11,8 @@ async function loadMatches() {
   const matchesBox = document.getElementById("matches");
   const noMatchesBox = document.getElementById("no-matches");
   const statsBox = document.getElementById("stats-summary");
+  const accuracy = buildAccuracyReport(data.matches || []);
+console.log("Daily accuracy:", accuracy);
 
   if (!matchesBox) return;
 
