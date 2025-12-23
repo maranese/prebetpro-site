@@ -179,21 +179,6 @@ footer {
   color: var(--text-muted-light);
 }
 
-/* BACK TO TOP */
-#back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: none;
-  cursor: pointer;
-}
-
 /* DARK MODE */
 body.dark {
   background: var(--bg-dark);
@@ -262,4 +247,33 @@ body.dark .prediction-card {
 
 body.dark .prediction-section-title {
   color: var(--text-dark-secondary);
+}
+
+/* =========================
+   HIGH CONFIDENCE (>=70%)
+========================= */
+.prediction-high {
+  border-left: 4px solid #16a34a;
+  padding-left: 8px;
+  background: rgba(22, 163, 74, 0.08);
+}
+
+body.dark .prediction-high {
+  background: rgba(34, 197, 94, 0.12);
+}
+
+
+/* BACK TO TOP */
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: none;
+  cursor: pointer;
 }
