@@ -21,6 +21,9 @@ body {
 
 /* HERO */
 .hero {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   background: linear-gradient(90deg, #ff7a00, #ff9f1a);
   padding: 12px 16px;
 }
