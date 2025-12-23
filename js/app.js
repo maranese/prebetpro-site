@@ -285,6 +285,36 @@ function validatePredictions(match, predictions) {
     "12": gh !== ga ? "WIN" : "LOSS"
   };
 }
+/* =========================
+   ACCURACY REPORT (DAILY)
+========================= */
+function buildAccuracyReport(fixtures) {
+  const report = {
+    total: 0,
+    markets: {
+      over25: { win: 0, loss: 0 },
+      goal: { win: 0, loss: 0 },
+      "1": { win: 0, loss: 0 },
+      "X": { win: 0, loss: 0 },
+      "2": { win: 0, loss: 0 }
+    }
+  };
+
+  fixtures.forEach(match => {
+    const status = match.fixture.status.short;
+    if (!["FT","AET","PEN"].includes(status)) return;
+
+    report.total++;
+
+    const validation = validatePredictions(match, {});
+    Object.keys(report.markets).forEach(market => {
+      if (validation[market] === "WIN") report.markets[market].win++;
+      else report.markets[market].loss++;
+    });
+  });
+
+  return report;
+}
 
 /* =========================
    BACK TO TOP
