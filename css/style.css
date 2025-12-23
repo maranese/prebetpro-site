@@ -1,13 +1,20 @@
 :root {
   --accent: #ff7a00;
+
   --bg-light: #ffffff;
   --bg-dark: #0f1115;
+
   --card-light: #f3f4f6;
   --card-dark: #1a1d24;
+
   --text-light: #111111;
   --text-dark: #f1f1f1;
-  --text-muted-light: #444;
-  --text-muted-dark: #ccc;
+
+  --text-muted-light: #444444;
+  --text-muted-dark: #cccccc;
+
+  --text-secondary: #555555;
+  --text-dark-secondary: #b5b5b5;
 }
 
 /* RESET */
@@ -36,11 +43,6 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-}
-
-.brand {
-  display: flex;
-  flex-direction: column;
 }
 
 .logo {
@@ -73,7 +75,7 @@ body {
 #theme-toggle {
   border: none;
   background: #fff;
-  color: #ff7a00;
+  color: var(--accent);
   padding: 6px 10px;
   border-radius: 14px;
   cursor: pointer;
@@ -88,22 +90,26 @@ main {
 }
 
 section { margin-bottom: 50px; }
+
 h2 {
   border-left: 4px solid var(--accent);
   padding-left: 10px;
+  color: var(--text-light);
 }
 
 /* CARDS */
 .match-card,
 .stat-card,
 .report-match,
-.no-data {
+.no-data,
+.prediction-card {
   background: var(--card-light);
   padding: 16px;
   border-radius: 10px;
   margin-bottom: 12px;
 }
 
+/* MATCH */
 .match-league {
   font-weight: 700;
   color: var(--accent);
@@ -138,6 +144,37 @@ h2 {
   font-weight: 600;
 }
 
+/* PREDICTIONS */
+.prediction-header {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-light);
+}
+
+.prediction-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin: 4px 0;
+  color: var(--text-secondary);
+}
+
+.prediction-row strong {
+  color: var(--accent);
+}
+
+.prediction-section-title {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* WIN / LOSE */
+.prediction-win strong { color: #16a34a; }
+.prediction-lose strong { color: #dc2626; }
+
 /* FOOTER */
 footer {
   text-align: center;
@@ -167,87 +204,25 @@ body.dark {
   color: var(--text-dark);
 }
 
+body.dark h2,
+body.dark .prediction-header {
+  color: var(--text-dark);
+}
+
 body.dark .match-card,
 body.dark .stat-card,
 body.dark .report-match,
-body.dark .no-data {
-  background: var(--card-dark);
-}
-
-body.dark .match-info,
-body.dark footer {
-  color: var(--text-muted-dark);
-}
-/* =========================
-   PREDICTIONS
-========================= */
-.prediction-card {
-  background: var(--card-light);
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 14px;
-}
-
+body.dark .no-data,
 body.dark .prediction-card {
   background: var(--card-dark);
 }
 
-.prediction-header {
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.prediction-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  margin: 4px 0;
-}
-
-.prediction-row strong {
-  color: var(--accent);
-}
-.prediction-win strong {
-  color: #16a34a;
-}
-
-.prediction-lose strong {
-  color: #dc2626;
-}
-
-body.dark .prediction-win strong {
-  color: #22c55e;
-}
-
-body.dark .prediction-lose strong {
-  color: #ef4444;
-}
-.prediction-section-title {
-  margin-top: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
+body.dark .match-info,
+body.dark footer,
+body.dark .prediction-row,
 body.dark .prediction-section-title {
   color: var(--text-dark-secondary);
 }
-/* =========================
-   HIGH CONFIDENCE (>=70%)
-========================= */
-.prediction-row.high-confidence {
-  background: rgba(22, 163, 74, 0.08);
-  border-left: 4px solid #16a34a;
-  padding-left: 8px;
-}
 
-.prediction-row.high-confidence strong {
-  color: #16a34a;
-  font-weight: 800;
-}
-
-body.dark .prediction-row.high-confidence {
-  background: rgba(34, 197, 94, 0.12);
-  border-left-color: #22c55e;
-}
+body.dark .prediction-win strong { color: #22c55e; }
+body.dark .prediction-lose strong { color: #ef4444; }
