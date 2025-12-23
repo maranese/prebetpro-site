@@ -233,3 +233,21 @@ body.dark .prediction-lose strong {
 body.dark .prediction-section-title {
   color: var(--text-dark-secondary);
 }
+/* =========================
+   HIGH CONFIDENCE (>=70%)
+========================= */
+.prediction-row.high-confidence {
+  background: rgba(22, 163, 74, 0.08);
+  border-left: 4px solid #16a34a;
+  padding-left: 8px;
+}
+
+.prediction-row.high-confidence strong {
+  color: #16a34a;
+  font-weight: 800;
+}
+
+body.dark .prediction-row.high-confidence {
+  background: rgba(34, 197, 94, 0.12);
+  border-left-color: #22c55e;
+}
