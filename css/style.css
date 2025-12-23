@@ -1,17 +1,13 @@
 :root {
   --accent: #ff7a00;
-
   --bg-light: #ffffff;
   --bg-dark: #0f1115;
-
   --card-light: #f3f4f6;
   --card-dark: #1a1d24;
-
   --text-light: #111111;
   --text-dark: #f1f1f1;
-
-  --text-muted-light: #444444;
-  --text-muted-dark: #cccccc;
+  --text-muted-light: #444;
+  --text-muted-dark: #ccc;
 
   --text-secondary: #555555;
   --text-dark-secondary: #b5b5b5;
