@@ -1,141 +1,110 @@
 :root {
   --accent: #ff7a00;
+  --accent-soft: #ffb26b;
+
   --bg-light: #ffffff;
-  --bg-soft: #f3f4f6;
+  --bg-soft: #f4f6f8;
   --text-main: #1a1a1a;
   --text-secondary: #4b5563;
-  --border-light: #e5e7eb;
+  --border: #e5e7eb;
 
   --bg-dark: #0f1115;
-  --bg-dark-soft: #1a1d24;
-  --text-dark-main: #f1f1f1;
+  --bg-dark-soft: #1b1f27;
+  --text-dark: #f1f1f1;
   --text-dark-secondary: #b5b5b5;
+
+  --green: #16a34a;
+  --red: #dc2626;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, Arial, sans-serif;
+  font-family: system-ui, sans-serif;
   background: var(--bg-light);
   color: var(--text-main);
 }
 
-header {
-  background: linear-gradient(90deg, #ff7a00, #ff9f1a);
-  padding: 22px;
-  text-align: center;
-  color: white;
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
 }
 
-nav {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  padding: 12px;
-  border-bottom: 1px solid var(--border-light);
-}
+/* ================= MATCH & PREDICTIONS ================= */
 
-nav a {
-  color: var(--accent);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 30px 20px;
-}
-
-.match-card,
-.prediction-card,
-.stat-card,
-.report-match {
-  background: white;
+.prediction-card {
+  background: var(--bg-soft);
   border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 14px;
-  border: 1px solid var(--border-light);
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
-.match-league {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.match-teams {
-  font-size: 1.05rem;
-  margin: 6px 0;
-}
-
-.match-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-}
-
-.match-details summary {
-  cursor: pointer;
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.details-content {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-  gap: 14px;
-}
-
-.stat-card h3 {
-  color: var(--accent);
-  font-size: 1.8rem;
+body.dark .prediction-card {
+  background: var(--bg-dark-soft);
 }
 
 .prediction-header {
-  font-weight: 700;
-  margin-bottom: 6px;
+  font-weight: 800;
+  margin-bottom: 10px;
 }
 
+/* GRID */
+.prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .prediction-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* SECTION */
+.prediction-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+
+body.dark .prediction-section-title {
+  color: var(--text-dark-secondary);
+}
+
+/* ROW */
 .prediction-row {
   display: flex;
   justify-content: space-between;
   font-size: 0.9rem;
+  padding: 4px 0;
 }
 
-.prediction-section-title {
-  margin-top: 10px;
-  font-size: 0.8rem;
-  font-weight: 700;
+.prediction-row strong {
+  font-weight: 800;
+}
+
+/* HIGH CONFIDENCE */
+.prediction-high {
+  border-left: 4px solid var(--accent);
+  padding-left: 8px;
+}
+
+.prediction-high strong {
+  color: var(--accent);
+}
+
+/* RESULT */
+.prediction-win strong { color: var(--green); }
+.prediction-lose strong { color: var(--red); }
+
+/* BOOKMAKER */
+.book-odd {
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  text-transform: uppercase;
 }
 
-.prediction-win strong { color: #16a34a; }
-.prediction-lose strong { color: #dc2626; }
-
-.no-data {
-  background: var(--bg-soft);
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-#back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: none;
-  cursor: pointer;
+body.dark .book-odd {
+  color: var(--text-dark-secondary);
 }
