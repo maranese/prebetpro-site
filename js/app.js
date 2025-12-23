@@ -1,163 +1,116 @@
-/* =========================
-   BASE
-========================= */
-body {
-  margin: 0;
-  font-family: system-ui, Arial, sans-serif;
-  background: #ffffff;
-  color: #1a1a1a;
-}
-
-body.dark {
-  background: #0f1115;
-  color: #f1f1f1;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
+document.addEventListener("DOMContentLoaded", () => {
+  loadPredictions();
+});
 
 /* =========================
-   HEADER & NAV
+   LOAD PREDICTIONS
 ========================= */
-header {
-  background: linear-gradient(90deg, #ff7a00, #ff9f1a);
-  padding: 16px;
-  text-align: center;
-  color: #fff;
-}
+async function loadPredictions() {
+  const box = document.getElementById("predictions-list");
+  if (!box) return;
 
-nav {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
-}
+  const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+  const data = await res.json();
+  const fixtures = data.fixtures || [];
 
-nav a {
-  font-weight: 700;
-  color: #ff7a00;
-}
+  box.innerHTML = "";
 
-/* =========================
-   SECTIONS
-========================= */
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
+  fixtures.forEach(match => {
+    const poisson = calculatePoisson(1.35, 1.15);
+    const odds = calculate1X2();
 
-section {
-  margin-bottom: 50px;
-}
+    const card = document.createElement("div");
+    card.className = "prediction-card";
 
-h2 {
-  border-left: 4px solid #ff7a00;
-  padding-left: 10px;
+    card.innerHTML = `
+      <div class="prediction-header">
+        ${match.teams.home.name} vs ${match.teams.away.name}
+      </div>
+
+      <div class="prediction-grid">
+
+        <div>
+          <div class="prediction-section-title">Match Result</div>
+          ${row("1", odds["1"])}
+          ${row("X", odds["X"])}
+          ${row("2", odds["2"])}
+        </div>
+
+        <div>
+          <div class="prediction-section-title">Double Chance</div>
+          ${row("1X", odds["1X"])}
+          ${row("X2", odds["X2"])}
+          ${row("12", odds["12"])}
+        </div>
+
+        <div>
+          <div class="prediction-section-title">Goals</div>
+          ${row("Over 1.5", poisson.over15)}
+          ${row("Over 2.5", poisson.over25)}
+          ${row("Goal", poisson.goal)}
+        </div>
+
+      </div>
+    `;
+
+    box.appendChild(card);
+  });
 }
 
 /* =========================
-   MATCH LIST
+   HELPERS
 ========================= */
-.match-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 12px;
-  background: #fafafa;
-}
-
-body.dark .match-card {
-  background: #1b1f27;
-  border-color: #2a2f3a;
-}
-
-.match-league {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #ff7a00;
-  margin-bottom: 4px;
-}
-
-.match-teams {
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.match-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: #555;
-}
-
-body.dark .match-info {
-  color: #ccc;
+function row(label, perc) {
+  const high = perc >= 70 ? "prediction-high" : "";
+  return `
+    <div class="prediction-row ${high}">
+      <span>${label}</span>
+      <strong>${perc}%</strong>
+    </div>
+  `;
 }
 
 /* =========================
-   PREDICTIONS
+   POISSON
 ========================= */
-.prediction-card {
-  background: #f4f6f8;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
+function calculatePoisson(lh, la) {
+  let o15 = 0, o25 = 0, btts = 0;
 
-body.dark .prediction-card {
-  background: #1b1f27;
-}
-
-.prediction-header {
-  font-weight: 800;
-  margin-bottom: 12px;
-}
-
-.prediction-section-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin: 10px 0 4px;
-  color: #666;
-}
-
-body.dark .prediction-section-title {
-  color: #aaa;
-}
-
-.prediction-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 768px) {
-  .prediction-grid {
-    grid-template-columns: 1fr;
+  for (let h = 0; h <= 5; h++) {
+    for (let a = 0; a <= 5; a++) {
+      const p = poisson(h, lh) * poisson(a, la);
+      if (h + a >= 2) o15 += p;
+      if (h + a >= 3) o25 += p;
+      if (h > 0 && a > 0) btts += p;
+    }
   }
+
+  return {
+    over15: Math.round(o15 * 100),
+    over25: Math.round(o25 * 100),
+    goal: Math.round(btts * 100)
+  };
 }
 
-.prediction-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  padding: 4px 0;
+function poisson(k, l) {
+  return Math.pow(l, k) * Math.exp(-l) / factorial(k);
 }
 
-.prediction-row strong {
-  font-weight: 800;
+function factorial(n) {
+  return n <= 1 ? 1 : n * factorial(n - 1);
 }
 
-/* HIGH CONFIDENCE */
-.prediction-high {
-  border-left: 4px solid #ff7a00;
-  padding-left: 8px;
-}
-
-.prediction-high strong {
-  color: #ff7a00;
+/* =========================
+   1X2
+========================= */
+function calculate1X2() {
+  let p1 = 45, px = 30, p2 = 25;
+  return {
+    "1": p1,
+    "X": px,
+    "2": p2,
+    "1X": p1 + px,
+    "X2": px + p2,
+    "12": p1 + p2
+  };
 }
