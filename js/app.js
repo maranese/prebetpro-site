@@ -128,7 +128,7 @@ function renderStatistics(fixtures) {
 }
 
 /* =========================
-   PREDICTIONS — POISSON
+   PREDICTIONS — POISSON + 1X2
 ========================= */
 function renderPredictions(fixtures) {
   const box = document.getElementById("predictions-list");
@@ -143,6 +143,7 @@ function renderPredictions(fixtures) {
     const lambdaAway = 1.15;
 
     const probs = calculatePoissonProbabilities(lambdaHome, lambdaAway);
+    const probs1X2 = calculate1X2Probabilities(match);
 
     const finished = ["FT","AET","PEN"].includes(match.fixture.status.short);
     const goals = finished ? match.goals.home + match.goals.away : null;
@@ -158,9 +159,21 @@ function renderPredictions(fixtures) {
       <div class="prediction-header">
         ${match.teams.home.name} vs ${match.teams.away.name}
       </div>
+
+      <div class="prediction-section-title">Goals</div>
       ${predictionRow("Over 1.5", probs.over15, over15Win)}
       ${predictionRow("Over 2.5", probs.over25, over25Win)}
       ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
+
+      <div class="prediction-section-title">Match Result</div>
+      <div class="prediction-row"><span>1</span><strong>${probs1X2["1"]}%</strong></div>
+      <div class="prediction-row"><span>X</span><strong>${probs1X2["X"]}%</strong></div>
+      <div class="prediction-row"><span>2</span><strong>${probs1X2["2"]}%</strong></div>
+
+      <div class="prediction-section-title">Double Chance</div>
+      <div class="prediction-row"><span>1X</span><strong>${probs1X2["1X"]}%</strong></div>
+      <div class="prediction-row"><span>X2</span><strong>${probs1X2["X2"]}%</strong></div>
+      <div class="prediction-row"><span>12</span><strong>${probs1X2["12"]}%</strong></div>
     `;
 
     box.appendChild(card);
@@ -176,6 +189,29 @@ function predictionRow(label, perc, win) {
   return `<div class="prediction-row ${cls}">
     <span>${label}</span><strong>${perc}% ${icon}</strong>
   </div>`;
+}
+
+/* =========================
+   1X2 & DOUBLE CHANCE
+========================= */
+function calculate1X2Probabilities(match) {
+  let p1 = 45;
+  let px = 30;
+  let p2 = 25;
+
+  const total = p1 + px + p2;
+  p1 = Math.round((p1 / total) * 100);
+  px = Math.round((px / total) * 100);
+  p2 = 100 - p1 - px;
+
+  return {
+    "1": p1,
+    "X": px,
+    "2": p2,
+    "1X": p1 + px,
+    "X2": px + p2,
+    "12": p1 + p2
+  };
 }
 
 /* =========================
@@ -206,6 +242,61 @@ function calculatePoissonProbabilities(lh, la) {
     over25: Math.round(o25 * 100),
     goal: Math.round(btts * 100)
   };
+}
+
+/* =========================
+   DAILY REPORT (BASE)
+========================= */
+async function loadDailyReport() {
+  const summaryBox = document.getElementById("report-summary");
+  const matchesBox = document.getElementById("report-matches");
+  const emptyBox = document.getElementById("report-empty");
+
+  if (!summaryBox || !matchesBox || !emptyBox) return;
+
+  summaryBox.innerHTML = "";
+  matchesBox.innerHTML = "";
+  emptyBox.style.display = "none";
+
+  try {
+    const response = await fetch(
+      "https://prebetpro-api.vincenzodiguida.workers.dev/report"
+    );
+    if (!response.ok) throw new Error("Report API error");
+
+    const data = await response.json();
+
+    if (!data || !data.matches || data.matches.length === 0) {
+      emptyBox.style.display = "block";
+      emptyBox.innerHTML = `
+        No report available yet.<br>
+        Matches may not be finished.
+      `;
+      return;
+    }
+
+    summaryBox.innerHTML = `
+      <div class="stat-card">
+        <h3>${data.matches.length}</h3>
+        <p>Finished matches</p>
+      </div>
+    `;
+
+    data.matches.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "report-match";
+      div.innerHTML = `
+        <div class="teams">
+          ${m.home} ${m.goals_home} – ${m.goals_away} ${m.away}
+        </div>
+      `;
+      matchesBox.appendChild(div);
+    });
+
+  } catch (error) {
+    emptyBox.style.display = "block";
+    emptyBox.innerHTML = `Unable to load report at the moment.`;
+  }
 }
 
 /* =========================
