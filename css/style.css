@@ -1,102 +1,122 @@
-:root {
-  --accent: #ff7a00;
-  --bg-light: #ffffff;
-  --bg-dark: #0f1115;
-  --card-light: #f3f4f6;
-  --card-dark: #1a1d24;
-  --text-light: #111;
-  --text-dark: #f1f1f1;
-  --muted-light: #555;
-  --muted-dark: #bbb;
-  --win: #16a34a;
-}
+document.addEventListener("DOMContentLoaded", () => {
+  loadMatches();
+});
 
-/* RESET */
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: system-ui, Arial, sans-serif;
-  background: var(--bg-light);
-  color: var(--text-light);
-}
+/* =========================
+   LOAD MATCHES
+========================= */
+async function loadMatches() {
+  const box = document.getElementById("predictions-list");
+  if (!box) return;
 
-/* PREDICTIONS CARD */
-.prediction-card {
-  background: var(--card-light);
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-}
+  try {
+    const r = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+    const d = await r.json();
+    const fixtures = d.fixtures || [];
 
-body.dark .prediction-card {
-  background: var(--card-dark);
-}
+    box.innerHTML = "";
 
-/* HEADER */
-.prediction-header {
-  font-weight: 800;
-  margin-bottom: 12px;
-}
+    fixtures.forEach(match => {
+      renderPredictionCard(match, box);
+    });
 
-/* GRID */
-.prediction-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-@media (max-width: 768px) {
-  .prediction-grid {
-    grid-template-columns: 1fr;
+  } catch {
+    box.innerHTML = `<div class="no-data">Data unavailable</div>`;
   }
 }
 
-/* SECTIONS */
-.prediction-block {
-  background: rgba(0,0,0,0.03);
-  padding: 10px;
-  border-radius: 8px;
+/* =========================
+   CARD
+========================= */
+function renderPredictionCard(match, container) {
+  const card = document.createElement("div");
+  card.className = "prediction-card";
+
+  const probsGoals = calculatePoissonProbabilities(1.35, 1.15);
+  const probs1X2 = calculate1X2Probabilities();
+
+  card.innerHTML = `
+    <div class="prediction-header">
+      ${match.teams.home.name} vs ${match.teams.away.name}
+    </div>
+
+    <div class="prediction-grid">
+
+      ${renderBlock("Match Result", [
+        row("1", probs1X2["1"]),
+        row("X", probs1X2["X"]),
+        row("2", probs1X2["2"])
+      ])}
+
+      ${renderBlock("Double Chance", [
+        row("1X", probs1X2["1X"]),
+        row("X2", probs1X2["X2"]),
+        row("12", probs1X2["12"])
+      ])}
+
+      ${renderBlock("Goals", [
+        row("Over 1.5", probsGoals.over15),
+        row("Over 2.5", probsGoals.over25),
+        row("Goal", probsGoals.goal)
+      ])}
+
+    </div>
+  `;
+
+  container.appendChild(card);
 }
 
-body.dark .prediction-block {
-  background: rgba(255,255,255,0.05);
+/* =========================
+   HELPERS
+========================= */
+function row(label, perc) {
+  const high = perc >= 70 ? "prediction-high" : "";
+  const fair = (100 / perc).toFixed(2);
+
+  return `
+    <div class="prediction-row ${high}">
+      <span>${label}</span>
+      <strong>${perc}%</strong>
+      <span class="fair-odds">fair ${fair}</span>
+    </div>
+  `;
 }
 
-.prediction-block h4 {
-  margin: 0 0 6px;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  color: var(--muted-light);
+function renderBlock(title, rows) {
+  return `
+    <div class="prediction-block">
+      <h4>${title}</h4>
+      ${rows.join("")}
+    </div>
+  `;
 }
 
-body.dark .prediction-block h4 {
-  color: var(--muted-dark);
+/* =========================
+   MODELS
+========================= */
+function calculate1X2Probabilities() {
+  return { "1": 45, "X": 28, "2": 27, "1X": 73, "X2": 55, "12": 72 };
 }
 
-/* ROW */
-.prediction-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  margin: 4px 0;
+function poisson(k, l) {
+  return Math.pow(l, k) * Math.exp(-l) / factorial(k);
 }
-
-/* HIGHLIGHT >= 70% */
-.prediction-high strong {
-  color: var(--win);
+function factorial(n) {
+  return n <= 1 ? 1 : n * factorial(n - 1);
 }
-
-.prediction-high::after {
-  content: " ★";
-  color: var(--win);
-}
-
-/* FAIR ODDS */
-.fair-odds {
-  font-size: 0.75rem;
-  color: var(--muted-light);
-}
-
-body.dark .fair-odds {
-  color: var(--muted-dark);
+function calculatePoissonProbabilities(lh, la) {
+  let o15 = 0, o25 = 0, goal = 0;
+  for (let h = 0; h <= 5; h++) {
+    for (let a = 0; a <= 5; a++) {
+      const p = poisson(h, lh) * poisson(a, la);
+      if (h + a >= 2) o15 += p;
+      if (h + a >= 3) o25 += p;
+      if (h > 0 && a > 0) goal += p;
+    }
+  }
+  return {
+    over15: Math.round(o15 * 100),
+    over25: Math.round(o25 * 100),
+    goal: Math.round(goal * 100)
+  };
 }
