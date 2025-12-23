@@ -143,8 +143,7 @@ function renderPredictions(fixtures) {
     const lambdaAway = 1.15;
 
     const probs = calculatePoissonProbabilities(lambdaHome, lambdaAway);
-    const probs1X2 = calculate1X2Probabilities(match);
-    
+
     const finished = ["FT","AET","PEN"].includes(match.fixture.status.short);
     const goals = finished ? match.goals.home + match.goals.away : null;
 
@@ -156,26 +155,13 @@ function renderPredictions(fixtures) {
     card.className = "prediction-card";
 
     card.innerHTML = `
-  <div class="prediction-header">
-    ${match.teams.home.name} vs ${match.teams.away.name}
-  </div>
-
-  <div class="prediction-section-title">Goals</div>
-  ${predictionRow("Over 1.5", probs.over15, over15Win)}
-  ${predictionRow("Over 2.5", probs.over25, over25Win)}
-  ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
-
-  <div class="prediction-section-title">Match Result</div>
-  <div class="prediction-row"><span>1</span><strong>${probs1X2["1"]}%</strong></div>
-  <div class="prediction-row"><span>X</span><strong>${probs1X2["X"]}%</strong></div>
-  <div class="prediction-row"><span>2</span><strong>${probs1X2["2"]}%</strong></div>
-
-  <div class="prediction-section-title">Double Chance</div>
-  <div class="prediction-row"><span>1X</span><strong>${probs1X2["1X"]}%</strong></div>
-  <div class="prediction-row"><span>X2</span><strong>${probs1X2["X2"]}%</strong></div>
-  <div class="prediction-row"><span>12</span><strong>${probs1X2["12"]}%</strong></div>
-`;
-
+      <div class="prediction-header">
+        ${match.teams.home.name} vs ${match.teams.away.name}
+      </div>
+      ${predictionRow("Over 1.5", probs.over15, over15Win)}
+      ${predictionRow("Over 2.5", probs.over25, over25Win)}
+      ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
+    `;
 
     box.appendChild(card);
   });
@@ -184,26 +170,13 @@ function renderPredictions(fixtures) {
 function predictionRow(label, perc, win) {
   let cls = "";
   let icon = "";
+  if (win === true) { cls = "prediction-win"; icon = "✅"; }
+  if (win === false) { cls = "prediction-lose"; icon = "❌"; }
 
-  if (perc >= 70) cls += " high-confidence";
-
-  if (win === true) {
-    cls += " prediction-win";
-    icon = "✅";
-  }
-  if (win === false) {
-    cls += " prediction-lose";
-    icon = "❌";
-  }
-
-  return `
-    <div class="prediction-row${cls}">
-      <span>${label}</span>
-      <strong>${perc}% ${icon}</strong>
-    </div>
-  `;
+  return `<div class="prediction-row ${cls}">
+    <span>${label}</span><strong>${perc}% ${icon}</strong>
+  </div>`;
 }
-
 
 /* =========================
    POISSON CORE
