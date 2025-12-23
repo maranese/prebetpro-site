@@ -160,23 +160,33 @@ function renderPredictions(fixtures) {
     ${match.teams.home.name} vs ${match.teams.away.name}
   </div>
 
-  <div class="prediction-section-title">Goals</div>
-  ${predictionRow("Over 1.5", probs.over15, over15Win)}
-  ${predictionRow("Over 2.5", probs.over25, over25Win)}
-  ${predictionRow("Goal (BTTS)", probs.goal, goalWin)}
+  <div class="prediction-block">
+    <div class="prediction-section-title">Match Result</div>
+    <div class="prediction-grid grid-3">
+      <div class="prediction-row"><span>1</span><strong>${probs1X2["1"]}%</strong></div>
+      <div class="prediction-row"><span>X</span><strong>${probs1X2["X"]}%</strong></div>
+      <div class="prediction-row"><span>2</span><strong>${probs1X2["2"]}%</strong></div>
+    </div>
+  </div>
 
-  <div class="prediction-section-title">Match Result</div>
-  <div class="prediction-row"><span>1</span><strong>${probs1X2["1"]}%</strong></div>
-  <div class="prediction-row"><span>X</span><strong>${probs1X2["X"]}%</strong></div>
-  <div class="prediction-row"><span>2</span><strong>${probs1X2["2"]}%</strong></div>
+  <div class="prediction-block">
+    <div class="prediction-section-title">Double Chance</div>
+    <div class="prediction-grid grid-3">
+      <div class="prediction-row"><span>1X</span><strong>${probs1X2["1X"]}%</strong></div>
+      <div class="prediction-row"><span>X2</span><strong>${probs1X2["X2"]}%</strong></div>
+      <div class="prediction-row"><span>12</span><strong>${probs1X2["12"]}%</strong></div>
+    </div>
+  </div>
 
-  <div class="prediction-section-title">Double Chance</div>
-  <div class="prediction-row"><span>1X</span><strong>${probs1X2["1X"]}%</strong></div>
-  <div class="prediction-row"><span>X2</span><strong>${probs1X2["X2"]}%</strong></div>
-  <div class="prediction-row"><span>12</span><strong>${probs1X2["12"]}%</strong></div>
+  <div class="prediction-block">
+    <div class="prediction-section-title">Goals</div>
+    <div class="prediction-grid grid-3">
+      ${predictionRow("Over 1.5", probs.over15, over15Win)}
+      ${predictionRow("Over 2.5", probs.over25, over25Win)}
+      ${predictionRow("Goal", probs.goal, goalWin)}
+    </div>
+  </div>
 `;
-
-
     box.appendChild(card);
   });
 }
