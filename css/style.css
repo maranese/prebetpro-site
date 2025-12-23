@@ -262,6 +262,44 @@ body.dark .prediction-high {
   background: rgba(34, 197, 94, 0.12);
 }
 
+/* =========================
+   PREDICTIONS GRID
+========================= */
+.prediction-block {
+  margin-top: 12px;
+}
+
+.prediction-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prediction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--bg-soft);
+}
+
+body.dark .prediction-row {
+  background: var(--bg-dark-soft);
+}
+
 
 /* BACK TO TOP */
 #back-to-top {
