@@ -222,3 +222,34 @@ body.dark .prediction-section-title {
 
 body.dark .prediction-win strong { color: #22c55e; }
 body.dark .prediction-lose strong { color: #ef4444; }
+
+/* =========================
+   PREDICTIONS
+========================= */
+.prediction-card {
+  background: var(--card-light);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+body.dark .prediction-card {
+  background: var(--card-dark);
+}
+
+.prediction-header {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.prediction-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.prediction-row strong {
+  color: var(--accent);
+}
+
