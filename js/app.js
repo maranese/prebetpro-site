@@ -214,6 +214,69 @@ function renderPredictions(fixtures) {
   box.innerHTML = "";
 
   fixtures.forEach(match => {
+    // λ stimati (v1)
+    const lambdaHome = 1.35;
+    const lambdaAway = 1.15;
+
+    const probs = calculatePoissonProbabilities(lambdaHome, lambdaAway);
+
+    const status = match.fixture.status.short;
+    const goalsHome = match.goals.home;
+    const goalsAway = match.goals.away;
+
+    // Verifica esiti reali
+    const finished = ["FT", "AET", "PEN"].includes(status);
+    const totalGoals = finished ? goalsHome + goalsAway : null;
+
+    const over15Won = finished ? totalGoals >= 2 : null;
+    const over25Won = finished ? totalGoals >= 3 : null;
+    const goalWon = finished ? (goalsHome > 0 && goalsAway > 0) : null;
+
+    const card = document.createElement("div");
+    card.className = "prediction-card";
+
+    card.innerHTML = `
+      <div class="prediction-header">
+        ${match.teams.home.name} vs ${match.teams.away.name}
+      </div>
+
+      ${renderPredictionRow("Over 1.5", probs.over15, over15Won)}
+      ${renderPredictionRow("Over 2.5", probs.over25, over25Won)}
+      ${renderPredictionRow("Goal (BTTS)", probs.goal, goalWon)}
+    `;
+
+    box.appendChild(card);
+  });
+}
+
+/* =========================
+   SINGLE ROW RENDER
+========================= */
+function renderPredictionRow(label, percent, won) {
+  let className = "";
+  let icon = "";
+
+  if (won === true) {
+    className = "prediction-win";
+    icon = "✅";
+  } else if (won === false) {
+    className = "prediction-lose";
+    icon = "❌";
+  }
+
+  return `
+    <div class="prediction-row ${className}">
+      <span>${label}</span>
+      <strong>${percent}% ${icon}</strong>
+    </div>
+  `;
+}
+
+
+  empty.style.display = "none";
+  box.innerHTML = "";
+
+  fixtures.forEach(match => {
     let over15 = 65;
     let over25 = 50;
     let goal = 55;
@@ -248,4 +311,46 @@ function renderPredictions(fixtures) {
 
     box.appendChild(card);
   });
+}
+/* =========================
+   POISSON UTILITIES
+========================= */
+function poisson(k, lambda) {
+  return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+}
+
+function factorial(n) {
+  if (n === 0) return 1;
+  let res = 1;
+  for (let i = 1; i <= n; i++) res *= i;
+  return res;
+}
+
+/* =========================
+   POISSON PROBABILITIES
+========================= */
+function calculatePoissonProbabilities(lambdaHome, lambdaAway) {
+  let probOver15 = 0;
+  let probOver25 = 0;
+  let probGoal = 0;
+
+  for (let h = 0; h <= 5; h++) {
+    for (let a = 0; a <= 5; a++) {
+      const p =
+        poisson(h, lambdaHome) *
+        poisson(a, lambdaAway);
+
+      const totalGoals = h + a;
+
+      if (totalGoals >= 2) probOver15 += p;
+      if (totalGoals >= 3) probOver25 += p;
+      if (h > 0 && a > 0) probGoal += p;
+    }
+  }
+
+  return {
+    over15: Math.round(probOver15 * 100),
+    over25: Math.round(probOver25 * 100),
+    goal: Math.round(probGoal * 100)
+  };
 }
