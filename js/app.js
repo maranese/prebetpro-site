@@ -46,7 +46,7 @@ async function loadMatches() {
       const logo = match.league?.logo || "";
       const home = match.teams.home.name;
       const away = match.teams.away.name;
-      const status = match.fixture.status.short;
+      const status = match.fixture?.status?.short || "ND";
       const goalsH = match.goals.home;
       const goalsA = match.goals.away;
       const finished = ["FT", "AET", "PEN"].includes(status);
@@ -88,9 +88,14 @@ async function loadMatches() {
         </div>
         <div class="match-teams">${home} <strong>vs</strong> ${away}</div>
         <div class="match-info">
-          <span>${scoreHtml}</span>
-          <span><strong>${status}</strong></span>
-        </div>
+  ${
+    isFinished && goalsHome !== null && goalsAway !== null
+      ? `<span><strong>${goalsHome} – ${goalsAway}</strong></span>`
+      : `<span>🕒 ${time}</span>`
+  }
+  <span><strong>${status}</strong></span>
+</div>
+
         ${detailsHtml}
       `;
 
