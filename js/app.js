@@ -11,8 +11,6 @@ async function loadMatches() {
   const matchesBox = document.getElementById("matches");
   const noMatchesBox = document.getElementById("no-matches");
   const statsBox = document.getElementById("stats-summary");
-  const accuracy = buildAccuracyReport(data.matches || []);
-console.log("Daily accuracy:", accuracy);
 
   if (!matchesBox) return;
 
@@ -29,12 +27,12 @@ console.log("Daily accuracy:", accuracy);
 
     if (fixtures.length === 0) {
       matchesBox.innerHTML = "";
-      noMatchesBox.style.display = "block";
-      statsBox.innerHTML = "";
+      if (noMatchesBox) noMatchesBox.style.display = "block";
+      if (statsBox) statsBox.innerHTML = "";
       return;
     }
 
-    noMatchesBox.style.display = "none";
+    if (noMatchesBox) noMatchesBox.style.display = "none";
     matchesBox.innerHTML = "";
 
     renderStatistics(fixtures);
@@ -44,19 +42,23 @@ console.log("Daily accuracy:", accuracy);
       const card = document.createElement("div");
       card.className = "match-card";
 
-      const league = match.league?.name || "Unknown league";
+      const league = match.league?.name || "ND";
       const logo = match.league?.logo || "";
-      const home = match.teams.home.name;
-      const away = match.teams.away.name;
-      const status = match.fixture.status.short;
-      const goalsH = match.goals.home;
-      const goalsA = match.goals.away;
+      const home = match.teams?.home?.name || "Home";
+      const away = match.teams?.away?.name || "Away";
+      const status = match.fixture?.status?.short || "ND";
+      const goalsH = match.goals?.home;
+      const goalsA = match.goals?.away;
       const finished = ["FT", "AET", "PEN"].includes(status);
 
-      const time = new Date(match.fixture.date)
-        .toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+      const time = match.fixture?.date
+        ? new Date(match.fixture.date).toLocaleTimeString("it-IT", {
+            hour: "2-digit",
+            minute: "2-digit"
+          })
+        : "ND";
 
-      let scoreHtml = finished
+      const scoreHtml = finished
         ? `<strong>${goalsH} – ${goalsA}</strong>`
         : `🕒 ${time}`;
 
@@ -66,15 +68,15 @@ console.log("Daily accuracy:", accuracy);
           <details class="match-details">
             <summary>Match details ▾</summary>
             <div class="details-content">
-              <div>1st Half: ${match.score.halftime.home} – ${match.score.halftime.away}</div>
-              <div>Full Time: ${match.score.fulltime.home} – ${match.score.fulltime.away}</div>
+              <div>1st Half: ${match.score?.halftime?.home ?? "ND"} – ${match.score?.halftime?.away ?? "ND"}</div>
+              <div>Full Time: ${match.score?.fulltime?.home ?? "ND"} – ${match.score?.fulltime?.away ?? "ND"}</div>
               ${
-                match.score.extratime
+                match.score?.extratime
                   ? `<div>Extra Time: ${match.score.extratime.home} – ${match.score.extratime.away}</div>`
                   : ""
               }
               ${
-                match.score.penalty
+                match.score?.penalty
                   ? `<div>Penalties: ${match.score.penalty.home} – ${match.score.penalty.away}</div>`
                   : ""
               }
@@ -88,11 +90,14 @@ console.log("Daily accuracy:", accuracy);
           ${logo ? `<img src="${logo}" style="width:18px;vertical-align:middle">` : ""}
           ${league}
         </div>
+
         <div class="match-teams">${home} <strong>vs</strong> ${away}</div>
+
         <div class="match-info">
           <span>${scoreHtml}</span>
           <span><strong>${status}</strong></span>
         </div>
+
         ${detailsHtml}
       `;
 
@@ -100,8 +105,13 @@ console.log("Daily accuracy:", accuracy);
     });
 
   } catch (err) {
-    matchesBox.innerHTML = `<div class="no-data">Data temporarily unavailable</div>`;
     console.error(err);
+    matchesBox.innerHTML = `
+      <div class="no-data">
+        Data temporarily unavailable.<br>
+        Please try again later.
+      </div>
+    `;
   }
 }
 
@@ -115,14 +125,14 @@ function renderStatistics(fixtures) {
   let ns = 0, live = 0, ft = 0;
 
   fixtures.forEach(f => {
-    const s = f.fixture.status.short;
+    const s = f.fixture?.status?.short;
     if (s === "NS") ns++;
-    else if (["1H","2H","HT"].includes(s)) live++;
-    else if (["FT","AET","PEN"].includes(s)) ft++;
+    else if (["1H", "HT", "2H"].includes(s)) live++;
+    else if (["FT", "AET", "PEN"].includes(s)) ft++;
   });
 
   box.innerHTML = `
-    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
+    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total matches</p></div>
     <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
     <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
     <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
@@ -130,192 +140,52 @@ function renderStatistics(fixtures) {
 }
 
 /* =========================
-   PREDICTIONS — POISSON
+   DAILY REPORT
 ========================= */
-function renderPredictions(fixtures) {
-  const box = document.getElementById("predictions-list");
-  const empty = document.getElementById("predictions-empty");
-  if (!box) return;
+async function loadDailyReport() {
+  const summaryBox = document.getElementById("report-summary");
+  const matchesBox = document.getElementById("report-matches");
+  const emptyBox = document.getElementById("report-empty");
 
-  box.innerHTML = "";
-  empty.style.display = "none";
+  if (!summaryBox || !matchesBox || !emptyBox) return;
 
-  fixtures.forEach(match => {
-    const lambdaHome = 1.35;
-    const lambdaAway = 1.15;
+  try {
+    const response = await fetch(
+      "https://prebetpro-api.vincenzodiguida.workers.dev/report"
+    );
+    if (!response.ok) throw new Error("Report API error");
 
-    const probs = calculatePoissonProbabilities(lambdaHome, lambdaAway);
-    const probs1X2 = calculate1X2Probabilities(match);
+    const data = await response.json();
 
-    const finished = ["FT","AET","PEN"].includes(match.fixture.status.short);
-    const goals = finished ? match.goals.home + match.goals.away : null;
-
-    const over15Win = finished ? goals >= 2 : null;
-    const over25Win = finished ? goals >= 3 : null;
-    const goalWin = finished ? (match.goals.home > 0 && match.goals.away > 0) : null;
-
-    const card = document.createElement("div");
-    card.className = "prediction-card";
-
-   card.innerHTML = `
-  <div class="prediction-header">
-    ${match.teams.home.name} vs ${match.teams.away.name}
-  </div>
-
-  <div class="prediction-block">
-    <div class="prediction-section-title">Match Result</div>
-    <div class="prediction-grid grid-3">
-      <div class="prediction-row"><span>1</span><strong>${probs1X2["1"]}%</strong></div>
-      <div class="prediction-row"><span>X</span><strong>${probs1X2["X"]}%</strong></div>
-      <div class="prediction-row"><span>2</span><strong>${probs1X2["2"]}%</strong></div>
-    </div>
-  </div>
-
-  <div class="prediction-block">
-    <div class="prediction-section-title">Double Chance</div>
-    <div class="prediction-grid grid-3">
-      <div class="prediction-row"><span>1X</span><strong>${probs1X2["1X"]}%</strong></div>
-      <div class="prediction-row"><span>X2</span><strong>${probs1X2["X2"]}%</strong></div>
-      <div class="prediction-row"><span>12</span><strong>${probs1X2["12"]}%</strong></div>
-    </div>
-  </div>
-
-  <div class="prediction-block">
-    <div class="prediction-section-title">Goals</div>
-    <div class="prediction-grid grid-3">
-      ${predictionRow("Over 1.5", probs.over15, over15Win)}
-      ${predictionRow("Over 2.5", probs.over25, over25Win)}
-      ${predictionRow("Goal", probs.goal, goalWin)}
-    </div>
-  </div>
-`;
-    box.appendChild(card);
-  });
-}
-
-function predictionRow(label, perc, win) {
-  let cls = "";
-  let icon = "";
-
-  if (perc >= 70) cls += " prediction-high";
-  if (win === true) { cls += " prediction-win"; icon = " ✅"; }
-  if (win === false) { cls += " prediction-lose"; icon = " ❌"; }
-
-  return `<div class="prediction-row${cls}">
-    <span>${label}</span>
-    <strong>${perc}%${icon}</strong>
-  </div>`;
-}
-
-
-/* =========================
-   POISSON CORE
-========================= */
-function poisson(k, lambda) {
-  return Math.pow(lambda, k) * Math.exp(-lambda) / factorial(k);
-}
-
-function factorial(n) {
-  return n <= 1 ? 1 : n * factorial(n - 1);
-}
-
-function calculatePoissonProbabilities(lh, la) {
-  let o15 = 0, o25 = 0, btts = 0;
-
-  for (let h = 0; h <= 5; h++) {
-    for (let a = 0; a <= 5; a++) {
-      const p = poisson(h, lh) * poisson(a, la);
-      if (h + a >= 2) o15 += p;
-      if (h + a >= 3) o25 += p;
-      if (h > 0 && a > 0) btts += p;
+    if (!data?.matches || data.matches.length === 0) {
+      emptyBox.style.display = "block";
+      return;
     }
-  }
 
-  return {
-    over15: Math.round(o15 * 100),
-    over25: Math.round(o25 * 100),
-    goal: Math.round(btts * 100)
-  };
-}
-/* =========================
-   1X2 & DOUBLE CHANCE (v1)
-========================= */
-function calculate1X2Probabilities(match) {
-  // Valori base neutri (v1)
-  let p1 = 40;
-  let px = 30;
-  let p2 = 30;
+    emptyBox.style.display = "none";
 
-  // Piccolo vantaggio casa
-  p1 += 5;
-  p2 -= 5;
+    summaryBox.innerHTML = `
+      <div class="stat-card">
+        <h3>${data.matches.length}</h3>
+        <p>Finished matches</p>
+      </div>
+    `;
 
-  // Normalizzazione
-  const total = p1 + px + p2;
-  p1 = Math.round((p1 / total) * 100);
-  px = Math.round((px / total) * 100);
-  p2 = 100 - p1 - px;
-
-  return {
-    "1": p1,
-    "X": px,
-    "2": p2,
-    "1X": p1 + px,
-    "X2": px + p2,
-    "12": p1 + p2
-  };
-}
-/* =========================
-   VALIDATION ENGINE
-========================= */
-function validatePredictions(match, predictions) {
-  const gh = match.goals.home;
-  const ga = match.goals.away;
-  const total = gh + ga;
-
-  return {
-    over15: total >= 2 ? "WIN" : "LOSS",
-    over25: total >= 3 ? "WIN" : "LOSS",
-    goal: gh > 0 && ga > 0 ? "WIN" : "LOSS",
-
-    "1": gh > ga ? "WIN" : "LOSS",
-    "X": gh === ga ? "WIN" : "LOSS",
-    "2": gh < ga ? "WIN" : "LOSS",
-
-    "1X": gh >= ga ? "WIN" : "LOSS",
-    "X2": ga >= gh ? "WIN" : "LOSS",
-    "12": gh !== ga ? "WIN" : "LOSS"
-  };
-}
-/* =========================
-   ACCURACY REPORT (DAILY)
-========================= */
-function buildAccuracyReport(fixtures) {
-  const report = {
-    total: 0,
-    markets: {
-      over25: { win: 0, loss: 0 },
-      goal: { win: 0, loss: 0 },
-      "1": { win: 0, loss: 0 },
-      "X": { win: 0, loss: 0 },
-      "2": { win: 0, loss: 0 }
-    }
-  };
-
-  fixtures.forEach(match => {
-    const status = match.fixture.status.short;
-    if (!["FT","AET","PEN"].includes(status)) return;
-
-    report.total++;
-
-    const validation = validatePredictions(match, {});
-    Object.keys(report.markets).forEach(market => {
-      if (validation[market] === "WIN") report.markets[market].win++;
-      else report.markets[market].loss++;
+    data.matches.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "report-match";
+      div.innerHTML = `
+        <div class="teams">
+          ${m.home} ${m.goals_home} – ${m.goals_away} ${m.away}
+        </div>
+      `;
+      matchesBox.appendChild(div);
     });
-  });
 
-  return report;
+  } catch (err) {
+    console.error(err);
+    emptyBox.style.display = "block";
+  }
 }
 
 /* =========================
@@ -324,8 +194,11 @@ function buildAccuracyReport(fixtures) {
 function initBackToTop() {
   const btn = document.getElementById("back-to-top");
   if (!btn) return;
+
   window.addEventListener("scroll", () => {
     btn.style.display = window.scrollY > 300 ? "block" : "none";
   });
-  btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  btn.onclick = () =>
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
