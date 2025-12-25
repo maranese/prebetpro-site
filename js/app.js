@@ -132,6 +132,37 @@ function renderPredictions(fixtures) {
 
     const card = document.createElement("div");
     card.className = "prediction-card";
+  let predictionsHTML = "";
+
+if (!m.predictions || m.confidence === "low") {
+  predictionsHTML = `
+    <div class="prediction-info">
+      <strong>📊 Previsioni non disponibili</strong>
+      <p>
+        Storico insufficiente per questa partita.<br>
+        Il modello statistico si attiva solo con dati adeguati
+        per garantire affidabilità.
+      </p>
+    </div>
+  `;
+}
+    card.innerHTML = `
+  <div class="match-league">
+    ${logo ? `<img src="${logo}" width="18">` : ""}
+    ${league}
+  </div>
+
+  <div class="match-teams">
+    ${home} <strong>vs</strong> ${away}
+  </div>
+
+  <div class="match-info">
+    <span>${score}</span>
+    <strong>${status}</strong>
+  </div>
+
+  ${predictionsHTML}
+`;
 
     card.innerHTML = `
       <div class="prediction-header">
