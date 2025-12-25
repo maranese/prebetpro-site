@@ -105,3 +105,52 @@ function initBackToTop() {
 
   btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
 }
+/* =========================
+   PREDICTIONS – HYBRID MODE
+========================= */
+function renderPredictions(fixtures) {
+  const predictionsSection = document.getElementById("predictions-list");
+  const predictionsEmpty = document.getElementById("predictions-empty");
+
+  // Se la sezione non esiste (es. home only)
+  if (!predictionsSection) return;
+
+  predictionsSection.innerHTML = "";
+  if (predictionsEmpty) predictionsEmpty.style.display = "none";
+
+  fixtures.forEach(match => {
+    // ⚠️ Per ora stima semplice (placeholder)
+    // La Poisson vera la riattacchiamo subito dopo
+    let homeWin = Math.floor(30 + Math.random() * 40);
+    let draw = Math.floor(20 + Math.random() * 20);
+    let awayWin = 100 - homeWin - draw;
+
+    let over25 = Math.floor(45 + Math.random() * 30);
+    let btts = Math.floor(45 + Math.random() * 30);
+
+    const highlight = v => v >= 70 ? "highlight" : "";
+
+    const card = document.createElement("div");
+    card.className = "prediction-card";
+
+    card.innerHTML = `
+      <div class="prediction-header">
+        ${match.teams.home.name} vs ${match.teams.away.name}
+      </div>
+
+      <div class="prediction-grid">
+        <div class="prediction-item ${highlight(homeWin)}">1<br><strong>${homeWin}%</strong></div>
+        <div class="prediction-item ${highlight(draw)}">X<br><strong>${draw}%</strong></div>
+        <div class="prediction-item ${highlight(awayWin)}">2<br><strong>${awayWin}%</strong></div>
+
+        <div class="prediction-item ${highlight(over25)}">Over 2.5<br><strong>${over25}%</strong></div>
+        <div class="prediction-item ${highlight(100 - over25)}">Under 2.5<br><strong>${100 - over25}%</strong></div>
+
+        <div class="prediction-item ${highlight(btts)}">Goal<br><strong>${btts}%</strong></div>
+        <div class="prediction-item ${highlight(100 - btts)}">No Goal<br><strong>${100 - btts}%</strong></div>
+      </div>
+    `;
+
+    predictionsSection.appendChild(card);
+  });
+}
