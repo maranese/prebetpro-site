@@ -1,28 +1,42 @@
+/* =========================
+   ROOT VARIABLES
+========================= */
 :root {
   --accent: #ff7a00;
+
   --bg-light: #ffffff;
   --bg-dark: #0f1115;
+
   --card-light: #f3f4f6;
   --card-dark: #1a1d24;
+
   --text-light: #111111;
   --text-dark: #f1f1f1;
-  --text-muted-light: #444;
-  --text-muted-dark: #ccc;
 
-  --text-secondary: #555555;
-  --text-dark-secondary: #b5b5b5;
+  --text-muted-light: #555555;
+  --text-muted-dark: #b5b5b5;
+
+  --success: #16a34a;
 }
 
-/* RESET */
-* { box-sizing: border-box; }
+/* =========================
+   RESET
+========================= */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: system-ui, Arial, sans-serif;
   background: var(--bg-light);
   color: var(--text-light);
+  line-height: 1.5;
 }
 
-/* HERO */
+/* =========================
+   HERO / HEADER
+========================= */
 .hero {
   position: sticky;
   top: 0;
@@ -54,7 +68,9 @@ body {
   opacity: 0.9;
 }
 
-/* NAV */
+/* =========================
+   NAVIGATION
+========================= */
 .main-nav {
   display: flex;
   gap: 16px;
@@ -78,22 +94,27 @@ body {
   font-weight: bold;
 }
 
-/* MAIN */
+/* =========================
+   MAIN
+========================= */
 main {
   max-width: 1100px;
   margin: auto;
   padding: 30px 16px;
 }
 
-section { margin-bottom: 50px; }
+section {
+  margin-bottom: 50px;
+}
 
 h2 {
   border-left: 4px solid var(--accent);
   padding-left: 10px;
-  color: var(--text-light);
 }
 
-/* CARDS */
+/* =========================
+   GENERIC CARDS
+========================= */
 .match-card,
 .stat-card,
 .report-match,
@@ -102,13 +123,18 @@ h2 {
   background: var(--card-light);
   padding: 16px;
   border-radius: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
-/* MATCH */
+/* =========================
+   MATCH CARD
+========================= */
 .match-league {
   font-weight: 700;
   color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .match-teams {
@@ -119,9 +145,13 @@ h2 {
 .match-info {
   font-size: 0.85rem;
   color: var(--text-muted-light);
+  display: flex;
+  justify-content: space-between;
 }
 
-/* STATS */
+/* =========================
+   STATISTICS
+========================= */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -136,42 +166,53 @@ h2 {
 
 .stat-card p {
   margin: 4px 0 0;
-  color: var(--text-light);
   font-weight: 600;
 }
 
-/* PREDICTIONS */
+/* =========================
+   PREDICTIONS – HYBRID
+========================= */
+.prediction-card {
+  background: var(--card-light);
+}
+
 .prediction-header {
   font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--text-light);
+  margin-bottom: 10px;
 }
 
-.prediction-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  margin: 4px 0;
-  color: var(--text-secondary);
+/* GRID */
+.prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
 }
 
-.prediction-row strong {
-  color: var(--accent);
-}
-
-.prediction-section-title {
-  margin-top: 10px;
+/* ITEM */
+.prediction-item {
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
   font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-secondary);
 }
 
-/* WIN / LOSE */
-.prediction-win strong { color: #16a34a; }
-.prediction-lose strong { color: #dc2626; }
+.prediction-item strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--accent);
+  font-weight: 700;
+}
 
-/* FOOTER */
+/* HIGH CONFIDENCE ≥70% */
+.prediction-item.highlight {
+  background: rgba(22, 163, 74, 0.12);
+  border: 1px solid var(--success);
+}
+
+/* =========================
+   FOOTER
+========================= */
 footer {
   text-align: center;
   padding: 20px;
@@ -179,129 +220,9 @@ footer {
   color: var(--text-muted-light);
 }
 
-/* DARK MODE */
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-}
-
-body.dark h2,
-body.dark .prediction-header {
-  color: var(--text-dark);
-}
-
-body.dark .match-card,
-body.dark .stat-card,
-body.dark .report-match,
-body.dark .no-data,
-body.dark .prediction-card {
-  background: var(--card-dark);
-}
-
-body.dark .match-info,
-body.dark footer,
-body.dark .prediction-row,
-body.dark .prediction-section-title {
-  color: var(--text-dark-secondary);
-}
-
-body.dark .prediction-win strong { color: #22c55e; }
-body.dark .prediction-lose strong { color: #ef4444; }
-
 /* =========================
-   PREDICTIONS
+   BACK TO TOP
 ========================= */
-.prediction-card {
-  background: var(--card-light);
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 14px;
-}
-
-body.dark .prediction-card {
-  background: var(--card-dark);
-}
-
-.prediction-header {
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.prediction-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  margin: 4px 0;
-}
-
-.prediction-row strong {
-  color: var(--accent);
-}
-.prediction-section-title {
-  margin-top: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-body.dark .prediction-section-title {
-  color: var(--text-dark-secondary);
-}
-
-/* =========================
-   HIGH CONFIDENCE (>=70%)
-========================= */
-.prediction-high {
-  border-left: 4px solid #16a34a;
-  padding-left: 8px;
-  background: rgba(22, 163, 74, 0.08);
-}
-
-body.dark .prediction-high {
-  background: rgba(34, 197, 94, 0.12);
-}
-
-/* =========================
-   PREDICTIONS GRID
-========================= */
-.prediction-block {
-  margin-top: 12px;
-}
-
-.prediction-grid {
-  display: grid;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.grid-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* Mobile */
-@media (max-width: 640px) {
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-}
-
-.prediction-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  padding: 6px 8px;
-  border-radius: 6px;
-  background: var(--bg-soft);
-}
-
-body.dark .prediction-row {
-  background: var(--bg-dark-soft);
-}
-
-
-/* BACK TO TOP */
 #back-to-top {
   position: fixed;
   bottom: 20px;
@@ -314,4 +235,38 @@ body.dark .prediction-row {
   border-radius: 50%;
   display: none;
   cursor: pointer;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+body.dark h2 {
+  color: var(--text-dark);
+}
+
+body.dark .match-card,
+body.dark .stat-card,
+body.dark .report-match,
+body.dark .no-data,
+body.dark .prediction-card {
+  background: var(--card-dark);
+}
+
+body.dark .match-info,
+body.dark footer {
+  color: var(--text-muted-dark);
+}
+
+body.dark .prediction-item {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.dark .prediction-item.highlight {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: #22c55e;
 }
