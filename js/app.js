@@ -20,8 +20,14 @@ async function loadMatches() {
     if (!res.ok) throw new Error("API error");
 
     const json = await res.json();
-    const fixtures = json.fixtures || [];
+    const todayFixtures = json.fixtures || [];
+    const finishedFixtures = json.lastFinished || [];
 
+    // usiamo today se esistono, altrimenti le ultime FT
+    const fixtures = todayFixtures.length > 0
+    ? todayFixtures
+    : finishedFixtures;
+    
     if (fixtures.length === 0) {
       box.innerHTML = "";
       if (noBox) noBox.style.display = "block";
