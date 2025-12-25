@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initBackToTop();
 });
 
+/* =========================
+   LOAD MATCHES
+========================= */
 async function loadMatches() {
   const box = document.getElementById("matches");
   const noBox = document.getElementById("no-matches");
@@ -30,6 +33,7 @@ async function loadMatches() {
     box.innerHTML = "";
 
     renderStatistics(fixtures);
+    renderPredictions(fixtures);
 
     fixtures.forEach(m => {
       const card = document.createElement("div");
@@ -74,6 +78,9 @@ async function loadMatches() {
   }
 }
 
+/* =========================
+   STATISTICS
+========================= */
 function renderStatistics(fixtures) {
   const box = document.getElementById("stats-summary");
   if (!box) return;
@@ -95,43 +102,19 @@ function renderStatistics(fixtures) {
   `;
 }
 
-function initBackToTop() {
-  const btn = document.getElementById("back-to-top");
-  if (!btn) return;
-
-  window.addEventListener("scroll", () => {
-    btn.style.display = window.scrollY > 300 ? "block" : "none";
-  });
-
-  btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
-}
 /* =========================
-   PREDICTIONS – HYBRID MODE
+   PREDICTIONS – HYBRID
 ========================= */
 function renderPredictions(fixtures) {
-  console.log("renderPredictions called", fixtures);
-
   const box = document.getElementById("predictions-list");
   const empty = document.getElementById("predictions-empty");
 
-  if (!box) {
-    console.warn("predictions-list NOT FOUND");
-    return;
-  }
+  if (!box) return;
 
-function renderPredictions(fixtures) {
-  const predictionsSection = document.getElementById("predictions-list");
-  const predictionsEmpty = document.getElementById("predictions-empty");
-
-  // Se la sezione non esiste (es. home only)
-  if (!predictionsSection) return;
-
-  predictionsSection.innerHTML = "";
-  if (predictionsEmpty) predictionsEmpty.style.display = "none";
+  box.innerHTML = "";
+  if (empty) empty.style.display = "none";
 
   fixtures.forEach(match => {
-    // ⚠️ Per ora stima semplice (placeholder)
-    // La Poisson vera la riattacchiamo subito dopo
     let homeWin = Math.floor(30 + Math.random() * 40);
     let draw = Math.floor(20 + Math.random() * 20);
     let awayWin = 100 - homeWin - draw;
@@ -139,7 +122,7 @@ function renderPredictions(fixtures) {
     let over25 = Math.floor(45 + Math.random() * 30);
     let btts = Math.floor(45 + Math.random() * 30);
 
-    const highlight = v => v >= 70 ? "highlight" : "";
+    const hi = v => v >= 70 ? "highlight" : "";
 
     const card = document.createElement("div");
     card.className = "prediction-card";
@@ -150,18 +133,32 @@ function renderPredictions(fixtures) {
       </div>
 
       <div class="prediction-grid">
-        <div class="prediction-item ${highlight(homeWin)}">1<br><strong>${homeWin}%</strong></div>
-        <div class="prediction-item ${highlight(draw)}">X<br><strong>${draw}%</strong></div>
-        <div class="prediction-item ${highlight(awayWin)}">2<br><strong>${awayWin}%</strong></div>
+        <div class="prediction-item ${hi(homeWin)}">1<br><strong>${homeWin}%</strong></div>
+        <div class="prediction-item ${hi(draw)}">X<br><strong>${draw}%</strong></div>
+        <div class="prediction-item ${hi(awayWin)}">2<br><strong>${awayWin}%</strong></div>
 
-        <div class="prediction-item ${highlight(over25)}">Over 2.5<br><strong>${over25}%</strong></div>
-        <div class="prediction-item ${highlight(100 - over25)}">Under 2.5<br><strong>${100 - over25}%</strong></div>
+        <div class="prediction-item ${hi(over25)}">Over 2.5<br><strong>${over25}%</strong></div>
+        <div class="prediction-item ${hi(100 - over25)}">Under 2.5<br><strong>${100 - over25}%</strong></div>
 
-        <div class="prediction-item ${highlight(btts)}">Goal<br><strong>${btts}%</strong></div>
-        <div class="prediction-item ${highlight(100 - btts)}">No Goal<br><strong>${100 - btts}%</strong></div>
+        <div class="prediction-item ${hi(btts)}">Goal<br><strong>${btts}%</strong></div>
+        <div class="prediction-item ${hi(100 - btts)}">No Goal<br><strong>${100 - btts}%</strong></div>
       </div>
     `;
 
-    predictionsSection.appendChild(card);
+    box.appendChild(card);
   });
+}
+
+/* =========================
+   BACK TO TOP
+========================= */
+function initBackToTop() {
+  const btn = document.getElementById("back-to-top");
+  if (!btn) return;
+
+  window.addEventListener("scroll", () => {
+    btn.style.display = window.scrollY > 300 ? "block" : "none";
+  });
+
+  btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
 }
