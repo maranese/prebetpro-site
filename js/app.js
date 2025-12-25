@@ -109,6 +109,17 @@ function initBackToTop() {
    PREDICTIONS – HYBRID MODE
 ========================= */
 function renderPredictions(fixtures) {
+  console.log("renderPredictions called", fixtures);
+
+  const box = document.getElementById("predictions-list");
+  const empty = document.getElementById("predictions-empty");
+
+  if (!box) {
+    console.warn("predictions-list NOT FOUND");
+    return;
+  }
+
+function renderPredictions(fixtures) {
   const predictionsSection = document.getElementById("predictions-list");
   const predictionsEmpty = document.getElementById("predictions-empty");
 
