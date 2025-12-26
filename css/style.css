@@ -197,3 +197,13 @@ body.dark .premium-cta {
   opacity: 1;
   transform: translateY(0);
 }
+/* =========================
+   DARK MODE – TEAM NAMES FIX
+========================= */
+
+/* Squad names must be high-contrast in dark mode */
+body.dark .match-teams,
+body.dark .prediction-header,
+body.dark .top-pick-card h3 {
+  color: #f9fafb; /* quasi bianco, massima leggibilità */
+}
