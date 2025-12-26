@@ -532,3 +532,95 @@ body.dark .premium-box {
 body.dark .premium-box p {
   color: var(--text-muted-dark);
 }
+/* =========================
+   TODAY – RESPONSIVE GRID
+========================= */
+
+/* Header layout */
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Prediction grid base */
+.match-card .prediction-grid {
+  margin-top: 12px;
+}
+
+/* "Show all" card */
+.prediction-item.view-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--accent-dark);
+  background: rgba(0, 0, 0, 0.05);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.prediction-item.view-all:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   DESKTOP LAYOUT
+========================= */
+@media (min-width: 1024px) {
+  .match-card {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .match-header {
+    grid-column: 1 / 2;
+  }
+
+  .match-info {
+    grid-column: 1 / 2;
+    font-size: 0.85rem;
+  }
+
+  .match-card .prediction-grid {
+    grid-column: 2 / 3;
+    margin-top: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(90px, 1fr));
+    gap: 10px;
+  }
+
+  .prediction-item {
+    font-size: 0.85rem;
+  }
+}
+
+/* =========================
+   MOBILE & TABLET
+========================= */
+@media (max-width: 1023px) {
+  .match-card {
+    display: block;
+  }
+
+  .match-card .prediction-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 8px;
+  }
+}
+
+/* =========================
+   DARK MODE TWEAKS
+========================= */
+body.dark .prediction-item.view-all {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark .prediction-item.view-all:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
