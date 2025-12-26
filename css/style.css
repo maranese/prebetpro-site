@@ -320,23 +320,3 @@ body.dark .toggle-btn {
     0 0 0 1px rgba(95, 216, 157, 0.6),
     0 0 10px rgba(95, 216, 157, 0.25);
 }
-/* =========================
-   TOP PICKS ANIMATION
-========================= */
-
-.top-picks-content {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition:
-    max-height 0.45s ease,
-    opacity 0.35s ease,
-    transform 0.35s ease;
-}
-
-.top-picks-content.open {
-  max-height: 1200px; /* abbastanza per molte card */
-  opacity: 1;
-  transform: translateY(0);
-}
