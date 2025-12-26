@@ -2,9 +2,8 @@
    ROOT VARIABLES
 ========================= */
 :root {
-  --accent: #2fbf71;
-  --accent-soft: #5fd89d;
-  --accent-dark: #1f8a55;
+  --accent: #1f7a4d;
+  --accent-soft: #2fa36a;
 
   --bg-light: #ffffff;
   --bg-dark: #0f1115;
@@ -18,15 +17,17 @@
   --text-muted-light: #555555;
   --text-muted-dark: #b5b5b5;
 
-  --success: #22c55e;
-  --warning: #f59e0b;
+  --success: #16a34a;
+  --warning: #d97706;
   --neutral: #9ca3af;
 }
 
 /* =========================
    RESET
 ========================= */
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -43,7 +44,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
   padding: 12px 16px;
 }
 
@@ -51,6 +52,7 @@ body {
   max-width: 1100px;
   margin: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -65,7 +67,34 @@ body {
 
 .tagline {
   font-size: 0.8rem;
-  color: #eafff3;
+  color: #fff;
+  opacity: 0.9;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+.main-nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.main-nav a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+#theme-toggle {
+  border: none;
+  background: #fff;
+  color: var(--accent);
+  padding: 6px 10px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 /* =========================
@@ -77,7 +106,9 @@ main {
   padding: 30px 16px;
 }
 
-section { margin-bottom: 50px; }
+section {
+  margin-bottom: 50px;
+}
 
 h2 {
   border-left: 4px solid var(--accent);
@@ -95,127 +126,198 @@ h2 {
 .top-pick-card {
   background: var(--card-light);
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-bottom: 14px;
+}
+
+/* =========================
+   TOP PICKS
+========================= */
+.top-picks {
+  margin-bottom: 40px;
+}
+
+.top-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.top-pick-card {
+  border-left: 4px solid var(--accent);
+}
+
+.top-pick-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.top-pick-market {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.top-pick-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-top: 6px;
+}
+
+/* Premium blur */
+.premium-blur {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
 }
 
 /* =========================
    MATCH CARD
 ========================= */
-.match-header {
+.match-league {
+  font-weight: 700;
+  color: var(--accent);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  gap: 6px;
 }
 
 .match-teams {
-  font-weight: 800;
-  font-size: 1rem;
+  font-weight: 700;
+  margin: 6px 0;
 }
 
-.match-score {
-  margin-top: 4px;
-  font-size: 1.1rem;
-  font-weight: 900;
-}
-
-.match-meta {
-  font-size: 0.8rem;
-  margin-top: 2px;
+.match-info {
+  font-size: 0.85rem;
   color: var(--text-muted-light);
-}
-
-/* FT badge */
-.ft-label {
-  background: var(--accent);
-  color: #053b24;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  margin-right: 6px;
+  display: flex;
+  justify-content: space-between;
 }
 
 /* =========================
-   CONFIDENCE BADGE
+   CONFIDENCE BADGES
 ========================= */
 .confidence-badge {
-  padding: 4px 10px;
-  border-radius: 999px;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 
-.confidence-high { background: rgba(47,191,113,.25); color: var(--accent-dark); }
-.confidence-medium { background: rgba(245,158,11,.25); color: #92400e; }
-.confidence-low { background: rgba(156,163,175,.3); color: #374151; }
+.confidence-high {
+  background: rgba(22, 163, 74, 0.15);
+  color: #166534;
+}
+
+.confidence-medium {
+  background: rgba(217, 119, 6, 0.15);
+  color: #92400e;
+}
+
+.confidence-low {
+  background: rgba(156, 163, 175, 0.2);
+  color: #374151;
+}
 
 /* =========================
-   PREDICTION GRID
+   STATISTICS
 ========================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+
+.stat-card p {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+/* =========================
+   REPORTS
+========================= */
+.report-match {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.report-result-win {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.report-result-loss {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* =========================
+   PREDICTIONS
+========================= */
+.prediction-header {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
 .prediction-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 8px;
-  margin-top: 12px;
 }
 
 .prediction-item {
   text-align: center;
   padding: 8px;
   border-radius: 8px;
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.04);
   font-size: 0.85rem;
 }
 
-.prediction-item.highlight {
-  background: rgba(47,191,113,.2);
-  border: 1px solid var(--accent);
-}
-
-/* Show all card */
-.prediction-item.view-all {
-  font-weight: 800;
-  cursor: pointer;
-  background: rgba(0,0,0,0.08);
-}
-
-/* =========================
-   LEAGUES
-========================= */
-.league-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.league-toggle {
-  background: none;
-  border: none;
+.prediction-item strong {
+  display: block;
+  margin-top: 2px;
   color: var(--accent);
   font-weight: 700;
-  cursor: pointer;
 }
 
-.league-matches.hidden { display: none; }
+.prediction-item.highlight {
+  background: rgba(22, 163, 74, 0.12);
+  border: 1px solid var(--success);
+}
 
 /* =========================
-   PREMIUM BLUR & PAYWALL
+   FOOTER
 ========================= */
-.top-picks-content { position: relative; }
-
-body:not(.is-premium) #top-picks-list {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted-light);
 }
 
-.premium-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* =========================
+   BACK TO TOP
+========================= */
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: none;
+  cursor: pointer;
 }
 
 /* =========================
@@ -226,67 +328,29 @@ body.dark {
   color: var(--text-dark);
 }
 
+body.dark h2 {
+  color: var(--text-dark);
+}
+
 body.dark .match-card,
+body.dark .stat-card,
+body.dark .report-match,
+body.dark .no-data,
 body.dark .prediction-card,
 body.dark .top-pick-card {
   background: var(--card-dark);
 }
 
-body.dark .match-teams,
-body.dark .match-score,
-body.dark .league-header {
-  color: var(--text-dark);
-}
-
-body.dark .match-meta {
+body.dark .match-info,
+body.dark footer {
   color: var(--text-muted-dark);
 }
 
 body.dark .prediction-item {
-  background: rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-body.dark .prediction-item.view-all {
-  background: rgba(255,255,255,.14);
-}
-/* =========================
-   DARK MODE – TEXT VISIBILITY FIX
-   (NON CAMBIA UX, SOLO CONTRASTO)
-========================= */
-
-body.dark .match-teams,
-body.dark .prediction-header,
-body.dark .league-header,
-body.dark .today-header,
-body.dark h2 {
-  color: var(--text-dark);
-}
-
-body.dark .match-score {
-  color: #ffffff;
-}
-
-body.dark .prediction-info,
-body.dark .prediction-info p {
-  color: var(--text-muted-dark);
-}
-
-body.dark .no-data {
-  color: var(--text-muted-dark);
-  background: rgba(255,255,255,0.05);
-}
-/* =========================
-   NAV MENU – READABILITY FIX
-========================= */
-
-.main-nav a {
-  opacity: 0.95;
-}
-
-.main-nav a:hover {
-  text-decoration: underline;
-}
-
-body.dark .main-nav a {
-  color: #ffffff;
+body.dark .prediction-item.highlight {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: #22c55e;
 }
