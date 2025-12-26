@@ -36,12 +36,69 @@ async function loadMatches() {
     const fixtures = data.fixtures || [];
 
     renderStatistics(fixtures);
-    renderPredictions(fixtures);
+   function renderPredictions(fixtures) {
+  const box = document.getElementById("predictions-list");
+  const empty = document.getElementById("predictions-empty");
 
-  } catch (err) {
-    console.error(err);
+  if (!box) return;
+
+  box.innerHTML = "";
+  if (empty) empty.style.display = "none";
+
+  let hasAnyPrediction = false;
+
+  fixtures.forEach(match => {
+    const card = document.createElement("div");
+    card.className = "prediction-card";
+
+    const home = match.teams.home.name;
+    const away = match.teams.away.name;
+
+    // ❌ Storico insufficiente / no predictions
+    if (match.confidence !== "high" || !match.predictions) {
+      card.innerHTML = `
+        <div class="prediction-header">
+          ${home} vs ${away}
+        </div>
+        <div class="prediction-info">
+          <strong>📊 Predictions not available</strong>
+          <p>
+            Insufficient historical data for this match.<br>
+            The statistical model activates only with adequate samples.
+          </p>
+        </div>
+      `;
+      box.appendChild(card);
+      return;
+    }
+
+    // ✅ Almeno una prediction valida esiste
+    hasAnyPrediction = true;
+
+    const p = match.predictions;
+    const hi = v => v >= 70 ? "highlight" : "";
+
+    card.innerHTML = `
+      <div class="prediction-header">
+        ${home} vs ${away}
+      </div>
+
+      <div class="prediction-grid">
+        <div class="prediction-item ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
+        <div class="prediction-item ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
+        <div class="prediction-item ${hi(p.away_win)}">2 <strong>${p.away_win}%</strong></div>
+      </div>
+    `;
+
+    box.appendChild(card);
+  });
+
+  // 🔔 Nessuna prediction valida in assoluto
+  if (!hasAnyPrediction && empty) {
+    empty.style.display = "block";
   }
 }
+
 
 /* =========================
    LOAD TODAY MATCHES
