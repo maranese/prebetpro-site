@@ -640,3 +640,20 @@ body.dark .prediction-item.view-all:hover {
 body.dark .match-details {
   color: var(--text-muted-dark);
 }
+.match-goals {
+  margin-top: 6px;
+  font-size: 0.8rem;
+}
+
+.match-goals strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.goal-team {
+  color: var(--text-muted-light);
+}
+
+body.dark .goal-team {
+  color: var(--text-muted-dark);
+}
