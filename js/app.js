@@ -258,6 +258,22 @@ if (toggleBtn && topPicksContent) {
       : "Show Top Picks";
   });
 }
+.match-details {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted-light);
+}
+
+.match-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+body.dark .match-details {
+  color: var(--text-muted-dark);
+}
 
 /* =========================
    BACK TO TOP
