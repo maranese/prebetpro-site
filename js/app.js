@@ -145,6 +145,7 @@ function renderPredictions(fixtures) {
 
     // ✅ Dati reali dal backend
     const p = match.predictions;
+    const dc = p.double_chance;
     const hi = v => v >= 70 ? "highlight" : "";
 
     card.innerHTML = `
@@ -157,6 +158,13 @@ function renderPredictions(fixtures) {
         <div class="prediction-item ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
         <div class="prediction-item ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
         <div class="prediction-item ${hi(p.away_win)}">2 <strong>${p.away_win}%</strong></div>
+      </div>
+
+      <div class="prediction-section-title">Doppia Chance</div>
+      <div class="prediction-grid grid-3">
+        <div class="prediction-item ${hi(dc["1x"])}">1X <strong>${dc["1x"]}%</strong></div>
+        <div class="prediction-item ${hi(dc["x2"])}">X2 <strong>${dc["x2"]}%</strong></div>
+        <div class="prediction-item ${hi(dc["12"])}">12 <strong>${dc["12"]}%</strong></div>
       </div>
 
       <div class="prediction-section-title">Over / Under</div>
