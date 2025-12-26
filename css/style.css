@@ -249,3 +249,29 @@ body.dark .prediction-item {
 body.dark .prediction-item.view-all {
   background: rgba(255,255,255,.14);
 }
+/* =========================
+   DARK MODE – TEXT VISIBILITY FIX
+   (NON CAMBIA UX, SOLO CONTRASTO)
+========================= */
+
+body.dark .match-teams,
+body.dark .prediction-header,
+body.dark .league-header,
+body.dark .today-header,
+body.dark h2 {
+  color: var(--text-dark);
+}
+
+body.dark .match-score {
+  color: #ffffff;
+}
+
+body.dark .prediction-info,
+body.dark .prediction-info p {
+  color: var(--text-muted-dark);
+}
+
+body.dark .no-data {
+  color: var(--text-muted-dark);
+  background: rgba(255,255,255,0.05);
+}
