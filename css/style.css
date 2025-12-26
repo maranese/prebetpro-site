@@ -436,3 +436,33 @@ body.dark .premium-box {
 body.dark .premium-box p {
   color: var(--text-muted-dark);
 }
+/* =========================
+   DARK MODE VISIBILITY FIX
+========================= */
+
+/* Match title (Home vs Away) */
+body.dark .match-teams {
+  color: #f1f5f9; /* grigio molto chiaro, non bianco puro */
+}
+
+/* League name */
+body.dark .match-league {
+  color: var(--accent-soft);
+}
+
+/* Toggle button text (Show Top Picks / Show All) */
+body.dark .toggle-btn {
+  color: #052e1c; /* testo scuro su bottone chiaro */
+}
+
+/* If you have "Show all" links/buttons */
+body.dark .show-all,
+body.dark .show-more {
+  color: #e5fdf1;
+}
+
+/* Hover state for links in dark */
+body.dark .show-all:hover,
+body.dark .show-more:hover {
+  color: var(--accent-soft);
+}
