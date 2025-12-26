@@ -1,181 +1,179 @@
-document.addEventListener("DOMContentLoaded", () => {
-  loadMatches();
-  initBackToTop();
-});
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
 
-/* =========================
-   LOAD MATCHES
-========================= */
-async function loadMatches() {
-  const box = document.getElementById("matches");
-  const noBox = document.getElementById("no-matches");
-  const statsBox = document.getElementById("stats-summary");
-
-  if (!box) return;
-
-  box.innerHTML = "⏳ Loading matches...";
-
-  try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) throw new Error("API error");
-
-    const json = await res.json();
-    const fixtures = json.fixtures || [];
-
-    if (fixtures.length === 0) {
-      box.innerHTML = "";
-      if (noBox) noBox.style.display = "block";
-      if (statsBox) statsBox.innerHTML = "";
-      return;
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders });
     }
 
-    if (noBox) noBox.style.display = "none";
-    box.innerHTML = "";
+    try {
+      const url = new URL(request.url);
+      const today = new Date().toISOString().split("T")[0];
+      const cacheKey = `fixtures:${today}`;
 
-    renderStatistics(fixtures);
-    renderPredictions(fixtures);
+      /* =========================
+         DEBUG – TEAM HISTORY
+         (temporaneo, da rimuovere più avanti)
+      ========================= */
+      if (url.pathname === "/debug/team-history") {
+        const teamId = url.searchParams.get("team");
+        if (!teamId) return json({ error: "Missing team id" }, 400);
 
-    fixtures.forEach(m => {
-      const card = document.createElement("div");
-      card.className = "match-card";
+        const data = await env.prebetpro_kv.get(
+          `team:${teamId}:history`,
+          { type: "json" }
+        );
 
-      const league = m.league?.name || "ND";
-      const logo = m.league?.logo;
-      const home = m.teams?.home?.name || "Home";
-      const away = m.teams?.away?.name || "Away";
-      const status = m.fixture?.status?.short || "ND";
-      const finished = ["FT", "AET", "PEN"].includes(status);
+        return json(data || { message: "No data" });
+      }
 
-      const score = finished
-        ? `${m.goals.home} – ${m.goals.away}`
-        : new Date(m.fixture.date).toLocaleTimeString("it-IT", {
-            hour: "2-digit",
-            minute: "2-digit"
-          });
+      /* =========================
+         SNAPSHOT MANUALE
+      ========================= */
+      if (url.pathname === "/snapshot") {
+        const result = await updateFixtures(today, env);
+        await updateTeamHistory(today, env);
+        return json(result);
+      }
 
-      card.innerHTML = `
-        <div class="match-league">
-          ${logo ? `<img src="${logo}" width="18">` : ""}
-          ${league}
-        </div>
-        <div class="match-teams">
-          ${home} <strong>vs</strong> ${away}
-        </div>
-        <div class="match-info">
-          <span>${score}</span>
-          <strong>${status}</strong>
-        </div>
-      `;
+      /* =========================
+         DAILY REPORT
+      ========================= */
+      if (url.pathname === "/report") {
+        const cached = await env.CACHE.get(cacheKey, { type: "json" });
+        if (!cached || !cached.fixtures) return json({ matches: [] });
 
-      box.appendChild(card);
-    });
+        const finished = cached.fixtures.filter(f =>
+          ["FT", "AET", "PEN"].includes(f.fixture.status.short)
+        );
 
-  } catch (err) {
-    console.error(err);
-    box.innerHTML = `
-      <div class="no-data">
-        Data temporarily unavailable.
-      </div>
-    `;
+        return json({
+          matches: finished.map(f => ({
+            home: f.teams.home.name,
+            away: f.teams.away.name,
+            goals_home: f.goals.home,
+            goals_away: f.goals.away,
+          }))
+        });
+      }
+
+      /* =========================
+         DEFAULT – FIXTURES CACHE
+      ========================= */
+      const cached = await env.CACHE.get(cacheKey, { type: "json" });
+
+      if (cached) {
+        return json({
+          fixtures: cached.fixtures,
+          last_update: cached.last_update,
+        });
+      }
+
+      return json({ fixtures: [], message: "Cache empty" });
+
+    } catch (err) {
+      return json({ error: err.message }, 500);
+    }
+  },
+
+  async scheduled(event, env) {
+    const today = new Date().toISOString().split("T")[0];
+    await updateFixtures(today, env);
+    await updateTeamHistory(today, env);
+  }
+};
+
+/* =========================
+   FIXTURES FETCH + CACHE
+========================= */
+async function updateFixtures(date, env) {
+  const apiUrl = `https://v3.football.api-sports.io/fixtures?date=${date}&timezone=Europe/Rome`;
+
+  const res = await fetch(apiUrl, {
+    headers: {
+      "x-apisports-key": env.API_FOOTBALL_KEY_DIRECT,
+    },
+  });
+
+  const json = await res.json();
+  const fixtures = json.response || [];
+
+  const payload = {
+    fixtures,
+    last_update: new Date().toISOString(),
+  };
+
+  await env.CACHE.put(`fixtures:${date}`, JSON.stringify(payload), {
+    expirationTtl: 60 * 60 * 48,
+  });
+
+  return { saved: fixtures.length };
+}
+
+/* =========================
+   UPDATE TEAM HISTORY (KV)
+========================= */
+async function updateTeamHistory(date, env) {
+  const cached = await env.CACHE.get(`fixtures:${date}`, { type: "json" });
+  if (!cached || !cached.fixtures) return;
+
+  const finished = cached.fixtures.filter(f =>
+    ["FT", "AET", "PEN"].includes(f.fixture.status.short)
+  );
+
+  for (const match of finished) {
+    await updateSingleTeam(match, true, env);
+    await updateSingleTeam(match, false, env);
   }
 }
 
-/* =========================
-   STATISTICS
-========================= */
-function renderStatistics(fixtures) {
-  const box = document.getElementById("stats-summary");
-  if (!box) return;
+async function updateSingleTeam(match, isHome, env) {
+  const team = isHome ? match.teams.home : match.teams.away;
+  const goalsFor = isHome ? match.goals.home : match.goals.away;
+  const goalsAgainst = isHome ? match.goals.away : match.goals.home;
 
-  let ns = 0, live = 0, ft = 0;
+  const key = `team:${team.id}:history`;
+  let history = await env.prebetpro_kv.get(key, { type: "json" });
 
-  fixtures.forEach(f => {
-    const s = f.fixture.status.short;
-    if (s === "NS") ns++;
-    else if (["1H","HT","2H"].includes(s)) live++;
-    else if (["FT","AET","PEN"].includes(s)) ft++;
+  if (!history) {
+    history = {
+      home: [],
+      away: [],
+      last_update: null
+    };
+  }
+
+  const bucket = isHome ? history.home : history.away;
+
+  bucket.push({
+    date: match.fixture.date,
+    goals_for: goalsFor,
+    goals_against: goalsAgainst,
+    result:
+      goalsFor > goalsAgainst ? "W" :
+      goalsFor < goalsAgainst ? "L" : "D"
   });
 
-  box.innerHTML = `
-    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
-    <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
-    <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
-    <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
-  `;
+  if (bucket.length > 15) bucket.shift();
+
+  history.last_update = new Date().toISOString();
+
+  await env.prebetpro_kv.put(key, JSON.stringify(history));
 }
 
 /* =========================
-   PREDICTIONS – REAL DATA
+   JSON RESPONSE
 ========================= */
-function renderPredictions(fixtures) {
-  const box = document.getElementById("predictions-list");
-  const empty = document.getElementById("predictions-empty");
-
-  if (!box) return;
-
-  box.innerHTML = "";
-  if (empty) empty.style.display = "none";
-
-  fixtures.forEach(match => {
-    const card = document.createElement("div");
-    card.className = "prediction-card";
-
-    // ❌ DATI INSUFFICIENTI
-    if (match.confidence !== "high" || !match.predictions) {
-      card.innerHTML = `
-        <div class="prediction-header">
-          ${match.teams.home.name} vs ${match.teams.away.name}
-        </div>
-        <div class="prediction-info">
-          <strong>📊 Previsioni non disponibili</strong>
-          <p>
-            Storico insufficiente per questa partita.<br>
-            Il modello statistico si attiva solo con dati adeguati.
-          </p>
-        </div>
-      `;
-      box.appendChild(card);
-      return;
-    }
-
-    // ✅ DATI POISSON REALI
-    const p = match.predictions;
-    const hi = v => v >= 70 ? "prediction-high" : "";
-
-    card.innerHTML = `
-      <div class="prediction-header">
-        ${match.teams.home.name} vs ${match.teams.away.name}
-      </div>
-
-      <div class="prediction-section-title">Over / Under</div>
-      <div class="prediction-grid grid-3">
-        <div class="prediction-row ${hi(p.over_15)}">Over 1.5 <strong>${p.over_15}%</strong></div>
-        <div class="prediction-row ${hi(p.under_15)}">Under 1.5 <strong>${p.under_15}%</strong></div>
-        <div class="prediction-row ${hi(p.over_25)}">Over 2.5 <strong>${p.over_25}%</strong></div>
-        <div class="prediction-row ${hi(p.under_25)}">Under 2.5 <strong>${p.under_25}%</strong></div>
-      </div>
-
-      <div class="prediction-section-title">Goal / No Goal</div>
-      <div class="prediction-grid grid-3">
-        <div class="prediction-row ${hi(p.btts)}">Goal <strong>${p.btts}%</strong></div>
-        <div class="prediction-row ${hi(p.no_btts)}">No Goal <strong>${p.no_btts}%</strong></div>
-      </div>
-    `;
-
-    box.appendChild(card);
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
   });
-}
-
-/* =========================
-   BACK TO TOP
-========================= */
-function initBackToTop() {
-  const btn = document.getElementById("back-to-top");
-  if (!btn) return;
-
-  window.addEventListener("scroll", () => {
-    btn.style.display = window.scrollY > 300 ? "block" : "none";
-  });
-
-  btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
 }
