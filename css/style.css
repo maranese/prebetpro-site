@@ -2,7 +2,8 @@
    ROOT VARIABLES
 ========================= */
 :root {
-  --accent: #ff7a00;
+  --accent: #1f7a4d;
+  --accent-soft: #2fa36a;
 
   --bg-light: #ffffff;
   --bg-dark: #0f1115;
@@ -17,6 +18,8 @@
   --text-muted-dark: #b5b5b5;
 
   --success: #16a34a;
+  --warning: #d97706;
+  --neutral: #9ca3af;
 }
 
 /* =========================
@@ -41,7 +44,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(90deg, #ff7a00, #ff9f1a);
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
   padding: 12px 16px;
 }
 
@@ -119,11 +122,52 @@ h2 {
 .stat-card,
 .report-match,
 .no-data,
-.prediction-card {
+.prediction-card,
+.top-pick-card {
   background: var(--card-light);
   padding: 16px;
   border-radius: 10px;
   margin-bottom: 14px;
+}
+
+/* =========================
+   TOP PICKS
+========================= */
+.top-picks {
+  margin-bottom: 40px;
+}
+
+.top-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.top-pick-card {
+  border-left: 4px solid var(--accent);
+}
+
+.top-pick-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.top-pick-market {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.top-pick-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-top: 6px;
+}
+
+/* Premium blur */
+.premium-blur {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
 }
 
 /* =========================
@@ -150,6 +194,32 @@ h2 {
 }
 
 /* =========================
+   CONFIDENCE BADGES
+========================= */
+.confidence-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.confidence-high {
+  background: rgba(22, 163, 74, 0.15);
+  color: #166534;
+}
+
+.confidence-medium {
+  background: rgba(217, 119, 6, 0.15);
+  color: #92400e;
+}
+
+.confidence-low {
+  background: rgba(156, 163, 175, 0.2);
+  color: #374151;
+}
+
+/* =========================
    STATISTICS
 ========================= */
 .stats-grid {
@@ -170,25 +240,39 @@ h2 {
 }
 
 /* =========================
-   PREDICTIONS – HYBRID
+   REPORTS
 ========================= */
-.prediction-card {
-  background: var(--card-light);
+.report-match {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
 }
 
+.report-result-win {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.report-result-loss {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* =========================
+   PREDICTIONS
+========================= */
 .prediction-header {
   font-weight: 700;
   margin-bottom: 10px;
 }
 
-/* GRID */
 .prediction-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 8px;
 }
 
-/* ITEM */
 .prediction-item {
   text-align: center;
   padding: 8px;
@@ -204,7 +288,6 @@ h2 {
   font-weight: 700;
 }
 
-/* HIGH CONFIDENCE ≥70% */
 .prediction-item.highlight {
   background: rgba(22, 163, 74, 0.12);
   border: 1px solid var(--success);
@@ -253,7 +336,8 @@ body.dark .match-card,
 body.dark .stat-card,
 body.dark .report-match,
 body.dark .no-data,
-body.dark .prediction-card {
+body.dark .prediction-card,
+body.dark .top-pick-card {
   background: var(--card-dark);
 }
 
@@ -269,32 +353,4 @@ body.dark .prediction-item {
 body.dark .prediction-item.highlight {
   background: rgba(34, 197, 94, 0.18);
   border-color: #22c55e;
-}
-/* =========================
-   PREDICTION INFO (NO DATA)
-========================= */
-
-.prediction-info {
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #f8f9fb;
-  border-left: 4px solid var(--accent);
-  font-size: 0.85rem;
-  color: #444;
-}
-
-.prediction-info strong {
-  display: block;
-  margin-bottom: 4px;
-  color: #111;
-}
-
-body.dark .prediction-info {
-  background: #1e222b;
-  color: #ccc;
-}
-
-body.dark .prediction-info strong {
-  color: #f1f1f1;
 }
