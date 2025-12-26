@@ -47,15 +47,15 @@ async function loadMatches() {
       const finished = ["FT", "AET", "PEN"].includes(status);
 
       const score = finished
-        ? `${match.goals.home} – ${match.goals.away}`
+        ? ${match.goals.home} – ${match.goals.away}
         : new Date(match.fixture.date).toLocaleTimeString("it-IT", {
             hour: "2-digit",
             minute: "2-digit",
           });
 
-      card.innerHTML = `
+      card.innerHTML = 
         <div class="match-league">
-          ${logo ? `<img src="${logo}" width="18">` : ""}
+          ${logo ? <img src="${logo}" width="18"> : ""}
           ${league}
         </div>
 
@@ -67,18 +67,18 @@ async function loadMatches() {
           <span>${score}</span>
           <strong>${status}</strong>
         </div>
-      `;
+      ;
 
       matchesBox.appendChild(card);
     });
 
   } catch (err) {
     console.error("loadMatches error:", err);
-    matchesBox.innerHTML = `
+    matchesBox.innerHTML = 
       <div class="no-data">
         Data temporarily unavailable.
       </div>
-    `;
+    ;
   }
 }
 
@@ -98,20 +98,21 @@ function renderStatistics(fixtures) {
     else if (["FT", "AET", "PEN"].includes(s)) ft++;
   });
 
-  box.innerHTML = `
+  box.innerHTML = 
     <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
     <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
     <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
     <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
-  `;
+  ;
 }
 
 /* =========================
-   PREDICTIONS – OPZIONE C
+   PREDICTIONS (REAL DATA)
 ========================= */
 function renderPredictions(fixtures) {
   const box = document.getElementById("predictions-list");
   const empty = document.getElementById("predictions-empty");
+
   if (!box) return;
 
   box.innerHTML = "";
@@ -126,7 +127,7 @@ function renderPredictions(fixtures) {
 
     // ❌ Storico insufficiente
     if (match.confidence !== "high" || !match.predictions) {
-      card.innerHTML = `
+      card.innerHTML = 
         <div class="prediction-header">
           ${home} vs ${away}
         </div>
@@ -137,62 +138,41 @@ function renderPredictions(fixtures) {
             Il modello statistico si attiva solo con dati adeguati.
           </p>
         </div>
-      `;
+      ;
       box.appendChild(card);
       return;
     }
 
+    // ✅ Dati reali dal backend
     const p = match.predictions;
     const hi = v => v >= 70 ? "prediction-high" : "";
 
-    // 🔥 RACCOLTA MERCATI + RANKING
-    const markets = [
-      { label: "1", value: p.home_win },
-      { label: "X", value: p.draw },
-      { label: "2", value: p.away_win },
-
-      { label: "1X", value: p.dc_1x },
-      { label: "X2", value: p.dc_x2 },
-      { label: "12", value: p.dc_12 },
-
-      { label: "Over 1.5", value: p.over_15 },
-      { label: "Over 2.5", value: p.over_25 },
-      { label: "Under 2.5", value: p.under_25 },
-
-      { label: "Goal", value: p.btts },
-      { label: "No Goal", value: p.no_btts },
-    ];
-
-    const ranked = markets
-      .filter(m => m.value >= 70)
-      .sort((a, b) => b.value - a.value);
-
-    const best = ranked[0];
-
-    const rankedHTML = ranked.length
-      ? ranked.map(m => `
-          <div class="prediction-row prediction-high">
-            ${m.label}
-            <strong>${m.value}%</strong>
-          </div>
-        `).join("")
-      : `<p>Nessuna previsione sopra il 70%</p>`;
-
-    card.innerHTML = `
+    card.innerHTML = 
       <div class="prediction-header">
         ${home} vs ${away}
       </div>
 
-      ${best ? `
-        <div class="best-pick">
-          ⭐ BEST PICK: <strong>${best.label}</strong> (${best.value}%)
-        </div>
-      ` : ""}
-
-      <div class="prediction-grid">
-        ${rankedHTML}
+      <div class="prediction-section-title">1X2</div>
+      <div class="prediction-grid grid-3">
+        <div class="prediction-row ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
+        <div class="prediction-row ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
+        <div class="prediction-row ${hi(p.away_win)}">2 <strong>${p.away_win}%</strong></div>
       </div>
-    `;
+
+      <div class="prediction-section-title">Over / Under</div>
+      <div class="prediction-grid grid-3">
+        <div class="prediction-row ${hi(p.over_15)}">Over 1.5 <strong>${p.over_15}%</strong></div>
+        <div class="prediction-row ${hi(p.under_15)}">Under 1.5 <strong>${p.under_15}%</strong></div>
+        <div class="prediction-row ${hi(p.over_25)}">Over 2.5 <strong>${p.over_25}%</strong></div>
+        <div class="prediction-row ${hi(p.under_25)}">Under 2.5 <strong>${p.under_25}%</strong></div>
+      </div>
+
+      <div class="prediction-section-title">Goal / No Goal</div>
+      <div class="prediction-grid grid-3">
+        <div class="prediction-row ${hi(p.btts)}">Goal <strong>${p.btts}%</strong></div>
+        <div class="prediction-row ${hi(p.no_btts)}">No Goal <strong>${p.no_btts}%</strong></div>
+      </div>
+    ;
 
     box.appendChild(card);
   });
