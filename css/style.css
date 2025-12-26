@@ -15,8 +15,8 @@
   --text-light: #111111;
   --text-dark: #f1f1f1;
 
-  --text-muted-light: #6b7280;
-  --text-muted-dark: #9ca3af;
+  --text-muted-light: #555555;
+  --text-muted-dark: #b5b5b5;
 
   --success: #22c55e;
   --warning: #f59e0b;
@@ -26,9 +26,7 @@
 /* =========================
    RESET
 ========================= */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -45,11 +43,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(
-    90deg,
-    var(--accent-dark),
-    var(--accent)
-  );
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
   padding: 12px 16px;
 }
 
@@ -57,7 +51,6 @@ body {
   max-width: 1100px;
   margin: auto;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -73,33 +66,6 @@ body {
 .tagline {
   font-size: 0.8rem;
   color: #eafff3;
-  opacity: 0.9;
-}
-
-/* =========================
-   NAVIGATION
-========================= */
-.main-nav {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.main-nav a {
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-#theme-toggle {
-  border: none;
-  background: #fff;
-  color: var(--accent-dark);
-  padding: 6px 10px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: bold;
 }
 
 /* =========================
@@ -111,9 +77,7 @@ main {
   padding: 30px 16px;
 }
 
-section {
-  margin-bottom: 50px;
-}
+section { margin-bottom: 50px; }
 
 h2 {
   border-left: 4px solid var(--accent);
@@ -136,29 +100,32 @@ h2 {
 }
 
 /* =========================
-   MATCH CARD (TODAY)
+   MATCH CARD
 ========================= */
 .match-header {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  align-items: flex-start;
 }
 
 .match-teams {
   font-weight: 800;
+  font-size: 1rem;
+}
+
+.match-score {
+  margin-top: 4px;
+  font-size: 1.1rem;
+  font-weight: 900;
 }
 
 .match-meta {
   font-size: 0.8rem;
-  font-weight: 600;
+  margin-top: 2px;
+  color: var(--text-muted-light);
 }
 
-.match-score {
-  font-size: 1.2rem;
-  font-weight: 900;
-  margin: 6px 0;
-}
-
+/* FT badge */
 .ft-label {
   background: var(--accent);
   color: #053b24;
@@ -169,7 +136,7 @@ h2 {
 }
 
 /* =========================
-   CONFIDENCE BADGES
+   CONFIDENCE BADGE
 ========================= */
 .confidence-badge {
   padding: 4px 10px;
@@ -178,73 +145,48 @@ h2 {
   font-weight: 800;
 }
 
-.confidence-high {
-  background: rgba(47, 191, 113, 0.25);
-  color: var(--accent-dark);
-}
-
-.confidence-medium {
-  background: rgba(245, 158, 11, 0.25);
-  color: #92400e;
-}
-
-.confidence-low {
-  background: rgba(156, 163, 175, 0.3);
-  color: #374151;
-}
+.confidence-high { background: rgba(47,191,113,.25); color: var(--accent-dark); }
+.confidence-medium { background: rgba(245,158,11,.25); color: #92400e; }
+.confidence-low { background: rgba(156,163,175,.3); color: #374151; }
 
 /* =========================
-   MATCH DETAILS
+   PREDICTION GRID
 ========================= */
-.match-details {
-  margin-top: 6px;
-  font-size: 0.8rem;
-}
-
-.match-details summary {
-  cursor: pointer;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-/* =========================
-   GOALS
-========================= */
-.match-goals {
-  margin-top: 6px;
-}
-
-.goal-team {
-  font-weight: 600;
-}
-
-/* =========================
-   PREDICTIONS GRID
-========================= */
-.match-card .prediction-grid {
+.prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
   margin-top: 12px;
 }
 
+.prediction-item {
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.05);
+  font-size: 0.85rem;
+}
+
+.prediction-item.highlight {
+  background: rgba(47,191,113,.2);
+  border: 1px solid var(--accent);
+}
+
+/* Show all card */
 .prediction-item.view-all {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-weight: 800;
   cursor: pointer;
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(0,0,0,0.08);
 }
 
 /* =========================
    LEAGUES
 ========================= */
-.league-block {
-  margin-bottom: 28px;
-}
-
 .league-header {
   display: flex;
   justify-content: space-between;
-  font-weight: 900;
+  font-weight: 800;
+  margin-bottom: 10px;
 }
 
 .league-toggle {
@@ -255,37 +197,17 @@ h2 {
   cursor: pointer;
 }
 
-.league-matches.hidden {
-  display: none;
-}
-
-/* =========================
-   TODAY GRID
-========================= */
-@media (min-width: 1024px) {
-  .match-card {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 20px;
-  }
-
-  .match-card .prediction-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-}
+.league-matches.hidden { display: none; }
 
 /* =========================
    PREMIUM BLUR & PAYWALL
 ========================= */
-.top-picks-content {
-  position: relative;
-}
+.top-picks-content { position: relative; }
 
 body:not(.is-premium) #top-picks-list {
   filter: blur(6px);
   pointer-events: none;
+  user-select: none;
 }
 
 .premium-overlay {
@@ -294,7 +216,6 @@ body:not(.is-premium) #top-picks-list {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
 }
 
 /* =========================
@@ -306,13 +227,25 @@ body.dark {
 }
 
 body.dark .match-card,
-body.dark .stat-card,
 body.dark .prediction-card,
 body.dark .top-pick-card {
   background: var(--card-dark);
 }
 
-body.dark .match-meta,
-body.dark .goal-team {
+body.dark .match-teams,
+body.dark .match-score,
+body.dark .league-header {
   color: var(--text-dark);
+}
+
+body.dark .match-meta {
+  color: var(--text-muted-dark);
+}
+
+body.dark .prediction-item {
+  background: rgba(255,255,255,.08);
+}
+
+body.dark .prediction-item.view-all {
+  background: rgba(255,255,255,.14);
 }
