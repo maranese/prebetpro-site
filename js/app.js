@@ -39,37 +39,66 @@ async function loadMatches() {
     box.innerHTML = "";
 
     renderStatistics(fixtures);
-    renderPredictions(fixtures);
+    function renderPredictions(fixtures) {
+  const box = document.getElementById("predictions-list");
+  const empty = document.getElementById("predictions-empty");
 
-    fixtures.forEach(m => {
-      const card = document.createElement("div");
-      card.className = "match-card";
+  if (!box) return;
 
-      const league = m.league?.name || "ND";
-      const logo = m.league?.logo;
-      const home = m.teams?.home?.name || "Home";
-      const away = m.teams?.away?.name || "Away";
-      const status = m.fixture?.status?.short || "ND";
-      const finished = ["FT", "AET", "PEN"].includes(status);
+  box.innerHTML = "";
+  if (empty) empty.style.display = "none";
 
-      const score = finished
-        ? `${m.goals.home} – ${m.goals.away}`
-        : new Date(m.fixture.date).toLocaleTimeString("it-IT", {
-            hour: "2-digit",
-            minute: "2-digit"
-          });
+  fixtures.forEach(match => {
+    const card = document.createElement("div");
+    card.className = "prediction-card";
 
+    // ❌ NESSUN DATO SUFFICIENTE
+    if (match.confidence !== "high" || !match.predictions) {
       card.innerHTML = `
-        <div class="match-league">
-          ${logo ? `<img src="${logo}" width="18">` : ""}
-          ${league}
+        <div class="prediction-header">
+          ${match.teams.home.name} vs ${match.teams.away.name}
         </div>
-        <div class="match-teams">${home} <strong>vs</strong> ${away}</div>
-        <div class="match-info">
-          <span>${score}</span>
-          <strong>${status}</strong>
+        <div class="prediction-info">
+          <strong>📊 Previsioni non disponibili</strong>
+          <p>
+            Storico insufficiente per questa partita.<br>
+            Il modello statistico si attiva solo con dati adeguati.
+          </p>
         </div>
       `;
+      box.appendChild(card);
+      return;
+    }
+
+    // ✅ DATI REALI DAL MODELLO POISSON
+    const p = match.predictions;
+
+    const hi = v => v >= 70 ? "prediction-high" : "";
+
+    card.innerHTML = `
+      <div class="prediction-header">
+        ${match.teams.home.name} vs ${match.teams.away.name}
+      </div>
+
+      <div class="prediction-section-title">Over / Under</div>
+      <div class="prediction-grid grid-3">
+        <div class="prediction-row ${hi(p.over_15)}">Over 1.5 <strong>${p.over_15}%</strong></div>
+        <div class="prediction-row ${hi(p.under_15)}">Under 1.5 <strong>${p.under_15}%</strong></div>
+        <div class="prediction-row ${hi(p.over_25)}">Over 2.5 <strong>${p.over_25}%</strong></div>
+        <div class="prediction-row ${hi(p.under_25)}">Under 2.5 <strong>${p.under_25}%</strong></div>
+      </div>
+
+      <div class="prediction-section-title">Goal / No Goal</div>
+      <div class="prediction-grid grid-3">
+        <div class="prediction-row ${hi(p.btts)}">Goal <strong>${p.btts}%</strong></div>
+        <div class="prediction-row ${hi(p.no_btts)}">No Goal <strong>${p.no_btts}%</strong></div>
+      </div>
+    `;
+
+    box.appendChild(card);
+  });
+}
+
 
       box.appendChild(card);
     });
