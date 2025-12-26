@@ -2,148 +2,176 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pronostici Calcio di Oggi | PreBetPro – Analisi e Probabilità</title>
 
-  <meta name="description" content="Pronostici calcio di oggi basati su dati statistici. Top Picks ad alta affidabilità e tutte le partite con percentuali chiare e trasparenti." />
+  <title>PreBetPro – Football Predictions with Probabilities</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Football predictions for today based on statistical models. Probabilities, top picks, and transparent analysis for today’s matches." />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
+
 </head>
 
-<body>
+<body class="theme-light">
 
-<!-- =========================
-     HEADER / NAV
-========================= -->
+<!-- ======================
+  HEADER / NAV
+====================== -->
 <header class="site-header">
-  <div class="header-inner">
+  <div class="container header-inner">
 
     <div class="brand">
       <a href="/" class="logo">▶ PreBetPro</a>
-      <span class="tagline">Pronostici calcio basati sui dati</span>
+      <span class="tagline">Football predictions based on data</span>
     </div>
 
     <nav class="main-nav">
-      <a href="/">Home</a>
-      <a href="/predictions.html">Predictions</a>
-      <a href="/reports.html">Reports</a>
-      <a href="/method.html">Method</a>
+      <a href="#top-picks">Top Picks</a>
+      <a href="#today-matches">Today</a>
+      <a href="/predictions.html">All Predictions</a>
+      <a href="#method">Method</a>
     </nav>
 
     <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-
   </div>
 </header>
 
+<!-- ======================
+  MAIN
+====================== -->
 <main>
 
-<!-- =========================
-     HERO / TOP PICKS
-========================= -->
-<section class="hero">
+  <!-- ======================
+    HERO / TOP PICKS
+  ====================== -->
+  <section id="top-picks" class="hero-section">
+    <div class="container hero-content">
 
-  <div class="hero-content">
+      <header class="hero-header">
+        <h1>Football Predictions for Today – Top Picks</h1>
+        <p class="hero-subtitle">
+          Only the strongest predictions based on probabilities and statistical consistency.
+          No random tips. No forced picks.
+        </p>
+      </header>
 
-    <h1>Pronostici Calcio di Oggi<br>Top Picks ad Alta Affidabilità</h1>
+      <!-- TOP PICKS CARDS -->
+      <div id="top-picks-list" class="top-picks-grid">
+        <!-- Rendered by app.js -->
+      </div>
 
-    <p class="hero-subtitle">
-      Analizziamo le partite con modelli statistici avanzati e
-      <strong>selezioniamo solo i pronostici con probabilità elevate</strong>.
-      Nessuna schedina casuale, solo numeri.
-    </p>
+      <!-- FUTURE PAYWALL MESSAGE -->
+      <div class="premium-hint">
+        <p>
+          Top Picks highlight the most reliable predictions of the day.
+          <strong>More advanced selections will be available for registered users.</strong>
+        </p>
+      </div>
 
-    <!-- TOP PICKS (PREMIUM READY) -->
-    <div id="top-picks" class="top-picks-grid">
-      <!-- cards generate da app.js -->
     </div>
+  </section>
 
-    <div id="top-picks-empty" class="no-data" style="display:none;">
-      Nessuna Top Pick disponibile oggi.
+  <!-- ======================
+    TODAY MATCHES
+  ====================== -->
+  <section id="today-matches" class="section">
+    <div class="container">
+
+      <header class="section-header">
+        <h2>Today’s Matches with Probabilities</h2>
+        <p>
+          All monitored matches for today, including estimated probabilities on the main markets.
+          Matches are ranked by statistical reliability.
+        </p>
+      </header>
+
+      <div id="matches" class="matches-list">
+        <!-- Rendered by app.js -->
+      </div>
+
+      <div id="no-matches" class="no-data" style="display:none;">
+        No matches available today for monitored leagues.
+      </div>
+
     </div>
+  </section>
 
-  </div>
-</section>
+  <!-- ======================
+    METHOD / TRUST
+  ====================== -->
+  <section id="method" class="section section-muted">
+    <div class="container">
 
-<!-- =========================
-     TODAY MATCHES
-========================= -->
-<section id="today" class="today-section">
+      <header class="section-header">
+        <h2>How PreBetPro Predictions Work</h2>
+      </header>
 
-  <h2>Tutte le Partite di Oggi con Pronostici e Percentuali</h2>
+      <div class="method-grid">
 
-  <p class="section-subtitle">
-    Per ogni match trovi le <strong>probabilità stimate</strong> sui mercati principali.
-    La qualità del dato conta più della quantità.
-  </p>
+        <div class="method-card">
+          <h3>Data, Not Intuition</h3>
+          <p>
+            Predictions are generated using mathematical models applied to real match data.
+            No opinions, no manual tips.
+          </p>
+        </div>
 
-  <div id="matches" class="matches-list">
-    <!-- Fixture cards generate da app.js -->
-  </div>
+        <div class="method-card">
+          <h3>Why Not Every Match Has a “Strong Pick”</h3>
+          <p>
+            Football is unpredictable. We only highlight matches where the data shows low variability
+            and consistent patterns.
+          </p>
+        </div>
 
-  <div id="no-matches" class="no-data" style="display:none;">
-    Nessuna partita disponibile oggi per i campionati monitorati.
-  </div>
+        <div class="method-card">
+          <h3>Transparent by Design</h3>
+          <p>
+            All matches are shown, including those with lower reliability.
+            The final decision is always left to the user.
+          </p>
+        </div>
 
-  <!-- CTA verso pagina predizioni completa -->
-  <div class="section-cta">
-    <a href="/predictions.html" class="cta-link">
-      Vai alla pagina completa delle predizioni →
-    </a>
-  </div>
+      </div>
 
-</section>
+    </div>
+  </section>
 
-<!-- =========================
-     TRUST / METHOD
-========================= -->
-<section class="method-section">
+  <!-- ======================
+    CTA TO FULL PREDICTIONS
+  ====================== -->
+  <section class="section">
+    <div class="container cta-box">
 
-  <h2>Come Funzionano i Pronostici di PreBetPro</h2>
-
-  <div class="method-grid">
-
-    <div class="method-block">
-      <h3>Perché non tutte le partite hanno una “fissa”?</h3>
+      <h2>Want to See All Predictions?</h2>
       <p>
-        Il calcio è uno sport variabile. Mostriamo una Top Pick
-        solo quando i dati sono davvero solidi e coerenti.
+        Explore the complete list of today’s matches, probabilities, and markets
+        in the dedicated predictions section.
       </p>
+
+      <a href="/predictions.html" class="btn-primary">
+        View All Predictions
+      </a>
+
     </div>
-
-    <div class="method-block">
-      <h3>Cosa significa Alta Affidabilità?</h3>
-      <p>
-        Indica partite con storici consistenti e bassa variabilità statistica.
-        Meno sorprese, più controllo.
-      </p>
-    </div>
-
-    <div class="method-block">
-      <h3>Mostrate anche pronostici meno affidabili?</h3>
-      <p>
-        Sì. La trasparenza è parte del metodo.
-        Sta all’utente decidere cosa giocare, con le giuste informazioni.
-      </p>
-    </div>
-
-  </div>
-
-</section>
+  </section>
 
 </main>
 
-<!-- =========================
-     FOOTER
-========================= -->
+<!-- ======================
+  FOOTER
+====================== -->
 <footer class="site-footer">
-  <p>
-    © 2025 PreBetPro.com – Pronostici calcio e analisi statistiche.<br>
-    Il gioco è vietato ai minori di 18 anni. Gioca responsabilmente.
-  </p>
+  <div class="container footer-inner">
+    <p>© 2025 PreBetPro.com – Football predictions and statistics</p>
+  </div>
 </footer>
 
-<button id="back-to-top" aria-label="Back to top">↑</button>
-
+<!-- ======================
+  SCRIPTS
+====================== -->
 <script src="js/theme.js"></script>
 <script src="js/app.js"></script>
 
