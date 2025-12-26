@@ -185,6 +185,19 @@ function renderPredictions(fixtures) {
     box.appendChild(card);
   });
 }
+const toggleBtn = document.getElementById("toggle-top-picks");
+const topPicksContent = document.getElementById("top-picks-content");
+
+if (toggleBtn && topPicksContent) {
+  toggleBtn.addEventListener("click", () => {
+    const isOpen = topPicksContent.classList.toggle("open");
+
+    toggleBtn.textContent = isOpen
+      ? "Hide Top Picks"
+      : "Show Top Picks";
+  });
+}
+
 
 /* =========================
    BACK TO TOP
