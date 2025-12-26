@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadTodayMatches();
-  loadMatches();        // mantiene statistiche + predictions
+  loadMatches();
   initBackToTop();
 });
 
@@ -44,7 +44,7 @@ async function loadTodayMatches() {
 
     noMatches.style.display = "none";
 
-    // 🔹 ORDINE SOLO PER ORARIO DI INIZIO
+    // 🔹 ORDINE PER ORARIO DI INIZIO
     fixtures.sort(
       (a, b) => new Date(a.fixture.date) - new Date(b.fixture.date)
     );
@@ -73,26 +73,32 @@ function renderMatchCard(f) {
 
   /* ===== RESULT HANDLING ===== */
   const status = f.fixture.status.short;
-  const ht = f.score?.halftime;
   const ft = f.score?.fulltime;
+
+  const finalScore =
+    ft && (ft.home != null && ft.away != null)
+      ? `${ft.home} – ${ft.away}`
+      : time;
+
+  /* ===== OPTIONAL DETAILS ===== */
+  const ht = f.score?.halftime;
   const et = f.score?.extratime;
   const pen = f.score?.penalty;
 
-  let scoreHtml = "";
-  if (ht && (ht.home != null || ht.away != null)) {
-    scoreHtml += `<div>HT: ${ht.home}–${ht.away}</div>`;
-  }
-  if (ft && (ft.home != null || ft.away != null)) {
-    scoreHtml += `<div>FT: ${ft.home}–${ft.away}</div>`;
-  }
-  if (status === "AET" && et) {
-    scoreHtml += `<div>AET: ${et.home}–${et.away}</div>`;
-  }
-  if (status === "PEN" && pen) {
-    scoreHtml += `<div>PEN: ${pen.home}–${pen.away}</div>`;
+  let detailsHtml = "";
+
+  if (ht || et || pen) {
+    detailsHtml = `
+      <details class="match-details">
+        <summary>Match details</summary>
+        ${ht ? `<div>HT: ${ht.home}–${ht.away}</div>` : ""}
+        ${et ? `<div>ET: ${et.home}–${et.away}</div>` : ""}
+        ${pen ? `<div>PEN: ${pen.home}–${pen.away}</div>` : ""}
+      </details>
+    `;
   }
 
-  /* ===== BEST 3 MARKETS (NO TOP PICKS) ===== */
+  /* ===== BEST 3 MARKETS ===== */
   const bestMarkets = getBestMarkets(f);
 
   card.innerHTML = `
@@ -112,15 +118,17 @@ function renderMatchCard(f) {
     </div>
 
     <div class="match-info">
-      ${scoreHtml || ""}
+      <strong>${finalScore}</strong>
     </div>
+
+    ${detailsHtml}
 
     <div class="prediction-grid">
       ${bestMarkets.map(m => renderMarket(m.label, m.value, m.strong)).join("")}
 
       <div class="prediction-item view-all"
            onclick="location.href='#predictions'">
-        Show all
+        Show all →
       </div>
     </div>
   `;
@@ -147,10 +155,7 @@ function getBestMarkets(f) {
     { label: "No Goal", value: p.no_btts, strong: s.no_btts }
   ].filter(m => m.value != null);
 
-  // ordina per percentuale DESC
   markets.sort((a, b) => b.value - a.value);
-
-  // esclude eventuali top picks (strength true + confidence high)
   return markets.slice(0, 3);
 }
 
@@ -224,12 +229,10 @@ function renderPredictions(fixtures) {
     }
 
     const p = match.predictions;
-    const dc = p.double_chance;
     const hi = v => v >= 70 ? "highlight" : "";
 
     card.innerHTML = `
       <div class="prediction-header">${home} vs ${away}</div>
-
       <div class="prediction-grid">
         <div class="prediction-item ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
         <div class="prediction-item ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
