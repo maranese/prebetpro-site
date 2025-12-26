@@ -31,7 +31,7 @@
 
 <main>
 
-  <!-- TOP PICKS (PREMIUM READY) -->
+  <!-- TOP PICKS (VISIBLE – PREMIUM READY) -->
   <section id="top-picks" class="top-picks">
     <div class="section-header">
       <h2>🔥 Top Picks</h2>
@@ -40,19 +40,16 @@
       </button>
     </div>
 
-    <div id="top-picks-content" class="top-picks-content">
+    <!--
+      CURRENT STATE:
+      - Top Picks visible to all users
 
-      <!-- PREMIUM OVERLAY (FREE USERS) -->
-      <div class="premium-overlay">
-        <div class="premium-box">
-          <h3>Top Picks Premium</h3>
-          <p>
-            Access the strongest data-backed selections.<br>
-            Verified by historical performance.
-          </p>
-          <button class="premium-cta">Unlock Premium</button>
-        </div>
-      </div>
+      FUTURE PREMIUM:
+      - add blur + overlay
+      - toggle via body.is-premium
+    -->
+
+    <div id="top-picks-content" class="top-picks-content">
 
       <!-- TOP PICKS LIST -->
       <div id="top-picks-list" class="top-picks-grid">
@@ -116,17 +113,13 @@
 <button id="back-to-top">↑</button>
 
 <!--
-  🔒 PREMIUM UNLOCK – FUTURE IMPLEMENTATION
-  ---------------------------------------
-  When the user completes login / payment,
-  simply add the following line after auth:
+  🔒 PREMIUM (FUTURE)
+  ------------------
+  When you decide to activate premium:
+  1) re-enable overlay + blur in CSS
+  2) add after login/payment:
 
-  document.body.classList.add("is-premium");
-
-  This will:
-  - remove Top Picks blur
-  - hide premium overlay
-  - unlock premium-only content
+     document.body.classList.add("is-premium");
 -->
 
 <script src="js/theme.js"></script>
