@@ -47,15 +47,15 @@ async function loadMatches() {
       const finished = ["FT", "AET", "PEN"].includes(status);
 
       const score = finished
-        ? ${match.goals.home} – ${match.goals.away}
+        ? `${match.goals.home} – ${match.goals.away}`
         : new Date(match.fixture.date).toLocaleTimeString("it-IT", {
             hour: "2-digit",
             minute: "2-digit",
           });
 
-      card.innerHTML = 
+      card.innerHTML = `
         <div class="match-league">
-          ${logo ? <img src="${logo}" width="18"> : ""}
+          ${logo ? `<img src="${logo}" width="18">` : ""}
           ${league}
         </div>
 
@@ -67,18 +67,18 @@ async function loadMatches() {
           <span>${score}</span>
           <strong>${status}</strong>
         </div>
-      ;
+      `;
 
       matchesBox.appendChild(card);
     });
 
   } catch (err) {
     console.error("loadMatches error:", err);
-    matchesBox.innerHTML = 
+    matchesBox.innerHTML = `
       <div class="no-data">
         Data temporarily unavailable.
       </div>
-    ;
+    `;
   }
 }
 
@@ -98,12 +98,12 @@ function renderStatistics(fixtures) {
     else if (["FT", "AET", "PEN"].includes(s)) ft++;
   });
 
-  box.innerHTML = 
+  box.innerHTML = `
     <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
     <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
     <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
     <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
-  ;
+  `;
 }
 
 /* =========================
@@ -127,7 +127,7 @@ function renderPredictions(fixtures) {
 
     // ❌ Storico insufficiente
     if (match.confidence !== "high" || !match.predictions) {
-      card.innerHTML = 
+      card.innerHTML = `
         <div class="prediction-header">
           ${home} vs ${away}
         </div>
@@ -138,7 +138,7 @@ function renderPredictions(fixtures) {
             Il modello statistico si attiva solo con dati adeguati.
           </p>
         </div>
-      ;
+      `;
       box.appendChild(card);
       return;
     }
@@ -147,7 +147,7 @@ function renderPredictions(fixtures) {
     const p = match.predictions;
     const hi = v => v >= 70 ? "prediction-high" : "";
 
-    card.innerHTML = 
+    card.innerHTML = `
       <div class="prediction-header">
         ${home} vs ${away}
       </div>
@@ -172,7 +172,7 @@ function renderPredictions(fixtures) {
         <div class="prediction-row ${hi(p.btts)}">Goal <strong>${p.btts}%</strong></div>
         <div class="prediction-row ${hi(p.no_btts)}">No Goal <strong>${p.no_btts}%</strong></div>
       </div>
-    ;
+    `;
 
     box.appendChild(card);
   });
