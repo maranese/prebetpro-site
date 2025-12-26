@@ -197,6 +197,132 @@ if (toggleBtn && topPicksContent) {
       : "Show Top Picks";
   });
 }
+async function loadTodayMatches() {
+  const container = document.getElementById("matches");
+  const noMatches = document.getElementById("no-matches");
+
+  container.innerHTML = "";
+
+  try {
+    const res = await fetch("/");
+    const data = await res.json();
+    const fixtures = data.fixtures || [];
+
+    if (!fixtures.length) {
+      noMatches.style.display = "block";
+      return;
+    }
+
+    // 🔹 ORDINE PER ORARIO DI INIZIO
+    fixtures.sort((a, b) =>
+      new Date(a.fixture.date) - new Date(b.fixture.date)
+    );
+
+    fixtures.forEach(f => {
+      container.appendChild(renderMatchCard(f));
+    });
+
+  } catch (err) {
+    console.error(err);
+    noMatches.style.display = "block";
+  }
+}
+
+/* =========================
+   MATCH CARD RENDER
+========================= */
+function renderMatchCard(f) {
+  const card = document.createElement("div");
+  card.className = `match-card confidence-${f.confidence}`;
+
+  const time = new Date(f.fixture.date).toLocaleTimeString("it-IT", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  // 🟢 RESULT STATUS
+  const status = f.fixture.status.short;
+  const ht = f.score?.halftime;
+  const ft = f.score?.fulltime;
+  const et = f.score?.extratime;
+  const pen = f.score?.penalty;
+
+  let scoreHtml = "";
+  if (ht && (ht.home !== null || ht.away !== null)) {
+    scoreHtml += `<div>HT: ${ht.home}–${ht.away}</div>`;
+  }
+  if (ft && (ft.home !== null || ft.away !== null)) {
+    scoreHtml += `<div>FT: ${ft.home}–${ft.away}</div>`;
+  }
+  if (status === "AET" && et) {
+    scoreHtml += `<div>AET: ${et.home}–${et.away}</div>`;
+  }
+  if (status === "PEN" && pen) {
+    scoreHtml += `<div>PEN: ${pen.home}–${pen.away}</div>`;
+  }
+
+  // 🔹 PRONOSTICI 1X2
+  const p = f.predictions;
+  const s = p?.strength || {};
+
+  const market1 = renderMarket("1", p?.home_win, s.home_win);
+  const marketX = renderMarket("X", p?.draw, s.draw);
+  const market2 = renderMarket("2", p?.away_win, s.away_win);
+
+  card.innerHTML = `
+    <div class="match-header">
+      <div>
+        <div class="match-teams">
+          ${f.teams.home.name} vs ${f.teams.away.name}
+        </div>
+        <div class="match-league">
+          ${f.league.name} · ${time}
+        </div>
+      </div>
+      <span class="confidence-badge confidence-${f.confidence}">
+        ${f.confidence.toUpperCase()}
+      </span>
+    </div>
+
+    <div class="match-info">
+      ${scoreHtml || ""}
+    </div>
+
+    <div class="prediction-grid">
+      ${market1}
+      ${marketX}
+      ${market2}
+    </div>
+
+    <button class="view-more"
+      onclick="location.href='#predictions'">
+      View full predictions
+    </button>
+  `;
+
+  return card;
+}
+
+/* =========================
+   MARKET RENDER
+========================= */
+function renderMarket(label, value, isStrong) {
+  if (value == null) return "";
+
+  return `
+    <div class="prediction-item ${isStrong ? "highlight" : ""}">
+      ${label}
+      <strong>${value}%</strong>
+    </div>
+  `;
+}
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  loadTodayMatches();
+});
 
 /* =========================
    BACK TO TOP
