@@ -40,27 +40,31 @@
       </button>
     </div>
 
-    <!--
-      In futuro:
-      - free user → questa sezione può essere blurred / locked
-      - premium user → cards visibili
-    -->
+    <!-- Top Picks Content (animated + premium aware) -->
+    <div id="top-picks-content" class="top-picks-content">
 
-    <div id="top-picks-content" class="top-picks-content" hidden>
-      <div id="top-picks-list" class="top-picks-grid"></div>
+      <!-- PREMIUM OVERLAY (FREE USERS) -->
+      <div class="premium-overlay">
+        <div class="premium-box">
+          <h3>Top Picks Premium</h3>
+          <p>
+            Access the strongest data-backed selections.<br>
+            Verified by historical performance.
+          </p>
+          <button class="premium-cta">Unlock Premium</button>
+        </div>
+      </div>
+
+      <!-- TOP PICKS LIST -->
+      <div id="top-picks-list" class="top-picks-grid">
+        <!-- Top Pick cards injected by JS -->
+      </div>
 
       <div id="top-picks-empty" class="no-data" style="display:none;">
         No Top Picks available today.
       </div>
-    </div>
 
-    <!-- PAYWALL PLACEHOLDER (FUTURO) -->
-    <!--
-    <div class="premium-lock">
-      <p>Top Picks are available for premium users.</p>
-      <button class="cta">Unlock Premium</button>
     </div>
-    -->
   </section>
 
   <!-- TODAY -->
