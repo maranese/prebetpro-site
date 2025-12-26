@@ -44,7 +44,7 @@ async function loadTodayMatches() {
 
     noMatches.style.display = "none";
 
-    // 🔹 ORDINE PER ORARIO DI INIZIO
+    // Ordine SOLO per orario
     fixtures.sort(
       (a, b) => new Date(a.fixture.date) - new Date(b.fixture.date)
     );
@@ -71,32 +71,15 @@ function renderMatchCard(f) {
     minute: "2-digit"
   });
 
-  /* ===== RESULT HANDLING ===== */
-  const status = f.fixture.status.short;
+  /* ===== FINAL SCORE ===== */
   const ft = f.score?.fulltime;
-
   const finalScore =
-    ft && (ft.home != null && ft.away != null)
+    ft && ft.home != null && ft.away != null
       ? `${ft.home} – ${ft.away}`
       : time;
 
-  /* ===== OPTIONAL DETAILS ===== */
-  const ht = f.score?.halftime;
-  const et = f.score?.extratime;
-  const pen = f.score?.penalty;
-
-  let detailsHtml = "";
-
-  if (ht || et || pen) {
-    detailsHtml = `
-      <details class="match-details">
-        <summary>Match details</summary>
-        ${ht ? `<div>HT: ${ht.home}–${ht.away}</div>` : ""}
-        ${et ? `<div>ET: ${et.home}–${et.away}</div>` : ""}
-        ${pen ? `<div>PEN: ${pen.home}–${pen.away}</div>` : ""}
-      </details>
-    `;
-  }
+  /* ===== DETAILS ===== */
+  const detailsHtml = buildMatchDetails(f);
 
   /* ===== BEST 3 MARKETS ===== */
   const bestMarkets = getBestMarkets(f);
@@ -125,7 +108,6 @@ function renderMatchCard(f) {
 
     <div class="prediction-grid">
       ${bestMarkets.map(m => renderMarket(m.label, m.value, m.strong)).join("")}
-
       <div class="prediction-item view-all"
            onclick="location.href='#predictions'">
         Show all →
@@ -137,7 +119,46 @@ function renderMatchCard(f) {
 }
 
 /* =========================
-   BEST MARKETS SELECTOR
+   MATCH DETAILS (HT / GOALS)
+========================= */
+function buildMatchDetails(f) {
+  const ht = f.score?.halftime;
+  const et = f.score?.extratime;
+  const pen = f.score?.penalty;
+  const events = Array.isArray(f.events)
+    ? f.events.filter(e => e.type === "Goal")
+    : [];
+
+  if (!ht && !et && !pen && !events.length) return "";
+
+  let goalsHtml = "";
+  if (events.length) {
+    goalsHtml = `
+      <div class="match-goals">
+        <strong>Goals</strong>
+        ${events.map(g => `
+          <div>
+            ${g.time.elapsed}' – ${g.player.name}
+            <span class="goal-team">(${g.team.name})</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  return `
+    <details class="match-details">
+      <summary>Match details</summary>
+      ${ht ? `<div>HT: ${ht.home}–${ht.away}</div>` : ""}
+      ${et ? `<div>ET: ${et.home}–${et.away}</div>` : ""}
+      ${pen ? `<div>PEN: ${pen.home}–${pen.away}</div>` : ""}
+      ${goalsHtml}
+    </details>
+  `;
+}
+
+/* =========================
+   BEST MARKETS
 ========================= */
 function getBestMarkets(f) {
   if (!f.predictions || !f.predictions.strength) return [];
@@ -169,110 +190,6 @@ function renderMarket(label, value, isStrong) {
       <strong>${value}%</strong>
     </div>
   `;
-}
-
-/* =========================
-   STATISTICS
-========================= */
-function renderStatistics(fixtures) {
-  const box = document.getElementById("stats-summary");
-  if (!box) return;
-
-  let ns = 0, live = 0, ft = 0;
-
-  fixtures.forEach(f => {
-    const s = f.fixture.status.short;
-    if (s === "NS") ns++;
-    else if (["1H", "HT", "2H"].includes(s)) live++;
-    else if (["FT", "AET", "PEN"].includes(s)) ft++;
-  });
-
-  box.innerHTML = `
-    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
-    <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
-    <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
-    <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
-  `;
-}
-
-/* =========================
-   PREDICTIONS (FULL PAGE)
-========================= */
-function renderPredictions(fixtures) {
-  const box = document.getElementById("predictions-list");
-  const empty = document.getElementById("predictions-empty");
-  if (!box) return;
-
-  box.innerHTML = "";
-  if (empty) empty.style.display = "none";
-
-  fixtures.forEach(match => {
-    const card = document.createElement("div");
-    card.className = "prediction-card";
-
-    const home = match.teams.home.name;
-    const away = match.teams.away.name;
-
-    if (match.confidence !== "high" || !match.predictions) {
-      card.innerHTML = `
-        <div class="prediction-header">${home} vs ${away}</div>
-        <div class="prediction-info">
-          <strong>📊 Predictions not available</strong>
-          <p>
-            Insufficient historical data.<br>
-            The model activates only with adequate samples.
-          </p>
-        </div>
-      `;
-      box.appendChild(card);
-      return;
-    }
-
-    const p = match.predictions;
-    const hi = v => v >= 70 ? "highlight" : "";
-
-    card.innerHTML = `
-      <div class="prediction-header">${home} vs ${away}</div>
-      <div class="prediction-grid">
-        <div class="prediction-item ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
-        <div class="prediction-item ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
-        <div class="prediction-item ${hi(p.away_win)}">2 <strong>${p.away_win}%</strong></div>
-      </div>
-    `;
-
-    box.appendChild(card);
-  });
-}
-
-/* =========================
-   TOP PICKS TOGGLE
-========================= */
-const toggleBtn = document.getElementById("toggle-top-picks");
-const topPicksContent = document.getElementById("top-picks-content");
-
-if (toggleBtn && topPicksContent) {
-  toggleBtn.addEventListener("click", () => {
-    const isOpen = topPicksContent.classList.toggle("open");
-    toggleBtn.textContent = isOpen
-      ? "Hide Top Picks"
-      : "Show Top Picks";
-  });
-}
-.match-details {
-  margin-top: 6px;
-  font-size: 0.8rem;
-  color: var(--text-muted-light);
-}
-
-.match-details summary {
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 4px;
-}
-
-body.dark .match-details {
-  color: var(--text-muted-dark);
 }
 
 /* =========================
