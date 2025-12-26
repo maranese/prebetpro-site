@@ -40,7 +40,6 @@
       </button>
     </div>
 
-    <!-- Top Picks Content (animated + premium aware) -->
     <div id="top-picks-content" class="top-picks-content">
 
       <!-- PREMIUM OVERLAY (FREE USERS) -->
@@ -115,6 +114,20 @@
 </footer>
 
 <button id="back-to-top">↑</button>
+
+<!--
+  🔒 PREMIUM UNLOCK – FUTURE IMPLEMENTATION
+  ---------------------------------------
+  When the user completes login / payment,
+  simply add the following line after auth:
+
+  document.body.classList.add("is-premium");
+
+  This will:
+  - remove Top Picks blur
+  - hide premium overlay
+  - unlock premium-only content
+-->
 
 <script src="js/theme.js"></script>
 <script src="js/app.js"></script>
