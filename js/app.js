@@ -145,7 +145,7 @@ function renderPredictions(fixtures) {
 
     // ✅ Dati reali dal backend
     const p = match.predictions;
-    const hi = v => v >= 70 ? "prediction-high" : "";
+    const hi = v => v >= 70 ? "highlight" : "";
 
     card.innerHTML = `
       <div class="prediction-header">
@@ -154,23 +154,23 @@ function renderPredictions(fixtures) {
 
       <div class="prediction-section-title">1X2</div>
       <div class="prediction-grid grid-3">
-        <div class="prediction-row ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
-        <div class="prediction-row ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
-        <div class="prediction-row ${hi(p.away_win)}">2 <strong>${p.away_win}%</strong></div>
+        <div class="prediction-item ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
+        <div class="prediction-item ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
+        <div class="prediction-item ${hi(p.away_win)}">2 <strong>${p.away_win}%</strong></div>
       </div>
 
       <div class="prediction-section-title">Over / Under</div>
       <div class="prediction-grid grid-3">
-        <div class="prediction-row ${hi(p.over_15)}">Over 1.5 <strong>${p.over_15}%</strong></div>
-        <div class="prediction-row ${hi(p.under_15)}">Under 1.5 <strong>${p.under_15}%</strong></div>
-        <div class="prediction-row ${hi(p.over_25)}">Over 2.5 <strong>${p.over_25}%</strong></div>
-        <div class="prediction-row ${hi(p.under_25)}">Under 2.5 <strong>${p.under_25}%</strong></div>
+        <div class="prediction-item ${hi(p.over_15)}">Over 1.5 <strong>${p.over_15}%</strong></div>
+        <div class="prediction-item ${hi(p.under_15)}">Under 1.5 <strong>${p.under_15}%</strong></div>
+        <div class="prediction-item ${hi(p.over_25)}">Over 2.5 <strong>${p.over_25}%</strong></div>
+        <div class="prediction-item ${hi(p.under_25)}">Under 2.5 <strong>${p.under_25}%</strong></div>
       </div>
 
       <div class="prediction-section-title">Goal / No Goal</div>
       <div class="prediction-grid grid-3">
-        <div class="prediction-row ${hi(p.btts)}">Goal <strong>${p.btts}%</strong></div>
-        <div class="prediction-row ${hi(p.no_btts)}">No Goal <strong>${p.no_btts}%</strong></div>
+        <div class="prediction-item ${hi(p.btts)}">Goal <strong>${p.btts}%</strong></div>
+        <div class="prediction-item ${hi(p.no_btts)}">No Goal <strong>${p.no_btts}%</strong></div>
       </div>
     `;
 
