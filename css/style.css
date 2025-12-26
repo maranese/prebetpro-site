@@ -275,3 +275,18 @@ body.dark .no-data {
   color: var(--text-muted-dark);
   background: rgba(255,255,255,0.05);
 }
+/* =========================
+   NAV MENU – READABILITY FIX
+========================= */
+
+.main-nav a {
+  opacity: 0.95;
+}
+
+.main-nav a:hover {
+  text-decoration: underline;
+}
+
+body.dark .main-nav a {
+  color: #ffffff;
+}
