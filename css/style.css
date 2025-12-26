@@ -10,13 +10,13 @@
   --bg-dark: #0f1115;
 
   --card-light: #f3f4f6;
-  --card-dark: #1a1d24;
+  --card-dark: #181b22;
 
   --text-light: #111111;
-  --text-dark: #f1f1f1;
+  --text-dark: #e6e7eb;
 
   --text-muted-light: #555555;
-  --text-muted-dark: #b5b5b5;
+  --text-muted-dark: #c7c9d1;
 
   --success: #22c55e;
   --warning: #f59e0b;
@@ -45,61 +45,13 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(
-    90deg,
-    var(--accent-dark),
-    var(--accent)
-  );
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
   padding: 12px 16px;
 }
 
-.hero-inner {
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.logo {
-  color: #fff;
-  font-weight: 800;
-  text-decoration: none;
-  font-size: 1.4rem;
-}
-
-.tagline {
-  font-size: 0.8rem;
-  color: #eafff3;
-  opacity: 0.9;
-}
-
-/* =========================
-   NAVIGATION
-========================= */
-.main-nav {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
+.logo,
 .main-nav a {
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-#theme-toggle {
-  border: none;
-  background: #fff;
-  color: var(--accent-dark);
-  padding: 6px 10px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: bold;
+  color: #ffffff;
 }
 
 /* =========================
@@ -111,17 +63,13 @@ main {
   padding: 30px 16px;
 }
 
-section {
-  margin-bottom: 50px;
-}
-
 h2 {
   border-left: 4px solid var(--accent);
   padding-left: 10px;
 }
 
 /* =========================
-   GENERIC CARDS
+   CARDS
 ========================= */
 .match-card,
 .stat-card,
@@ -136,160 +84,39 @@ h2 {
 }
 
 /* =========================
-   TOP PICKS
+   BUTTONS
 ========================= */
-.top-picks {
-  margin-bottom: 40px;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-/* 🔥 BUTTON: SHOW TOP PICKS */
-.toggle-btn {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-soft)
-  );
-  color: #053b24;
+.toggle-btn,
+.premium-cta {
+  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+  color: #f9fafb;
   border: none;
   padding: 8px 18px;
   border-radius: 999px;
   font-weight: 800;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-.toggle-btn:hover {
+.toggle-btn:hover,
+.premium-cta:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
 
 /* =========================
-   TOP PICK CARD
+   TEXT ELEMENTS
 ========================= */
-.top-picks-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-}
-
-.top-pick-card {
-  border-left: 4px solid var(--accent);
-}
-
-.top-pick-market {
-  font-weight: 800;
-  color: var(--accent-dark);
-}
-
-.top-pick-value {
-  font-size: 1.3rem;
-  font-weight: 900;
-  margin-top: 6px;
+.match-league,
+.top-pick-market,
+.stat-card h3 {
   color: var(--accent);
 }
 
-/* Premium blur */
-.premium-blur {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* =========================
-   MATCH CARD
-========================= */
-.match-league {
-  font-weight: 700;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.match-teams {
-  font-weight: 700;
-  margin: 6px 0;
-}
-
-.match-info {
-  font-size: 0.85rem;
+.match-info,
+footer,
+.no-data {
   color: var(--text-muted-light);
-  display: flex;
-  justify-content: space-between;
-}
-
-/* =========================
-   CONFIDENCE BADGES
-========================= */
-.confidence-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-}
-
-.confidence-high {
-  background: rgba(47, 191, 113, 0.2);
-  color: var(--accent-dark);
-}
-
-.confidence-medium {
-  background: rgba(245, 158, 11, 0.2);
-  color: #92400e;
-}
-
-.confidence-low {
-  background: rgba(156, 163, 175, 0.25);
-  color: #374151;
-}
-
-/* =========================
-   REPORTS
-========================= */
-.report-result-win {
-  color: var(--success);
-  font-weight: 800;
-}
-
-.report-result-loss {
-  color: #ef4444;
-  font-weight: 800;
-}
-
-/* =========================
-   FOOTER
-========================= */
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-}
-
-/* =========================
-   BACK TO TOP
-========================= */
-#back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent);
-  color: #053b24;
-  border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: none;
-  cursor: pointer;
 }
 
 /* =========================
@@ -300,198 +127,51 @@ body.dark {
   color: var(--text-dark);
 }
 
-body.dark .match-card,
-body.dark .stat-card,
-body.dark .report-match,
-body.dark .no-data,
-body.dark .prediction-card,
-body.dark .top-pick-card {
-  background: var(--card-dark);
-}
-
-body.dark .match-info,
-body.dark footer {
-  color: var(--text-muted-dark);
-}
-
-body.dark .top-pick-card,
-body.dark .toggle-btn {
-  box-shadow:
-    0 0 0 1px rgba(95, 216, 157, 0.6),
-    0 0 10px rgba(95, 216, 157, 0.25);
-}
-/* =========================
-   TOP PICKS ANIMATION
-========================= */
-
-.top-picks-content {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition:
-    max-height 0.45s ease,
-    opacity 0.35s ease,
-    transform 0.35s ease;
-}
-
-.top-picks-content.open {
-  max-height: 1200px; /* abbastanza per molte card */
-  opacity: 1;
-  transform: translateY(0);
-}
-/* =========================
-   PREMIUM BLUR & PAYWALL
-========================= */
-
-.top-picks-content {
-  position: relative;
-}
-
-/* Blur content for free users */
-body:not(.is-premium) #top-picks-list {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Overlay */
-.premium-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.75),
-    rgba(255, 255, 255, 0.9)
-  );
-  z-index: 5;
-}
-
-/* Hide overlay for premium users */
-body.is-premium .premium-overlay {
-  display: none;
-}
-
-/* Premium box */
-.premium-box {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 24px 28px;
-  text-align: center;
-  max-width: 320px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-}
-
-.premium-box h3 {
-  margin: 0 0 6px;
-  color: var(--accent-dark);
-}
-
-.premium-box p {
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-  margin-bottom: 16px;
-}
-
-/* CTA button */
-.premium-cta {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-soft)
-  );
-  color: #053b24;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.premium-cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-}
-
-/* Dark mode adjustments */
-body.dark .premium-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(15, 17, 21, 0.85),
-    rgba(15, 17, 21, 0.95)
-  );
-}
-
-body.dark .premium-box {
-  background: var(--card-dark);
-  box-shadow:
-    0 0 0 1px rgba(95, 216, 157, 0.4),
-    0 12px 30px rgba(0, 0, 0, 0.6);
-}
-/* =========================
-   DARK MODE CONTRAST FIX
-========================= */
-
-body.dark {
-  color: #e6e7eb; /* testo principale più chiaro */
-}
-
-/* Headings */
 body.dark h1,
 body.dark h2,
 body.dark h3 {
   color: #f9fafb;
 }
 
-/* Secondary text */
-body.dark .tagline,
-body.dark .match-info,
-body.dark .prediction-info,
-body.dark .stat-card p,
-body.dark footer {
-  color: #c7c9d1;
+body.dark .match-card,
+body.dark .stat-card,
+body.dark .prediction-card,
+body.dark .top-pick-card,
+body.dark .report-match {
+  background: var(--card-dark);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
-/* Accent text */
+body.dark .match-info,
+body.dark footer,
+body.dark .no-data {
+  color: var(--text-muted-dark);
+}
+
 body.dark .match-league,
 body.dark .top-pick-market,
-body.dark .prediction-item strong,
 body.dark .stat-card h3 {
   color: var(--accent-soft);
 }
 
-/* Cards contrast */
-body.dark .match-card,
-body.dark .prediction-card,
-body.dark .top-pick-card,
-body.dark .stat-card,
-body.dark .report-match {
-  background: #181b22;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Prediction items */
-body.dark .prediction-item {
-  background: rgba(255, 255, 255, 0.08);
-  color: #e5e7eb;
-}
-
-/* Buttons */
 body.dark .toggle-btn,
 body.dark .premium-cta {
-  color: #063f28;
+  color: #f9fafb;
 }
 
-/* No-data messages */
-body.dark .no-data {
-  color: #d1d5db;
+/* =========================
+   TOP PICKS ANIMATION
+========================= */
+.top-picks-content {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height 0.45s ease, opacity 0.35s ease, transform 0.35s ease;
 }
 
-
-body.dark .premium-box p {
-  color: var(--text-muted-dark);
+.top-picks-content.open {
+  max-height: 1200px;
+  opacity: 1;
+  transform: translateY(0);
 }
