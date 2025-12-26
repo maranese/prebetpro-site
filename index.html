@@ -1,179 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>PreBetPro – Football Predictions with Probabilities</title>
+  <!-- SEO BASE -->
+  <title>Pronostici Calcio di Oggi | Top Picks ad Alta Affidabilità – PREBETPRO</title>
+  <meta name="description" content="Pronostici calcio di oggi basati su modelli statistici. Mostriamo tutte le partite, evidenziando solo i pronostici ad alta affidabilità." />
 
-  <!-- SEO -->
-  <meta name="description" content="Football predictions for today based on statistical models. Probabilities, top picks, and transparent analysis for today’s matches." />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css" />
-
+  <!-- STYLES -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
-<body class="theme-light">
+<body>
 
-<!-- ======================
-  HEADER / NAV
-====================== -->
-<header class="site-header">
-  <div class="container header-inner">
-
-    <div class="brand">
-      <a href="/" class="logo">▶ PreBetPro</a>
-      <span class="tagline">Football predictions based on data</span>
+  <!-- =========================
+       HEADER / BRAND
+  ========================= -->
+  <header class="site-header">
+    <div class="container">
+      <h1 class="logo">PREBET<span>PRO</span></h1>
+      <p class="tagline">Pronostici calcio basati sui dati. Niente fumo, solo numeri.</p>
     </div>
+  </header>
 
-    <nav class="main-nav">
-      <a href="#top-picks">Top Picks</a>
-      <a href="#today-matches">Today</a>
-      <a href="/predictions.html">All Predictions</a>
-      <a href="#method">Method</a>
-    </nav>
-
-    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-  </div>
-</header>
-
-<!-- ======================
-  MAIN
-====================== -->
-<main>
-
-  <!-- ======================
-    HERO / TOP PICKS
-  ====================== -->
-  <section id="top-picks" class="hero-section">
-    <div class="container hero-content">
-
-      <header class="hero-header">
-        <h1>Football Predictions for Today – Top Picks</h1>
-        <p class="hero-subtitle">
-          Only the strongest predictions based on probabilities and statistical consistency.
-          No random tips. No forced picks.
-        </p>
-      </header>
-
-      <!-- TOP PICKS CARDS -->
-      <div id="top-picks-list" class="top-picks-grid">
-        <!-- Rendered by app.js -->
-      </div>
-
-      <!-- FUTURE PAYWALL MESSAGE -->
-      <div class="premium-hint">
-        <p>
-          Top Picks highlight the most reliable predictions of the day.
-          <strong>More advanced selections will be available for registered users.</strong>
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ======================
-    TODAY MATCHES
-  ====================== -->
-  <section id="today-matches" class="section">
+  <!-- =========================
+       HERO — TOP PICKS
+       (SEZIONE PREMIUM-READY)
+  ========================= -->
+  <section class="hero-top-picks">
     <div class="container">
 
-      <header class="section-header">
-        <h2>Today’s Matches with Probabilities</h2>
-        <p>
-          All monitored matches for today, including estimated probabilities on the main markets.
-          Matches are ranked by statistical reliability.
-        </p>
-      </header>
+      <h2 class="section-title">
+        Pronostici Calcio di Oggi – Top Picks ad Alta Affidabilità
+      </h2>
 
-      <div id="matches" class="matches-list">
-        <!-- Rendered by app.js -->
-      </div>
-
-      <div id="no-matches" class="no-data" style="display:none;">
-        No matches available today for monitored leagues.
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ======================
-    METHOD / TRUST
-  ====================== -->
-  <section id="method" class="section section-muted">
-    <div class="container">
-
-      <header class="section-header">
-        <h2>How PreBetPro Predictions Work</h2>
-      </header>
-
-      <div class="method-grid">
-
-        <div class="method-card">
-          <h3>Data, Not Intuition</h3>
-          <p>
-            Predictions are generated using mathematical models applied to real match data.
-            No opinions, no manual tips.
-          </p>
-        </div>
-
-        <div class="method-card">
-          <h3>Why Not Every Match Has a “Strong Pick”</h3>
-          <p>
-            Football is unpredictable. We only highlight matches where the data shows low variability
-            and consistent patterns.
-          </p>
-        </div>
-
-        <div class="method-card">
-          <h3>Transparent by Design</h3>
-          <p>
-            All matches are shown, including those with lower reliability.
-            The final decision is always left to the user.
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ======================
-    CTA TO FULL PREDICTIONS
-  ====================== -->
-  <section class="section">
-    <div class="container cta-box">
-
-      <h2>Want to See All Predictions?</h2>
-      <p>
-        Explore the complete list of today’s matches, probabilities, and markets
-        in the dedicated predictions section.
+      <p class="section-subtitle">
+        Selezioniamo solo i pronostici con probabilità elevate e bassa variabilità statistica.
+        Qui trovi le giocate più solide della giornata.
       </p>
 
-      <a href="/predictions.html" class="btn-primary">
-        View All Predictions
-      </a>
+      <!-- TOP PICKS GRID -->
+      <!-- ⚠️ SOLO ranked_predictions -->
+      <div id="top-picks" class="top-picks-grid">
+        <!-- JS render -->
+      </div>
+
+      <!-- PAYWALL PLACEHOLDER (FUTURO) -->
+      <!--
+      <div class="paywall-overlay">
+        <p>Accedi per vedere tutte le Top Picks</p>
+      </div>
+      -->
 
     </div>
   </section>
 
-</main>
+  <!-- =========================
+       PARTITE DI OGGI
+  ========================= -->
+  <section class="today-fixtures">
+    <div class="container">
 
-<!-- ======================
-  FOOTER
-====================== -->
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <p>© 2025 PreBetPro.com – Football predictions and statistics</p>
-  </div>
-</footer>
+      <h2 class="section-title">
+        Tutte le Partite di Oggi con Pronostici e Percentuali
+      </h2>
 
-<!-- ======================
-  SCRIPTS
-====================== -->
-<script src="js/theme.js"></script>
-<script src="js/app.js"></script>
+      <p class="section-subtitle">
+        Per ogni partita trovi le probabilità stimate sui mercati principali.
+        La qualità del dato conta più della quantità.
+      </p>
+
+      <!-- FIXTURES LIST -->
+      <!-- ⚠️ ESCLUDE le Top Picks -->
+      <div id="fixtures-list" class="fixtures-list">
+        <!-- JS render -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================
+       TRUST / EDUCATIVA
+  ========================= -->
+  <section class="trust-section">
+    <div class="container">
+
+      <h2 class="section-title">
+        Come Funzionano i Pronostici di PREBETPRO
+      </h2>
+
+      <div class="trust-grid">
+
+        <div class="trust-item">
+          <h3>Perché non tutte le partite hanno una “fissa”?</h3>
+          <p>
+            Perché il calcio è variabile. Evidenziamo solo i pronostici
+            supportati da dati solidi e storici coerenti.
+          </p>
+        </div>
+
+        <div class="trust-item">
+          <h3>Cosa significa “Alta Affidabilità”?</h3>
+          <p>
+            Indica partite con bassa variabilità nei gol e probabilità
+            statisticamente più stabili.
+          </p>
+        </div>
+
+        <div class="trust-item">
+          <h3>Mostrate anche pronostici meno affidabili?</h3>
+          <p>
+            Sì. La trasparenza è parte del metodo.
+            Sta all’utente decidere cosa giocare.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================
+       FOOTER
+  ========================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        © <span id="year"></span> PREBETPRO – Pronostici statistici sul calcio.
+      </p>
+    </div>
+  </footer>
+
+  <!-- =========================
+       JS
+  ========================= -->
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 
 </body>
 </html>
