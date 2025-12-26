@@ -657,3 +657,55 @@ body.dark .match-details {
 body.dark .goal-team {
   color: var(--text-muted-dark);
 }
+.today-header {
+  font-weight: 800;
+  margin: 10px 0 20px;
+}
+
+.match-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted-light);
+}
+
+.match-score {
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin: 6px 0;
+}
+
+.ft-label {
+  background: var(--accent);
+  color: #053b24;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  margin-right: 6px;
+}
+
+.league-block {
+  margin-bottom: 28px;
+}
+
+.league-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.league-toggle {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.league-matches.hidden {
+  display: none;
+}
+
+body.dark .match-meta,
+body.dark .goal-team {
+  color: var(--text-muted-dark);
+}
