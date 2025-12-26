@@ -13,7 +13,7 @@
   --card-dark: #181b22;
 
   --text-light: #111111;
-  --text-dark: #f3f4f6;
+  --text-dark: #e6e7eb;
 
   --text-muted-light: #555555;
   --text-muted-dark: #c7c9d1;
@@ -84,25 +84,6 @@ h2 {
 }
 
 /* =========================
-   MATCH CONTENT
-========================= */
-.match-teams {
-  font-weight: 700;
-  margin: 6px 0;
-  color: var(--text-light); /* FORZATO */
-}
-
-.match-league {
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.match-info {
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-}
-
-/* =========================
    BUTTONS
 ========================= */
 .toggle-btn,
@@ -126,11 +107,13 @@ h2 {
 /* =========================
    TEXT ELEMENTS
 ========================= */
+.match-league,
 .top-pick-market,
 .stat-card h3 {
   color: var(--accent);
 }
 
+.match-info,
 footer,
 .no-data {
   color: var(--text-muted-light);
@@ -147,7 +130,7 @@ body.dark {
 body.dark h1,
 body.dark h2,
 body.dark h3 {
-  color: #ffffff;
+  color: #f9fafb;
 }
 
 body.dark .match-card,
@@ -157,11 +140,6 @@ body.dark .top-pick-card,
 body.dark .report-match {
   background: var(--card-dark);
   border: 1px solid rgba(255,255,255,0.06);
-}
-
-/* 🔑 FIX CHIAVE */
-body.dark .match-teams {
-  color: var(--text-dark); /* SEMPRE CHIARO */
 }
 
 body.dark .match-info,
@@ -178,7 +156,7 @@ body.dark .stat-card h3 {
 
 body.dark .toggle-btn,
 body.dark .premium-cta {
-  color: #ffffff;
+  color: #f9fafb;
 }
 
 /* =========================
@@ -196,14 +174,4 @@ body.dark .premium-cta {
   max-height: 1200px;
   opacity: 1;
   transform: translateY(0);
-}
-/* =========================
-   DARK MODE – TEAM NAMES FIX
-========================= */
-
-/* Squad names must be high-contrast in dark mode */
-body.dark .match-teams,
-body.dark .prediction-header,
-body.dark .top-pick-card h3 {
-  color: #f9fafb; /* quasi bianco, massima leggibilità */
 }
