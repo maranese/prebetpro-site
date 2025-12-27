@@ -40,9 +40,8 @@ async function loadMatches() {
     renderStatistics(fixtures);
 
     // 🔑 status diverso da ok → messaggio SOLO in predictions / top picks
-    if (status !== "ok") {
-      renderGlobalStatus(status);
-      return;
+    if (data.status && data.status !== "ok") {
+      renderGlobalStatus(data.status);
     }
 
     renderPredictions(fixtures);
