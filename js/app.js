@@ -5,13 +5,44 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
+   STATUS MESSAGES (GLOBAL)
+========================= */
+// ✅ NEW
+const STATUS_MESSAGES = {
+  no_data: `
+    Insufficient historical data.<br>
+    We don’t generate predictions when data is unreliable.
+  `,
+  api_unavailable: `
+    Data temporarily unavailable.
+  `,
+  api_limited: `
+    Data update temporarily limited.<br>
+    Information will refresh automatically.
+  `
+};
+
+/* =========================
    LOAD MATCHES (API ROOT)
 ========================= */
 async function loadMatches() {
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) throw new Error("API error");
+
+    // ✅ NEW: API unreachable
+    if (!res.ok) {
+      renderGlobalStatus("api_unavailable");
+      return;
+    }
+
     const data = await res.json();
+
+    // ✅ NEW: API status handling (future-ready)
+    if (data.status && data.status !== "ok") {
+      renderGlobalStatus(data.status);
+      return;
+    }
+
     const fixtures = data.fixtures || [];
 
     renderStatistics(fixtures);
@@ -19,6 +50,8 @@ async function loadMatches() {
 
   } catch (err) {
     console.error("loadMatches error:", err);
+    // ✅ NEW
+    renderGlobalStatus("api_unavailable");
   }
 }
 
@@ -34,7 +67,21 @@ async function loadTodayMatches() {
 
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+
+    // ✅ NEW
+    if (!res.ok) {
+      renderGlobalStatus("api_unavailable");
+      return;
+    }
+
     const data = await res.json();
+
+    // ✅ NEW
+    if (data.status && data.status !== "ok") {
+      renderGlobalStatus(data.status);
+      return;
+    }
+
     const fixtures = data.fixtures || [];
 
     if (!fixtures.length) {
@@ -44,7 +91,6 @@ async function loadTodayMatches() {
 
     noMatches.style.display = "none";
 
-    // 🔹 ORDINE SOLO PER ORARIO DI INIZIO
     fixtures.sort(
       (a, b) => new Date(a.fixture.date) - new Date(b.fixture.date)
     );
@@ -55,7 +101,7 @@ async function loadTodayMatches() {
 
   } catch (err) {
     console.error(err);
-    noMatches.style.display = "block";
+    renderGlobalStatus("api_unavailable"); // ✅ NEW
   }
 }
 
@@ -71,7 +117,6 @@ function renderMatchCard(f) {
     minute: "2-digit"
   });
 
-  /* ===== RESULT HANDLING ===== */
   const status = f.fixture.status.short;
   const ht = f.score?.halftime;
   const ft = f.score?.fulltime;
@@ -92,7 +137,6 @@ function renderMatchCard(f) {
     scoreHtml += `<div>PEN: ${pen.home}–${pen.away}</div>`;
   }
 
-  /* ===== BEST 3 MARKETS (NO TOP PICKS) ===== */
   const bestMarkets = getBestMarkets(f);
 
   card.innerHTML = `
@@ -106,8 +150,9 @@ function renderMatchCard(f) {
         </div>
       </div>
 
+      <!-- ✅ NEW: readable confidence label -->
       <span class="confidence-badge confidence-${f.confidence}">
-        ${f.confidence.toUpperCase()}
+        ${formatConfidence(f.confidence)}
       </span>
     </div>
 
@@ -129,6 +174,16 @@ function renderMatchCard(f) {
 }
 
 /* =========================
+   CONFIDENCE LABEL
+========================= */
+// ✅ NEW
+function formatConfidence(level) {
+  if (level === "high") return "High confidence";
+  if (level === "medium") return "Medium confidence";
+  return "Low confidence";
+}
+
+/* =========================
    BEST MARKETS SELECTOR
 ========================= */
 function getBestMarkets(f) {
@@ -147,10 +202,7 @@ function getBestMarkets(f) {
     { label: "No Goal", value: p.no_btts, strong: s.no_btts }
   ].filter(m => m.value != null);
 
-  // ordina per percentuale DESC
   markets.sort((a, b) => b.value - a.value);
-
-  // esclude eventuali top picks (strength true + confidence high)
   return markets.slice(0, 3);
 }
 
@@ -212,11 +264,7 @@ function renderPredictions(fixtures) {
       card.innerHTML = `
         <div class="prediction-header">${home} vs ${away}</div>
         <div class="prediction-info">
-          <strong>📊 Predictions not available</strong>
-          <p>
-            Insufficient historical data.<br>
-            The model activates only with adequate samples.
-          </p>
+          ${STATUS_MESSAGES.no_data}
         </div>
       `;
       box.appendChild(card);
@@ -224,7 +272,6 @@ function renderPredictions(fixtures) {
     }
 
     const p = match.predictions;
-    const dc = p.double_chance;
     const hi = v => v >= 70 ? "highlight" : "";
 
     card.innerHTML = `
@@ -238,6 +285,27 @@ function renderPredictions(fixtures) {
     `;
 
     box.appendChild(card);
+  });
+}
+
+/* =========================
+   GLOBAL STATUS RENDER
+========================= */
+// ✅ NEW
+function renderGlobalStatus(status) {
+  const message = STATUS_MESSAGES[status];
+  if (!message) return;
+
+  const blocks = [
+    document.getElementById("matches"),
+    document.getElementById("predictions-list"),
+    document.getElementById("top-picks-list")
+  ];
+
+  blocks.forEach(b => {
+    if (b) {
+      b.innerHTML = `<div class="no-data">${message}</div>`;
+    }
   });
 }
 
