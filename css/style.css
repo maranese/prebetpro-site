@@ -22,7 +22,9 @@
 /* =========================
    RESET
 ========================= */
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -41,6 +43,18 @@ body {
 body.dark {
   background: var(--bg-dark);
   color: var(--text-dark);
+}
+
+/* =========================
+   LAYOUT FIX (IMPORTANT)
+========================= */
+html, body {
+  height: 100%;
+}
+
+.page-content {
+  min-height: calc(100vh - 140px); /* header + footer */
+  padding: 30px 16px;
 }
 
 /* =========================
@@ -98,169 +112,41 @@ body.dark {
 }
 
 /* =========================
-   MAIN
+   EMPTY STATE (TOP PICKS)
 ========================= */
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 30px 16px;
-}
-
-h2 {
-  border-left: 4px solid var(--accent);
-  padding-left: 10px;
-}
-
-/* =========================
-   DATE LABEL
-========================= */
-.date-label {
-  margin: 28px 0 12px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--text-muted-light);
-}
-
-body.dark .date-label {
-  color: var(--text-muted-dark);
-}
-
-.date-label.today {
-  color: var(--accent);
-}
-
-/* =========================
-   MATCH CARD – DASHBOARD
-========================= */
-.match-card {
-  background: var(--card-light);
-  border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 18px;
-}
-
-body.dark .match-card {
-  background: var(--card-dark);
-}
-
-.match-card.dashboard {
-  display: grid;
-  grid-template-columns: 2fr 3fr;
-  gap: 20px;
-}
-
-/* LEFT */
-.match-main {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.match-league {
-  font-weight: 800;
-  color: var(--accent);
-}
-
-.match-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.match-time {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-muted-light);
-}
-
-body.dark .match-time {
-  color: var(--text-muted-dark);
-}
-
-.match-teams {
-  font-weight: 800;
-}
-
-.match-scores {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted-light);
-}
-
-body.dark .match-scores {
-  color: var(--text-muted-dark);
-}
-
-.show-details {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-soft);
-  text-decoration: none;
-}
-
-/* =========================
-   CONFIDENCE
-========================= */
-.confidence-badge {
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-}
-
-.confidence-low,
-.confidence-medium {
-  background: rgba(156,163,175,0.25);
-  color: #e5e7eb;
-}
-
-.confidence-high {
-  background: rgba(47,191,113,0.3);
-  color: var(--accent-soft);
-}
-
-/* =========================
-   PREDICTIONS COLUMN
-========================= */
-.match-predictions {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.prediction-box {
-  background: rgba(47,191,113,0.18);
-  border-radius: 12px;
-  padding: 12px;
+.empty-state {
+  max-width: 600px;
+  margin: 80px auto;
   text-align: center;
 }
 
-body.dark .prediction-box {
-  background: rgba(47,191,113,0.28);
+.empty-state h2 {
+  border-left: 4px solid var(--accent);
+  padding-left: 10px;
+  text-align: left;
 }
 
-.prediction-box .market {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--accent-soft);
+.empty-message {
+  margin-top: 24px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted-light);
 }
 
-.prediction-box .value {
-  font-size: 1.2rem;
-  font-weight: 900;
-  color: var(--accent);
+body.dark .empty-message {
+  color: var(--text-muted-dark);
 }
 
 /* =========================
-   MOBILE
+   FOOTER
 ========================= */
-@media (max-width: 720px) {
-  .match-card.dashboard {
-    grid-template-columns: 1fr;
-  }
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted-light);
+}
+
+body.dark footer {
+  color: var(--text-muted-dark);
 }
