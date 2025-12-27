@@ -22,7 +22,6 @@
       <a href="#predictions">Predictions</a>
       <a href="#statistics">Statistics</a>
       <a href="#reports">Reports</a>
-      <a href="#leagues">Leagues</a>
     </nav>
 
     <button id="theme-toggle">🌙</button>
@@ -31,76 +30,51 @@
 
 <main>
 
-  <!-- TOP PICKS (VISIBLE – PREMIUM READY) -->
+  <!-- TOP PICKS -->
   <section id="top-picks" class="top-picks">
     <div class="section-header">
       <h2>🔥 Top Picks</h2>
-      <button id="toggle-top-picks" class="toggle-btn">
-        Show Top Picks
-      </button>
+      <button id="toggle-top-picks" class="toggle-btn">Show Top Picks</button>
     </div>
-
-    <!--
-      CURRENT STATE:
-      - Top Picks visible to all users
-
-      FUTURE PREMIUM:
-      - add blur + overlay
-      - toggle via body.is-premium
-    -->
 
     <div id="top-picks-content" class="top-picks-content">
-
-      <!-- TOP PICKS LIST -->
-      <div id="top-picks-list" class="top-picks-grid">
-        <!-- Top Pick cards injected by JS -->
-      </div>
+      <div id="top-picks-list" class="top-picks-grid"></div>
 
       <div id="top-picks-empty" class="no-data" style="display:none;">
-        No Top Picks available today.
+        No high-confidence picks today.
       </div>
 
+      <!-- Premium overlay (future) -->
+      <div class="premium-overlay">
+        <div class="premium-box">
+          <h3>Premium Picks</h3>
+          <p>Unlock full access to Top Picks and detailed reports.</p>
+          <button class="premium-cta">Go Premium</button>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- TODAY -->
+  <!-- MATCHES -->
   <section id="today">
-    <h2>Today’s Matches</h2>
+    <h2>Matches</h2>
 
-    <div id="matches"></div>
+    <div id="matches">
+      <!-- JS INJECTS HERE:
+
+      <div class="date-group">
+        <div class="date-label today">TODAY · 12 Sep</div>
+
+        <div class="match-card dashboard">
+          ...
+        </div>
+      </div>
+
+      -->
+    </div>
 
     <div id="no-matches" class="no-data" style="display:none;">
-      No matches available today for monitored leagues.
-    </div>
-  </section>
-
-  <!-- PREDICTIONS -->
-  <section id="predictions">
-    <h2>Predictions</h2>
-
-    <div id="predictions-list"></div>
-
-    <div id="predictions-empty" class="no-data" style="display:none;">
-      Predictions will be available when matches are loaded.
-    </div>
-  </section>
-
-  <!-- STATISTICS -->
-  <section id="statistics">
-    <h2>Statistics</h2>
-    <div id="stats-summary" class="stats-grid"></div>
-  </section>
-
-  <!-- REPORTS -->
-  <section id="reports">
-    <h2>Daily Report</h2>
-
-    <div id="report-summary" class="stats-grid"></div>
-    <div id="report-matches"></div>
-
-    <div id="report-empty" class="no-data" style="display:none;">
-      No report available yet.<br />
-      Matches may not be finished.
+      No matches available for monitored leagues.
     </div>
   </section>
 
@@ -111,16 +85,6 @@
 </footer>
 
 <button id="back-to-top">↑</button>
-
-<!--
-  🔒 PREMIUM (FUTURE)
-  ------------------
-  When you decide to activate premium:
-  1) re-enable overlay + blur in CSS
-  2) add after login/payment:
-
-     document.body.classList.add("is-premium");
--->
 
 <script src="js/theme.js"></script>
 <script src="js/app.js"></script>
