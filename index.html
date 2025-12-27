@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 
-<body>
+<body class="dark">
 
 <header class="hero">
   <div class="hero-inner">
@@ -18,14 +18,12 @@
 
     <nav class="main-nav">
       <a href="#top-picks">Top Picks</a>
-      <a href="#today">Today</a>
+      <a href="#matches">Matches</a>
       <a href="#predictions">Predictions</a>
-      <a href="#statistics">Statistics</a>
       <a href="#reports">Reports</a>
-      <a href="#leagues">Leagues</a>
     </nav>
 
-    <button id="theme-toggle">🌙</button>
+    <button id="theme-toggle">🌞 Light mode</button>
   </div>
 </header>
 
@@ -38,65 +36,71 @@
       <button id="toggle-top-picks" class="toggle-btn">Show Top Picks</button>
     </div>
 
-    <div id="top-picks-content" class="top-picks-content">
-      <div id="top-picks-list" class="top-picks-grid"></div>
+    <div id="top-picks-content" class="top-picks-content open">
+      <div id="top-picks-list" class="top-picks-grid">
+        <!-- injected by JS -->
+      </div>
 
-      <div id="top-picks-empty" class="no-data" style="display:none;">
-        No high-confidence picks today.
+      <div class="premium-overlay">
+        <div class="premium-box">
+          <h3>Premium feature</h3>
+          <p>Top Picks will be available with Premium access.</p>
+          <button class="premium-cta">Unlock Premium</button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- TODAY -->
-  <section id="today">
+  <!-- MATCHES -->
+  <section id="matches">
     <h2>Matches</h2>
 
-    <!-- DATE GROUP -->
+    <!-- DATE LABEL -->
     <div class="date-label today">TODAY · 12 Sep</div>
 
-    <div id="matches">
-      <!-- MATCH CARD injected by JS -->
-      <!--
-      <div class="match-card dashboard">
-        <div class="match-main">
-          <div class="match-league">Serie A</div>
+    <!-- MATCH CARD -->
+    <div class="match-card dashboard">
 
-          <div class="match-header">
-            <span class="match-time">12:30</span>
-            <span class="match-teams">Parma vs Fiorentina</span>
-          </div>
+      <!-- LEFT COLUMN -->
+      <div class="match-main">
+        <div class="match-league">Serie A</div>
 
-          <div class="match-scores">
-            <span>HT 0–0</span>
-            <span>FT 1–1</span>
-            <span>ET 2–2</span>
-            <span>PEN 5–4</span>
-          </div>
-
-          <button class="details-toggle">Show details ⌄</button>
+        <div class="match-header">
+          <span class="match-time">12:30</span>
+          <span class="match-teams">Parma vs Fiorentina</span>
+          <span class="confidence-badge confidence-low">
+            Limited data
+          </span>
         </div>
 
-        <div class="match-predictions">
-          <div class="prediction-box">
-            <div class="market">Over 2.5</div>
-            <div class="value">63%</div>
-          </div>
-          <div class="prediction-box">
-            <div class="market">1</div>
-            <div class="value">74%</div>
-          </div>
-          <div class="prediction-box">
-            <div class="market">BTTS</div>
-            <div class="value">76%</div>
-          </div>
+        <div class="match-scores">
+          <span>HT 0–0</span>
+          <span>FT 1–1</span>
+          <span>ET 2–2</span>
+          <span>PEN 5–4</span>
+        </div>
+
+        <a href="#" class="show-all">Show details ⌄</a>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="match-predictions">
+        <div class="prediction-box">
+          <div class="market">Over 2.5</div>
+          <div class="value">63%</div>
+        </div>
+        <div class="prediction-box">
+          <div class="market">1</div>
+          <div class="value">74%</div>
+        </div>
+        <div class="prediction-box">
+          <div class="market">BTTS</div>
+          <div class="value">76%</div>
         </div>
       </div>
-      -->
+
     </div>
 
-    <div id="no-matches" class="no-data" style="display:none;">
-      No matches available for monitored leagues.
-    </div>
   </section>
 
 </main>
