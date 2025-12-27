@@ -29,29 +29,6 @@
 
 <main>
 
-  <!-- TOP PICKS -->
-  <section id="top-picks" class="top-picks">
-    <div class="section-header">
-      <h2>🔥 Top Picks</h2>
-      <button id="toggle-top-picks" class="toggle-btn">Show Top Picks</button>
-    </div>
-
-    <div id="top-picks-content" class="top-picks-content open">
-      <div id="top-picks-list" class="top-picks-grid">
-        <!-- injected by JS -->
-      </div>
-
-      <div class="premium-overlay">
-        <div class="premium-box">
-          <h3>Premium feature</h3>
-          <p>Top Picks will be available with Premium access.</p>
-          <button class="premium-cta">Unlock Premium</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- MATCHES -->
   <section id="matches">
     <h2>Matches</h2>
 
@@ -61,8 +38,9 @@
     <!-- MATCH CARD -->
     <div class="match-card dashboard">
 
-      <!-- LEFT COLUMN -->
+      <!-- LEFT: MATCH DATA -->
       <div class="match-main">
+
         <div class="match-league">Serie A</div>
 
         <div class="match-header">
@@ -76,14 +54,15 @@
         <div class="match-scores">
           <span>HT 0–0</span>
           <span>FT 1–1</span>
-          <span>ET 2–2</span>
+          <span>1ET 1–1</span>
+          <span>2ET 2–2</span>
           <span>PEN 5–4</span>
         </div>
 
-        <a href="#" class="show-all">Show details ⌄</a>
+        <a href="#" class="show-details">Show details ⌄</a>
       </div>
 
-      <!-- RIGHT COLUMN -->
+      <!-- RIGHT: 3 BEST PREDICTIONS (>50%) -->
       <div class="match-predictions">
         <div class="prediction-box">
           <div class="market">Over 2.5</div>
@@ -108,8 +87,6 @@
 <footer>
   © 2025 PreBetPro.com – Football data & predictions
 </footer>
-
-<button id="back-to-top">↑</button>
 
 <script src="js/theme.js"></script>
 <script src="js/app.js"></script>
