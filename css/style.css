@@ -19,20 +19,32 @@
   --text-muted-dark: #b5b5b5;
 
   --success: #22c55e;
-  --warning: #f59e0b;
 }
 
 /* =========================
    RESET
 ========================= */
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
   font-family: system-ui, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+/* =========================
+   LIGHT / DARK
+========================= */
+body {
   background: var(--bg-light);
   color: var(--text-light);
-  line-height: 1.5;
+}
+
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
 }
 
 /* =========================
@@ -50,14 +62,12 @@ body {
   max-width: 1100px;
   margin: auto;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
 }
 
 .logo {
-  color: #fff;
+  color: #ffffff;
   font-weight: 800;
   font-size: 1.4rem;
   text-decoration: none;
@@ -77,20 +87,19 @@ body {
 }
 
 .main-nav a {
-  color: #fff;
+  color: #ffffff;
   font-weight: 700;
   text-decoration: none;
-  font-size: 0.9rem;
 }
 
 #theme-toggle {
-  background: #fff;
+  background: #ffffff;
   color: var(--accent-dark);
   border: none;
-  padding: 6px 10px;
-  border-radius: 14px;
-  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 999px;
   font-weight: 800;
+  cursor: pointer;
 }
 
 /* =========================
@@ -102,7 +111,9 @@ main {
   padding: 30px 16px;
 }
 
-section { margin-bottom: 50px; }
+section {
+  margin-bottom: 50px;
+}
 
 h2 {
   border-left: 4px solid var(--accent);
@@ -110,54 +121,50 @@ h2 {
 }
 
 /* =========================
-   THEMES
-========================= */
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-  --card-bg: var(--card-dark);
-  --text-muted: var(--text-muted-dark);
-}
-
-body:not(.dark) {
-  --card-bg: var(--card-light);
-  --text-muted: var(--text-muted-light);
-}
-
-/* =========================
    DATE LABEL
 ========================= */
 .date-label {
-  margin: 24px 0 12px;
+  margin: 28px 0 12px;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  color: var(--text-muted);
+  color: var(--text-muted-light);
 }
 
-.date-label.today { color: var(--accent); }
+body.dark .date-label {
+  color: var(--text-muted-dark);
+}
+
+.date-label.today {
+  color: var(--accent);
+}
 
 /* =========================
-   MATCH CARD DASHBOARD
+   MATCH CARD
 ========================= */
 .match-card {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
+  background: var(--card-light);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
 }
 
+body.dark .match-card {
+  background: var(--card-dark);
+}
+
+/* DASHBOARD LAYOUT */
 .match-card.dashboard {
   display: grid;
   grid-template-columns: 2fr 3fr;
-  gap: 16px;
+  gap: 20px;
 }
 
 /* LEFT */
 .match-main {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .match-league {
@@ -167,14 +174,19 @@ body:not(.dark) {
 
 .match-header {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 10px;
 }
 
 .match-time {
   font-size: 0.85rem;
-  color: var(--text-muted);
   font-weight: 700;
+  color: var(--text-muted-light);
+}
+
+body.dark .match-time {
+  color: var(--text-muted-dark);
 }
 
 .match-teams {
@@ -183,46 +195,73 @@ body:not(.dark) {
 
 .match-scores {
   display: flex;
-  gap: 12px;
   flex-wrap: wrap;
+  gap: 14px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-muted-light);
 }
 
-.details-toggle {
-  background: none;
-  border: none;
-  padding: 0;
+body.dark .match-scores {
+  color: var(--text-muted-dark);
+}
+
+.show-all {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--accent-dark);
-  cursor: pointer;
-  align-self: flex-start;
+  color: var(--accent-soft);
+  text-decoration: none;
 }
 
-/* RIGHT – PREDICTIONS */
+/* =========================
+   CONFIDENCE
+========================= */
+.confidence-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.confidence-low,
+.confidence-medium {
+  background: rgba(156,163,175,0.25);
+  color: #e5e7eb;
+}
+
+.confidence-high {
+  background: rgba(47,191,113,0.3);
+  color: var(--accent-soft);
+}
+
+/* =========================
+   PREDICTIONS COLUMN
+========================= */
 .match-predictions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
 
 .prediction-box {
   background: rgba(47,191,113,0.18);
-  border-radius: 10px;
-  padding: 10px 6px;
+  border-radius: 12px;
+  padding: 12px;
   text-align: center;
+}
+
+body.dark .prediction-box {
+  background: rgba(47,191,113,0.28);
 }
 
 .prediction-box .market {
   font-size: 0.7rem;
   font-weight: 800;
-  color: var(--accent-dark);
+  color: var(--accent-soft);
 }
 
 .prediction-box .value {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 900;
   color: var(--accent);
 }
@@ -247,13 +286,49 @@ body:not(.dark) {
 }
 
 /* =========================
+   PREMIUM OVERLAY
+========================= */
+.top-picks-content {
+  position: relative;
+}
+
+body:not(.is-premium) #top-picks-list {
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.premium-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.55);
+}
+
+.premium-box {
+  background: var(--card-light);
+  padding: 24px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+body.dark .premium-box {
+  background: var(--card-dark);
+}
+
+/* =========================
    FOOTER
 ========================= */
 footer {
   text-align: center;
   padding: 20px;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-muted-light);
+}
+
+body.dark footer {
+  color: var(--text-muted-dark);
 }
 
 /* =========================
