@@ -466,3 +466,39 @@ body.dark .show-all:hover,
 body.dark .show-more:hover {
   color: var(--accent-soft);
 }
+/* =========================
+   DARK MODE TEXT FIXES
+========================= */
+
+/* Confidence badges text */
+body.dark .confidence-low,
+body.dark .confidence-medium,
+body.dark .confidence-high {
+  color: #e5e7eb; /* grigio chiaro leggibile */
+}
+
+/* Confidence badge background improvement */
+body.dark .confidence-low {
+  background: rgba(156, 163, 175, 0.25);
+}
+
+body.dark .confidence-medium {
+  background: rgba(245, 158, 11, 0.25);
+}
+
+body.dark .confidence-high {
+  background: rgba(34, 197, 94, 0.25);
+}
+
+/* "Show all" / "Show more" links */
+body.dark .show-all,
+body.dark .show-more {
+  color: #e5fdf1;
+  font-weight: 600;
+}
+
+/* Hover state */
+body.dark .show-all:hover,
+body.dark .show-more:hover {
+  color: var(--accent-soft);
+}
