@@ -45,11 +45,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(
-    90deg,
-    var(--accent-dark),
-    var(--accent)
-  );
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
   padding: 12px 16px;
 }
 
@@ -121,6 +117,21 @@ h2 {
 }
 
 /* =========================
+   THEME VARIABLES
+========================= */
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+  --card-bg: var(--card-dark);
+  --text-muted: var(--text-muted-dark);
+}
+
+body:not(.dark) {
+  --card-bg: var(--card-light);
+  --text-muted: var(--text-muted-light);
+}
+
+/* =========================
    GENERIC CARDS
 ========================= */
 .match-card,
@@ -129,7 +140,7 @@ h2 {
 .no-data,
 .prediction-card,
 .top-pick-card {
-  background: var(--card-light);
+  background: var(--card-bg);
   padding: 16px;
   border-radius: 12px;
   margin-bottom: 14px;
@@ -138,10 +149,6 @@ h2 {
 /* =========================
    TOP PICKS
 ========================= */
-.top-picks {
-  margin-bottom: 40px;
-}
-
 .section-header {
   display: flex;
   align-items: center;
@@ -149,13 +156,8 @@ h2 {
   gap: 12px;
 }
 
-/* 🔥 BUTTON: SHOW TOP PICKS */
 .toggle-btn {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-soft)
-  );
+  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
   color: #053b24;
   border: none;
   padding: 8px 18px;
@@ -182,6 +184,11 @@ h2 {
 
 .top-pick-card {
   border-left: 4px solid var(--accent);
+  transition: transform 0.15s ease;
+}
+
+.top-pick-card:hover {
+  transform: translateY(-2px);
 }
 
 .top-pick-market {
@@ -194,13 +201,6 @@ h2 {
   font-weight: 900;
   margin-top: 6px;
   color: var(--accent);
-}
-
-/* Premium blur */
-.premium-blur {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
 }
 
 /* =========================
@@ -221,35 +221,33 @@ h2 {
 
 .match-info {
   font-size: 0.85rem;
-  color: var(--text-muted-light);
+  color: var(--text-muted);
   display: flex;
   justify-content: space-between;
 }
 
 /* =========================
-   CONFIDENCE BADGES
+   CONFIDENCE BADGES (UX SAFE)
 ========================= */
 .confidence-badge {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .confidence-high {
-  background: rgba(47, 191, 113, 0.2);
+  background: rgba(47, 191, 113, 0.22);
   color: var(--accent-dark);
 }
 
-.confidence-medium {
-  background: rgba(245, 158, 11, 0.2);
-  color: #92400e;
-}
-
+/* Limited data (medium + low) */
+.confidence-medium,
 .confidence-low {
-  background: rgba(156, 163, 175, 0.25);
-  color: #374151;
+  background: rgba(156, 163, 175, 0.18);
+  color: #4b5563;
 }
 
 /* =========================
@@ -272,7 +270,7 @@ footer {
   text-align: center;
   padding: 20px;
   font-size: 0.85rem;
-  color: var(--text-muted-light);
+  color: var(--text-muted);
 }
 
 /* =========================
@@ -293,62 +291,30 @@ footer {
 }
 
 /* =========================
-   DARK MODE
-========================= */
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-}
-
-body.dark .match-card,
-body.dark .stat-card,
-body.dark .report-match,
-body.dark .no-data,
-body.dark .prediction-card,
-body.dark .top-pick-card {
-  background: var(--card-dark);
-}
-
-body.dark .match-info,
-body.dark footer {
-  color: var(--text-muted-dark);
-}
-
-body.dark .top-pick-card,
-body.dark .toggle-btn {
-  box-shadow:
-    0 0 0 1px rgba(95, 216, 157, 0.6),
-    0 0 10px rgba(95, 216, 157, 0.25);
-}
-/* =========================
    TOP PICKS ANIMATION
 ========================= */
-
 .top-picks-content {
   overflow: hidden;
   max-height: 0;
   opacity: 0;
   transform: translateY(-6px);
-  transition:
-    max-height 0.45s ease,
-    opacity 0.35s ease,
-    transform 0.35s ease;
+  transition: max-height 0.45s ease, opacity 0.35s ease, transform 0.35s ease;
 }
 
 .top-picks-content.open {
-  max-height: 1200px; /* abbastanza per molte card */
+  max-height: 1200px;
   opacity: 1;
   transform: translateY(0);
 }
-/* =========================
-   PREMIUM BLUR & PAYWALL
-========================= */
 
+/* =========================
+   PREMIUM (FUTURE-READY)
+========================= */
 .top-picks-content {
   position: relative;
 }
 
-/* Blur content for free users */
+/* Blur for free users (future switch) */
 body:not(.is-premium) #top-picks-list {
   filter: blur(6px);
   pointer-events: none;
@@ -362,27 +328,23 @@ body:not(.is-premium) #top-picks-list {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.75),
-    rgba(255, 255, 255, 0.9)
-  );
+  backdrop-filter: blur(2px);
+  background: rgba(255,255,255,0.85);
   z-index: 5;
 }
 
-/* Hide overlay for premium users */
+/* Hide for premium users */
 body.is-premium .premium-overlay {
   display: none;
 }
 
-/* Premium box */
 .premium-box {
   background: #ffffff;
   border-radius: 14px;
   padding: 24px 28px;
   text-align: center;
   max-width: 320px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
 }
 
 .premium-box h3 {
@@ -396,109 +358,34 @@ body.is-premium .premium-overlay {
   margin-bottom: 16px;
 }
 
-/* CTA button */
 .premium-cta {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-soft)
-  );
+  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
   color: #053b24;
   border: none;
   padding: 10px 22px;
   border-radius: 999px;
   font-weight: 800;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.premium-cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-}
-
-/* Dark mode adjustments */
+/* Dark mode premium */
 body.dark .premium-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(15, 17, 21, 0.85),
-    rgba(15, 17, 21, 0.95)
-  );
+  backdrop-filter: blur(3px);
+  background: rgba(15,17,21,0.9);
 }
 
 body.dark .premium-box {
   background: var(--card-dark);
-  box-shadow:
-    0 0 0 1px rgba(95, 216, 157, 0.4),
-    0 12px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 1px rgba(95,216,157,0.4),
+              0 12px 30px rgba(0,0,0,0.6);
 }
 
-body.dark .premium-box p {
-  color: var(--text-muted-dark);
-}
 /* =========================
-   DARK MODE VISIBILITY FIX
+   ACCESSIBILITY
 ========================= */
-
-/* Match title (Home vs Away) */
-body.dark .match-teams {
-  color: #f1f5f9; /* grigio molto chiaro, non bianco puro */
-}
-
-/* League name */
-body.dark .match-league {
-  color: var(--accent-soft);
-}
-
-/* Toggle button text (Show Top Picks / Show All) */
-body.dark .toggle-btn {
-  color: #052e1c; /* testo scuro su bottone chiaro */
-}
-
-/* If you have "Show all" links/buttons */
-body.dark .show-all,
-body.dark .show-more {
-  color: #e5fdf1;
-}
-
-/* Hover state for links in dark */
-body.dark .show-all:hover,
-body.dark .show-more:hover {
-  color: var(--accent-soft);
-}
-/* =========================
-   DARK MODE TEXT FIXES
-========================= */
-
-/* Confidence badges text */
-body.dark .confidence-low,
-body.dark .confidence-medium,
-body.dark .confidence-high {
-  color: #e5e7eb; /* grigio chiaro leggibile */
-}
-
-/* Confidence badge background improvement */
-body.dark .confidence-low {
-  background: rgba(156, 163, 175, 0.25);
-}
-
-body.dark .confidence-medium {
-  background: rgba(245, 158, 11, 0.25);
-}
-
-body.dark .confidence-high {
-  background: rgba(34, 197, 94, 0.25);
-}
-
-/* "Show all" / "Show more" links */
-body.dark .show-all,
-body.dark .show-more {
-  color: #e5fdf1;
-  font-weight: 600;
-}
-
-/* Hover state */
-body.dark .show-all:hover,
-body.dark .show-more:hover {
-  color: var(--accent-soft);
+.toggle-btn:focus,
+.premium-cta:focus,
+#theme-toggle:focus {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 2px;
 }
