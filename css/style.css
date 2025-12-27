@@ -147,6 +147,115 @@ body:not(.dark) {
 }
 
 /* =========================
+   DATE GROUPS (YESTERDAY / TODAY / TOMORROW)
+========================= */
+.date-group {
+  margin-bottom: 30px;
+}
+
+.date-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 20px 0 12px;
+  color: var(--text-muted);
+}
+
+.date-label.today {
+  color: var(--accent);
+}
+
+.date-label.yesterday,
+.date-label.tomorrow {
+  opacity: 0.7;
+}
+
+/* =========================
+   MATCH CARD – MINI DASHBOARD
+========================= */
+.match-card.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 16px;
+  align-items: center;
+}
+
+/* =========================
+   MATCH MAIN (LEFT COLUMN)
+========================= */
+.match-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.match-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+.match-time {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.match-teams {
+  font-size: 1rem;
+}
+
+/* Scores compact & readable */
+.match-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Show details button */
+.details-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+/* =========================
+   MATCH PREDICTIONS (RIGHT COLUMN)
+========================= */
+.match-predictions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.prediction-box {
+  background: rgba(47,191,113,0.12);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+}
+
+.prediction-box .market {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+.prediction-box .value {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+/* =========================
    TOP PICKS
 ========================= */
 .section-header {
@@ -173,9 +282,7 @@ body:not(.dark) {
   box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
 
-/* =========================
-   TOP PICK CARD
-========================= */
+/* Top Picks grid */
 .top-picks-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -204,29 +311,6 @@ body:not(.dark) {
 }
 
 /* =========================
-   MATCH CARD
-========================= */
-.match-league {
-  font-weight: 700;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.match-teams {
-  font-weight: 700;
-  margin: 6px 0;
-}
-
-.match-info {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  display: flex;
-  justify-content: space-between;
-}
-
-/* =========================
    CONFIDENCE BADGES (UX SAFE)
 ========================= */
 .confidence-badge {
@@ -239,14 +323,13 @@ body:not(.dark) {
 }
 
 .confidence-high {
-  background: rgba(47, 191, 113, 0.22);
+  background: rgba(47,191,113,0.22);
   color: var(--accent-dark);
 }
 
-/* Limited data (medium + low) */
 .confidence-medium,
 .confidence-low {
-  background: rgba(156, 163, 175, 0.18);
+  background: rgba(156,163,175,0.18);
   color: #4b5563;
 }
 
@@ -314,14 +397,12 @@ footer {
   position: relative;
 }
 
-/* Blur for free users (future switch) */
 body:not(.is-premium) #top-picks-list {
   filter: blur(6px);
   pointer-events: none;
   user-select: none;
 }
 
-/* Overlay */
 .premium-overlay {
   position: absolute;
   inset: 0;
@@ -333,7 +414,6 @@ body:not(.is-premium) #top-picks-list {
   z-index: 5;
 }
 
-/* Hide for premium users */
 body.is-premium .premium-overlay {
   display: none;
 }
@@ -376,8 +456,9 @@ body.dark .premium-overlay {
 
 body.dark .premium-box {
   background: var(--card-dark);
-  box-shadow: 0 0 0 1px rgba(95,216,157,0.4),
-              0 12px 30px rgba(0,0,0,0.6);
+  box-shadow:
+    0 0 0 1px rgba(95,216,157,0.4),
+    0 12px 30px rgba(0,0,0,0.6);
 }
 
 /* =========================
@@ -388,4 +469,17 @@ body.dark .premium-box {
 #theme-toggle:focus {
   outline: 2px solid var(--accent-soft);
   outline-offset: 2px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 720px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .match-predictions {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
