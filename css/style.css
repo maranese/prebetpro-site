@@ -20,15 +20,12 @@
 
   --success: #22c55e;
   --warning: #f59e0b;
-  --neutral: #9ca3af;
 }
 
 /* =========================
    RESET
 ========================= */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -39,7 +36,7 @@ body {
 }
 
 /* =========================
-   HERO / HEADER
+   HERO
 ========================= */
 .hero {
   position: sticky;
@@ -54,31 +51,29 @@ body {
   margin: auto;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
 }
 
 .logo {
   color: #fff;
   font-weight: 800;
-  text-decoration: none;
   font-size: 1.4rem;
+  text-decoration: none;
 }
 
 .tagline {
   font-size: 0.8rem;
   color: #eafff3;
-  opacity: 0.9;
 }
 
 /* =========================
-   NAVIGATION
+   NAV
 ========================= */
 .main-nav {
   display: flex;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
 .main-nav a {
@@ -89,13 +84,13 @@ body {
 }
 
 #theme-toggle {
-  border: none;
   background: #fff;
   color: var(--accent-dark);
+  border: none;
   padding: 6px 10px;
   border-radius: 14px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 800;
 }
 
 /* =========================
@@ -107,9 +102,7 @@ main {
   padding: 30px 16px;
 }
 
-section {
-  margin-bottom: 50px;
-}
+section { margin-bottom: 50px; }
 
 h2 {
   border-left: 4px solid var(--accent);
@@ -117,7 +110,7 @@ h2 {
 }
 
 /* =========================
-   THEME VARIABLES
+   THEMES
 ========================= */
 body.dark {
   background: var(--bg-dark);
@@ -132,90 +125,71 @@ body:not(.dark) {
 }
 
 /* =========================
-   GENERIC CARDS
+   DATE LABEL
 ========================= */
-.match-card,
-.stat-card,
-.report-match,
-.no-data,
-.prediction-card,
-.top-pick-card {
-  background: var(--card-bg);
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 14px;
-}
-
-/* =========================
-   DATE GROUPS (YESTERDAY / TODAY / TOMORROW)
-========================= */
-.date-group {
-  margin-bottom: 30px;
-}
-
 .date-label {
+  margin: 24px 0 12px;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  margin: 20px 0 12px;
   color: var(--text-muted);
 }
 
-.date-label.today {
-  color: var(--accent);
-}
-
-.date-label.yesterday,
-.date-label.tomorrow {
-  opacity: 0.7;
-}
+.date-label.today { color: var(--accent); }
 
 /* =========================
-   MATCH CARD – MINI DASHBOARD
+   MATCH CARD DASHBOARD
 ========================= */
+.match-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
 .match-card.dashboard {
   display: grid;
   grid-template-columns: 2fr 3fr;
   gap: 16px;
-  align-items: center;
 }
 
-/* =========================
-   MATCH MAIN (LEFT COLUMN)
-========================= */
+/* LEFT */
 .match-main {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+}
+
+.match-league {
+  font-weight: 800;
+  color: var(--accent);
 }
 
 .match-header {
   display: flex;
-  align-items: center;
   gap: 10px;
-  font-weight: 800;
+  align-items: center;
 }
 
 .match-time {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
+  font-weight: 700;
 }
 
 .match-teams {
-  font-size: 1rem;
+  font-weight: 800;
 }
 
-/* Scores compact & readable */
 .match-scores {
   display: flex;
+  gap: 12px;
   flex-wrap: wrap;
-  gap: 10px;
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-muted);
 }
 
-/* Show details button */
 .details-toggle {
   background: none;
   border: none;
@@ -227,9 +201,7 @@ body:not(.dark) {
   align-self: flex-start;
 }
 
-/* =========================
-   MATCH PREDICTIONS (RIGHT COLUMN)
-========================= */
+/* RIGHT – PREDICTIONS */
 .match-predictions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -237,7 +209,7 @@ body:not(.dark) {
 }
 
 .prediction-box {
-  background: rgba(47,191,113,0.12);
+  background: rgba(47,191,113,0.18);
   border-radius: 10px;
   padding: 10px 6px;
   text-align: center;
@@ -260,9 +232,8 @@ body:not(.dark) {
 ========================= */
 .section-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  align-items: center;
 }
 
 .toggle-btn {
@@ -273,77 +244,6 @@ body:not(.dark) {
   border-radius: 999px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-.toggle-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-}
-
-/* Top Picks grid */
-.top-picks-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-}
-
-.top-pick-card {
-  border-left: 4px solid var(--accent);
-  transition: transform 0.15s ease;
-}
-
-.top-pick-card:hover {
-  transform: translateY(-2px);
-}
-
-.top-pick-market {
-  font-weight: 800;
-  color: var(--accent-dark);
-}
-
-.top-pick-value {
-  font-size: 1.3rem;
-  font-weight: 900;
-  margin-top: 6px;
-  color: var(--accent);
-}
-
-/* =========================
-   CONFIDENCE BADGES (UX SAFE)
-========================= */
-.confidence-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-
-.confidence-high {
-  background: rgba(47,191,113,0.22);
-  color: var(--accent-dark);
-}
-
-.confidence-medium,
-.confidence-low {
-  background: rgba(156,163,175,0.18);
-  color: #4b5563;
-}
-
-/* =========================
-   REPORTS
-========================= */
-.report-result-win {
-  color: var(--success);
-  font-weight: 800;
-}
-
-.report-result-loss {
-  color: #ef4444;
-  font-weight: 800;
 }
 
 /* =========================
@@ -357,129 +257,10 @@ footer {
 }
 
 /* =========================
-   BACK TO TOP
-========================= */
-#back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent);
-  color: #053b24;
-  border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: none;
-  cursor: pointer;
-}
-
-/* =========================
-   TOP PICKS ANIMATION
-========================= */
-.top-picks-content {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition: max-height 0.45s ease, opacity 0.35s ease, transform 0.35s ease;
-}
-
-.top-picks-content.open {
-  max-height: 1200px;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* =========================
-   PREMIUM (FUTURE-READY)
-========================= */
-.top-picks-content {
-  position: relative;
-}
-
-body:not(.is-premium) #top-picks-list {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
-}
-
-.premium-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
-  background: rgba(255,255,255,0.85);
-  z-index: 5;
-}
-
-body.is-premium .premium-overlay {
-  display: none;
-}
-
-.premium-box {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 24px 28px;
-  text-align: center;
-  max-width: 320px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-
-.premium-box h3 {
-  margin: 0 0 6px;
-  color: var(--accent-dark);
-}
-
-.premium-box p {
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-  margin-bottom: 16px;
-}
-
-.premium-cta {
-  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
-  color: #053b24;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-/* Dark mode premium */
-body.dark .premium-overlay {
-  backdrop-filter: blur(3px);
-  background: rgba(15,17,21,0.9);
-}
-
-body.dark .premium-box {
-  background: var(--card-dark);
-  box-shadow:
-    0 0 0 1px rgba(95,216,157,0.4),
-    0 12px 30px rgba(0,0,0,0.6);
-}
-
-/* =========================
-   ACCESSIBILITY
-========================= */
-.toggle-btn:focus,
-.premium-cta:focus,
-#theme-toggle:focus {
-  outline: 2px solid var(--accent-soft);
-  outline-offset: 2px;
-}
-
-/* =========================
    MOBILE
 ========================= */
 @media (max-width: 720px) {
   .match-card.dashboard {
     grid-template-columns: 1fr;
-  }
-
-  .match-predictions {
-    grid-template-columns: repeat(3, 1fr);
   }
 }
