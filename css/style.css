@@ -39,101 +39,25 @@ body {
 }
 
 /* =========================
-   HERO / HEADER
+   MATCH CARD (Updated for Teams and League Flags)
 ========================= */
-.hero {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
-  padding: 12px 16px;
-}
-
-.hero-inner {
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.logo {
-  color: #fff;
-  font-weight: 800;
-  text-decoration: none;
-  font-size: 1.4rem;
-}
-
-.tagline {
-  font-size: 0.8rem;
-  color: #eafff3;
-  opacity: 0.9;
-}
-
-/* =========================
-   NAVIGATION
-========================= */
-.main-nav {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.main-nav a {
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-#theme-toggle {
-  border: none;
-  background: #fff;
-  color: var(--accent-dark);
-  padding: 6px 10px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-/* =========================
-   MAIN
-========================= */
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 30px 16px;
-}
-
-section {
-  margin-bottom: 50px;
-}
-
-h2 {
-  border-left: 4px solid var(--accent);
-  padding-left: 10px;
-}
-
-/* =========================
-   GENERIC CARDS
-========================= */
-.match-card,
-.stat-card,
-.report-match,
-.no-data,
-.prediction-card,
-.top-pick-card {
+.match-card {
   background: var(--card-light);
   padding: 16px;
   border-radius: 12px;
   margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* =========================
-   MATCH CARD
-========================= */
+.match-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .match-league {
   font-weight: 700;
   color: var(--accent);
@@ -142,9 +66,21 @@ h2 {
   gap: 6px;
 }
 
+.match-league img {
+  width: 24px; /* Flag size */
+  height: 24px;
+}
+
 .match-teams {
   font-weight: 700;
-  margin: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.match-teams img {
+  width: 18px;
+  height: 18px;
 }
 
 .match-info {
@@ -152,25 +88,61 @@ h2 {
   color: var(--text-muted-light);
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
-.match-info div {
-  padding-right: 10px;
+.prediction-grid {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .prediction-item {
-  padding: 10px 12px;
-  margin: 5px 0;
-  background-color: var(--card-light);
-  border-radius: 8px;
+  background: var(--card-dark);
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 30%;
+  text-align: center;
 }
 
 .prediction-item.highlight {
-  background-color: #2fd19d;
+  background: var(--accent-soft);
 }
 
-.prediction-item strong {
-  font-weight: bold;
+.show-all-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 1rem;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 16px;
+}
+
+/* =========================
+   TOP PICKS
+========================= */
+.top-picks {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.top-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.toggle-btn {
+  display: none; /* Hides the show/hide button for Top Picks */
 }
 
 /* =========================
@@ -183,33 +155,13 @@ body.dark {
 
 body.dark .match-card,
 body.dark .stat-card,
-body.dark .report-match,
-body.dark .no-data,
-body.dark .prediction-card,
-body.dark .top-pick-card {
+body.dark .prediction-card {
   background: var(--card-dark);
 }
 
 body.dark .match-info,
 body.dark footer {
   color: var(--text-muted-dark);
-}
-
-/* =========================
-   BACK TO TOP
-========================= */
-#back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent);
-  color: #053b24;
-  border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: none;
-  cursor: pointer;
 }
 
 /* =========================
@@ -227,65 +179,4 @@ body.dark footer {
   max-height: 1200px;
   opacity: 1;
   transform: translateY(0);
-}
-
-/* =========================
-   PREMIUM (FUTURE-READY)
-========================= */
-.top-picks-content {
-  position: relative;
-}
-
-/* Blur for free users (future switch) */
-body:not(.is-premium) #top-picks-list {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Overlay */
-.premium-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
-  background: rgba(255,255,255,0.85);
-  z-index: 5;
-}
-
-/* Hide for premium users */
-body.is-premium .premium-overlay {
-  display: none;
-}
-
-.premium-box {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 24px 28px;
-  text-align: center;
-  max-width: 320px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-
-.premium-box h3 {
-  margin: 0 0 6px;
-  color: var(--accent-dark);
-}
-
-.premium-box p {
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-  margin-bottom: 16px;
-}
-
-.premium-cta {
-  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
-  color: #053b24;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-weight: 800;
-  cursor: pointer;
 }
