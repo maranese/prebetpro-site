@@ -425,7 +425,7 @@ body.dark footer {
   font-weight: 600;
 }
 /* =========================
-   TOP PICKS – SCROLLING CARDS
+   TOP PICK CARD
 ========================= */
 
 .top-picks-grid {
@@ -433,32 +433,47 @@ body.dark footer {
   gap: 14px;
   overflow-x: auto;
   padding-bottom: 6px;
-
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
 }
 
 .top-picks-grid::-webkit-scrollbar {
-  display: none; /* Chrome / Safari */
+  display: none;
 }
 
-/* Fade hint on the right */
-.top-picks {
-  position: relative;
+.top-pick-card {
+  min-width: 220px;
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 14px;
+  border-left: 4px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.top-picks::after {
-  content: "";
-  position: absolute;
-  top: 60px;
-  right: 0;
-  width: 60px;
-  height: calc(100% - 60px);
-  pointer-events: none;
-  background: linear-gradient(
-    to right,
-    rgba(255,255,255,0),
-    var(--bg-light)
-  );
+.top-pick-card.placeholder {
+  border-left-color: var(--neutral);
+  opacity: 0.8;
+}
+
+.top-pick-match {
+  font-weight: 700;
+}
+
+.top-pick-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.top-pick-market {
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.top-pick-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--accent);
 }
 
 body.dark .top-picks::after {
