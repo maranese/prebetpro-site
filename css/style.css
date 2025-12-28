@@ -83,42 +83,41 @@ body.dark {
 }
 
 /* =========================
-   TOP PICKS SCROLLING CARDS
+   MAIN
 ========================= */
-.top-picks-content {
-  display: flex;
-  overflow-x: scroll;
-  gap: 16px;
-  padding: 10px 0;
-  scroll-snap-type: x mandatory;
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 16px;
 }
 
-.top-picks-grid {
-  display: flex;
-  gap: 16px;
+section {
+  margin-bottom: 50px;
 }
 
-.prediction-card {
-  flex-shrink: 0;
-  scroll-snap-align: start;
-  width: 300px; /* Imposta la larghezza della card */
+h2 {
+  border-left: 4px solid var(--accent);
+  padding-left: 10px;
 }
 
-.prediction-card:last-child {
-  opacity: 0.6;
-  pointer-events: none; /* Blocca l’interazione sull’ultima card per suggerire lo scorrimento */
-}
-
-body.dark .prediction-card:last-child {
-  opacity: 0.6;
-}
-
+/* =========================
+   GENERIC CARDS
+========================= */
+.match-card,
+.prediction-card,
+.stat-card,
 .no-data {
-  text-align: center;
+  background: var(--card-light);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
+body.dark .match-card,
+body.dark .prediction-card,
+body.dark .stat-card,
 body.dark .no-data {
-  color: var(--text-muted-dark);
+  background: var(--card-dark);
 }
 
 /* =========================
@@ -130,6 +129,7 @@ body.dark .no-data {
   gap: 16px;
 }
 
+/* Day label */
 .match-day {
   grid-column: 1 / -1;
   font-size: 0.75rem;
@@ -138,6 +138,7 @@ body.dark .no-data {
   letter-spacing: 0.08em;
 }
 
+/* League */
 .match-league {
   grid-column: 1 / -1;
   font-size: 0.85rem;
@@ -145,6 +146,9 @@ body.dark .no-data {
   color: var(--accent);
 }
 
+/* =========================
+   MATCH MAIN (LEFT)
+========================= */
 .match-main {
   display: flex;
   flex-direction: column;
@@ -178,6 +182,9 @@ body.dark .match-row.scores {
   color: var(--text-muted-dark);
 }
 
+/* =========================
+   CONFIDENCE BADGE
+========================= */
 .confidence-badge {
   padding: 4px 12px;
   border-radius: 999px;
@@ -191,6 +198,9 @@ body.dark .confidence-badge {
   color: #e5e7eb;
 }
 
+/* =========================
+   DETAILS
+========================= */
 .match-toggle {
   background: none;
   border: none;
@@ -225,6 +235,9 @@ body.dark .match-details {
   display: contents;
 }
 
+/* =========================
+   PREDICTION CARD (UNIT)
+========================= */
 .prediction-card {
   background: rgba(47, 191, 113, 0.18);
   border-radius: 14px;
@@ -252,6 +265,9 @@ body.dark .prediction-card {
   color: var(--accent);
 }
 
+/* =========================
+   PREDICTIONS SECTION
+========================= */
 .prediction-match-group {
   margin-bottom: 30px;
 }
@@ -265,6 +281,31 @@ body.dark .prediction-card {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
+}
+
+/* =========================
+   TOP PICKS (NEW STYLES)
+========================= */
+.top-picks-content {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.top-picks-content .prediction-card {
+  flex: 0 0 auto;
+  transition: opacity 0.3s ease;
+}
+
+.top-picks-content .prediction-card:last-child {
+  opacity: 0.5;
+}
+
+.top-picks-empty {
+  font-size: 1rem;
+  color: var(--text-muted-light);
+  text-align: center;
 }
 
 /* =========================
@@ -308,4 +349,13 @@ body.dark footer {
   border-radius: 50%;
   display: none;
   cursor: pointer;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
 }
