@@ -1,45 +1,101 @@
 document.addEventListener("DOMContentLoaded", () => {
-  loadTodayMatches();
-  loadMatches();
+  loadData();
   initBackToTop();
 });
 
 /* =========================
-   LOAD MATCHES
+   LOAD DATA (SINGLE FETCH)
 ========================= */
-async function loadMatches() {
+async function loadData() {
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
     if (!res.ok) return;
 
     const data = await res.json();
-    renderPredictions(data.fixtures || []);
+    const fixtures = data.fixtures || [];
+
+    renderTopPicks(fixtures);
+    renderTodayMatches(fixtures);
+    renderPredictions(fixtures);
+
   } catch (e) {
     console.error(e);
   }
 }
 
 /* =========================
-   LOAD TODAY MATCHES
+   TOP PICKS
 ========================= */
-async function loadTodayMatches() {
+function renderTopPicks(fixtures) {
+  const box = document.getElementById("top-picks-list");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  const picks = [];
+
+  fixtures.forEach(f => {
+    if (f.confidence !== "high" || !f.predictions?.strength) return;
+
+    const p = f.predictions;
+    const s = p.strength;
+
+    [
+      { label: "1", value: p.home_win, strong: s.home_win },
+      { label: "X", value: p.draw, strong: s.draw },
+      { label: "2", value: p.away_win, strong: s.away_win },
+      { label: "Over 2.5", value: p.over_25, strong: s.over_25 },
+      { label: "Under 2.5", value: p.under_25, strong: s.under_25 }
+    ].forEach(m => {
+      if (m.strong && m.value != null) {
+        picks.push(m);
+      }
+    });
+  });
+
+  // Ordina per valore decrescente
+  picks.sort((a, b) => b.value - a.value);
+
+  if (!picks.length) {
+    box.innerHTML = `
+      <div class="prediction-card placeholder">
+        <div class="prediction-market">No Top Picks</div>
+        <div class="prediction-value">today</div>
+      </div>
+      <div class="prediction-card placeholder">
+        <div class="prediction-market">No Top Picks</div>
+        <div class="prediction-value">today</div>
+      </div>
+      <div class="prediction-card placeholder">
+        <div class="prediction-market">No Top Picks</div>
+        <div class="prediction-value">today</div>
+      </div>
+    `;
+    return;
+  }
+
+  picks.forEach(p => {
+    box.innerHTML += `
+      <div class="prediction-card highlight">
+        <div class="prediction-market">${p.label}</div>
+        <div class="prediction-value">${p.value}%</div>
+      </div>
+    `;
+  });
+}
+
+/* =========================
+   MATCHES
+========================= */
+function renderTodayMatches(fixtures) {
   const container = document.getElementById("matches");
   if (!container) return;
 
   container.innerHTML = "";
 
-  try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) return;
-
-    const data = await res.json();
-    (data.fixtures || [])
-      .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date))
-      .forEach(f => container.appendChild(renderMatchCard(f)));
-
-  } catch (e) {
-    console.error(e);
-  }
+  fixtures
+    .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date))
+    .forEach(f => container.appendChild(renderMatchCard(f)));
 }
 
 /* =========================
