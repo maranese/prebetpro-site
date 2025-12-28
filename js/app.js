@@ -20,10 +20,10 @@ const STATUS_MESSAGES = {
 async function loadTopPicks() {
   const list = document.getElementById("top-picks-list");
   const empty = document.getElementById("top-picks-empty");
-  if (!list || !empty) return;
+  if (!list) return;
 
   list.innerHTML = "";
-  empty.style.display = "none";
+  if (empty) empty.style.display = "none";
 
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/top-picks");
@@ -33,11 +33,10 @@ async function loadTopPicks() {
     const picks = data.top_picks || [];
 
     if (!picks.length) {
-      empty.innerHTML = `
-        <strong>No Top Picks available today</strong><br>
-        We don’t publish Top Picks when data is unreliable.
-      `;
-      empty.style.display = "block";
+      // 👉 PLACEHOLDER CARDS
+      for (let i = 0; i < 4; i++) {
+        list.appendChild(renderTopPickPlaceholder());
+      }
       return;
     }
 
@@ -46,13 +45,13 @@ async function loadTopPicks() {
     });
 
   } catch (err) {
-    empty.innerHTML = `
-      <strong>No Top Picks available</strong><br>
-      Data temporarily unavailable.
-    `;
-    empty.style.display = "block";
+    // fallback etico
+    for (let i = 0; i < 4; i++) {
+      list.appendChild(renderTopPickPlaceholder());
+    }
   }
 }
+
 /* =========================
    TOP PICK CARD
 ========================= */
