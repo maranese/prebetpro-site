@@ -290,6 +290,71 @@ if (toggleBtn && topPicksContent) {
     toggleBtn.textContent = isOpen ? "Hide Top Picks" : "Show Top Picks";
   });
 }
+async function loadTopPicks() {
+    const container = document.getElementById("top-picks-list");
+    const emptyMessage = document.getElementById("top-picks-empty");
+    const dateElement = document.getElementById("top-picks-date");
+
+    // Recupera i dati delle partite (assicurati che siano caricati in precedenza)
+    const matches = await fetchMatches(); // Supponendo che la funzione fetchMatches() restituisca le partite
+    const todayDate = new Date().toLocaleDateString("en-GB", {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
+    dateElement.innerHTML = `Top Picks for ${todayDate}`;
+
+    const topPicks = [];
+
+    matches.forEach(match => {
+        const predictions = match.predictions;
+        if (predictions) {
+            const strongPredictions = Object.keys(predictions.strength).filter(type => predictions.strength[type] > 5);
+            
+            strongPredictions.forEach(type => {
+                topPicks.push({
+                    match,
+                    type,
+                    prediction: predictions[type],
+                });
+            });
+        }
+    });
+
+    if (topPicks.length > 0) {
+        emptyMessage.style.display = "none";
+        topPicks.forEach(pick => {
+            const card = createPredictionCard(pick);
+            container.appendChild(card);
+        });
+    } else {
+        emptyMessage.style.display = "block";
+    }
+}
+
+function createPredictionCard(pick) {
+    const card = document.createElement("div");
+    card.classList.add("prediction-card");
+
+    const { match, type, prediction } = pick;
+    const dateObj = new Date(match.fixture.date);
+    const time = dateObj.toLocaleTimeString("it-IT", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+    
+    card.innerHTML = `
+        <div class="match-info">
+            <span class="match-time">${time}</span>
+            <span class="match-teams">${match.teams.home.name} vs ${match.teams.away.name}</span>
+        </div>
+        <div class="prediction-info">
+            <span class="prediction-market">${type}</span>
+            <span class="prediction-value">${prediction}%</span>
+        </div>
+    `;
+    return card;
+}
 
 /* =========================
    BACK TO TOP
