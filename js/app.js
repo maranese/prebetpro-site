@@ -55,22 +55,41 @@ async function loadTopPicks() {
 }
 
 /* =========================
-   TOP PICK PLACEHOLDER CARD
+   TOP PICKS RENDER
 ========================= */
-function renderTopPickPlaceholder() {
+function renderTopPicks(picks = []) {
+  const list = document.getElementById("top-picks-list");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  if (!picks.length) {
+    // placeholder cards
+    for (let i = 0; i < 4; i++) {
+      list.appendChild(renderTopPickPlaceholderCard());
+    }
+    return;
+  }
+
+  picks.forEach(pick => {
+    list.appendChild(renderTopPickCard(pick));
+  });
+}
+
+function renderTopPickPlaceholderCard() {
   const card = document.createElement("div");
   card.className = "top-pick-card placeholder";
 
   card.innerHTML = `
-    <div class="top-pick-match">No top prediction</div>
-    <div class="top-pick-market">Today</div>
+    <div class="top-pick-match">No Top Prediction</div>
+    <div class="top-pick-meta">Today</div>
+
+    <div class="top-pick-market">We don’t sell smoke.</div>
     <div class="top-pick-value">—</div>
-    <div class="top-pick-note">We don’t sell smoke.</div>
   `;
 
   return card;
 }
-
 
 /* =========================
    TOP PICK CARD
@@ -81,12 +100,15 @@ function renderTopPickCard(pick) {
 
   card.innerHTML = `
     <div class="top-pick-match">${pick.match}</div>
+    <div class="top-pick-meta">Today</div>
+
     <div class="top-pick-market">${pick.market}</div>
     <div class="top-pick-value">${pick.value}%</div>
   `;
 
   return card;
 }
+
 
 /* =========================
    PREDICTION GROUPS (OFFICIAL)
