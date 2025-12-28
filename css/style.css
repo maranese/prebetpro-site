@@ -30,12 +30,6 @@ body {
   margin: 0;
   font-family: system-ui, Arial, sans-serif;
   line-height: 1.5;
-}
-
-/* =========================
-   LIGHT / DARK MODE
-========================= */
-body {
   background: var(--bg-light);
   color: var(--text-light);
 }
@@ -115,8 +109,8 @@ h2 {
 .no-data {
   background: var(--card-light);
   border-radius: 16px;
-  padding: 18px;
-  margin-bottom: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
 body.dark .match-card,
@@ -127,7 +121,7 @@ body.dark .no-data {
 }
 
 /* =========================
-   MATCH CARD – MINI DASHBOARD
+   MATCH CARD (DASHBOARD)
 ========================= */
 .match-card.dashboard {
   display: grid;
@@ -135,7 +129,7 @@ body.dark .no-data {
   gap: 16px;
 }
 
-/* DAY LABEL */
+/* Day label */
 .match-day {
   grid-column: 1 / -1;
   font-size: 0.75rem;
@@ -144,7 +138,7 @@ body.dark .no-data {
   letter-spacing: 0.08em;
 }
 
-/* LEAGUE */
+/* League */
 .match-league {
   grid-column: 1 / -1;
   font-size: 0.85rem;
@@ -205,7 +199,7 @@ body.dark .confidence-badge {
 }
 
 /* =========================
-   DETAILS TOGGLE
+   DETAILS
 ========================= */
 .match-toggle {
   background: none;
@@ -216,6 +210,7 @@ body.dark .confidence-badge {
   font-weight: 700;
   color: var(--accent-soft);
   cursor: pointer;
+  text-align: left;
 }
 
 .match-details {
@@ -234,17 +229,28 @@ body.dark .match-details {
 }
 
 /* =========================
-   PREDICTIONS (RIGHT 3 COLS)
+   INLINE PREDICTIONS (MATCHES)
 ========================= */
-.match-predictions {
+.match-inline-predictions {
   display: contents;
 }
 
-.prediction-box {
+/* =========================
+   PREDICTION CARD (UNIT)
+========================= */
+.prediction-card {
   background: rgba(47, 191, 113, 0.18);
   border-radius: 14px;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
+}
+
+body.dark .prediction-card {
+  background: rgba(95, 216, 157, 0.22);
+}
+
+.prediction-card.highlight {
+  outline: 2px solid var(--accent);
 }
 
 .prediction-market {
@@ -259,33 +265,22 @@ body.dark .match-details {
   color: var(--accent);
 }
 
-.prediction-box.highlight {
-  outline: 2px solid var(--accent);
-}
-
-body.dark .prediction-box {
-  background: rgba(95, 216, 157, 0.22);
-}
-
 /* =========================
    PREDICTIONS SECTION
 ========================= */
-.prediction-grid {
+.prediction-match-group {
+  margin-bottom: 30px;
+}
+
+.prediction-match-group h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.predictions-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
-}
-
-.prediction-item {
-  background: var(--card-light);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-  font-size: 0.85rem;
-}
-
-body.dark .prediction-item {
-  background: var(--card-dark);
 }
 
 /* =========================
@@ -337,9 +332,5 @@ body.dark footer {
 @media (max-width: 900px) {
   .match-card.dashboard {
     grid-template-columns: 1fr;
-  }
-
-  .prediction-box {
-    margin-top: 10px;
   }
 }
