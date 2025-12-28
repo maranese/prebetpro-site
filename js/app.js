@@ -5,6 +5,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
+   STATUS MESSAGES (GLOBAL)
+========================= */
+const STATUS_MESSAGES = {
+  no_data: `
+    Insufficient historical data.<br>
+    We don’t generate predictions when data is unreliable.
+  `,
+  api_unavailable: `
+    Data temporarily unavailable.
+  `,
+  api_limited: `
+    Data update temporarily limited.<br>
+    Information will refresh automatically.
+  `
+};
+
+/* =========================
    LOAD MATCHES (API ROOT)
 ========================= */
 async function loadMatches() {
@@ -17,7 +34,6 @@ async function loadMatches() {
     }
 
     const data = await res.json();
-    const status = data.status || "ok";
     const fixtures = data.fixtures || [];
 
     renderStatistics(fixtures);
@@ -68,57 +84,89 @@ async function loadTodayMatches() {
 }
 
 /* =========================
-   MATCH CARD (TODAY)
+   MATCH CARD (DASHBOARD)
 ========================= */
 function renderMatchCard(f) {
   const card = document.createElement("div");
-  card.className = `match-card confidence-${f.confidence}`;
+  card.className = "match-card dashboard";
 
-  const time = new Date(f.fixture.date).toLocaleTimeString("it-IT", {
+  const dateObj = new Date(f.fixture.date);
+  const time = dateObj.toLocaleTimeString("it-IT", {
     hour: "2-digit",
     minute: "2-digit"
   });
 
-  const status = f.fixture.status.short;
-  const ht = f.score?.halftime;
-  const ft = f.score?.fulltime;
-  const et = f.score?.extratime;
-  const pen = f.score?.penalty;
-
-  let scoreHtml = "";
-  if (ht?.home != null) scoreHtml += `<div>HT: ${ht.home}–${ht.away}</div>`;
-  if (ft?.home != null) scoreHtml += `<div>FT: ${ft.home}–${ft.away}</div>`;
-  if (status === "AET" && et) scoreHtml += `<div>AET: ${et.home}–${et.away}</div>`;
-  if (status === "PEN" && pen) scoreHtml += `<div>PEN: ${pen.home}–${pen.away}</div>`;
+  const dateLabel = dateObj.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short"
+  });
 
   const bestMarkets = getBestMarkets(f);
 
   card.innerHTML = `
-    <div class="match-header">
-      <div>
-        <div class="match-teams">
-          <img src="${f.teams.home.logo}" alt="${f.teams.home.name}" class="team-logo" />
-          ${f.teams.home.name} vs ${f.teams.away.name}
-          <img src="${f.teams.away.logo}" alt="${f.teams.away.name}" class="team-logo" />
-        </div>
-        <div class="match-league">${f.league.name} · ${time}</div>
+    <div class="match-day">TODAY · ${dateLabel}</div>
+    <div class="match-league">${f.league.name}</div>
+
+    <div class="match-main">
+      <div class="match-row primary">
+        <span class="match-time">${time}</span>
+        <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
+        <span class="confidence-badge">${formatConfidence(f.confidence)}</span>
       </div>
-      <span class="confidence-badge confidence-${f.confidence}">
-        ${formatConfidence(f.confidence)}
-      </span>
-    </div>
 
-    <div class="match-info">${scoreHtml}</div>
-
-    <div class="prediction-grid">
-      ${bestMarkets.map(m => renderMarket(m.label, m.value, m.strong)).join("")}
-      <div class="prediction-item view-all" onclick="location.href='#predictions'">
-        Show all
+      <button class="match-toggle">Show details ⌄</button>
+      <div class="match-details">
+        ${f.fixture.venue?.name ? `🏟 ${f.fixture.venue.name}` : ""}
       </div>
     </div>
+
+    ${renderInlinePredictions(bestMarkets)}
   `;
 
+  // toggle details
+  const toggle = card.querySelector(".match-toggle");
+  const details = card.querySelector(".match-details");
+  toggle.addEventListener("click", () => {
+    details.classList.toggle("open");
+    toggle.textContent = details.classList.contains("open")
+      ? "Hide details ^"
+      : "Show details ⌄";
+  });
+
   return card;
+}
+
+/* =========================
+   INLINE PREDICTIONS
+========================= */
+function renderInlinePredictions(bestMarkets) {
+  // CASE: no reliable data → placeholders
+  if (!bestMarkets) {
+    return `
+      <div class="prediction-card">
+        <div class="prediction-market">No data</div>
+        <div class="prediction-value">—</div>
+      </div>
+      <div class="prediction-card">
+        <div class="prediction-market">No data</div>
+        <div class="prediction-value">—</div>
+      </div>
+      <div class="prediction-card">
+        <div class="prediction-market">No data</div>
+        <div class="prediction-value">—</div>
+      </div>
+    `;
+  }
+
+  // CASE: data available
+  return bestMarkets
+    .map(m => `
+      <div class="prediction-card ${m.strong ? "highlight" : ""}">
+        <div class="prediction-market">${m.label}</div>
+        <div class="prediction-value">${m.value}%</div>
+      </div>
+    `)
+    .join("");
 }
 
 /* =========================
@@ -134,7 +182,9 @@ function formatConfidence(level) {
    BEST MARKETS
 ========================= */
 function getBestMarkets(f) {
-  if (!f.predictions?.strength) return [];
+  if (!f.predictions || !f.predictions.strength) {
+    return null;
+  }
 
   const p = f.predictions;
   const s = p.strength;
@@ -143,30 +193,76 @@ function getBestMarkets(f) {
     { label: "1", value: p.home_win, strong: s.home_win },
     { label: "X", value: p.draw, strong: s.draw },
     { label: "2", value: p.away_win, strong: s.away_win },
-    { label: "Under 2.5", value: p.under_25, strong: s.under_25 },
     { label: "Over 2.5", value: p.over_25, strong: s.over_25 },
-    { label: "Goal", value: p.btts, strong: s.btts },
-    { label: "No Goal", value: p.no_btts, strong: s.no_btts }
+    { label: "Under 2.5", value: p.under_25, strong: s.under_25 }
   ]
-    .filter(m => m.value != null)
+    .filter(m => m.value != null && m.value >= 50)
     .sort((a, b) => b.value - a.value)
     .slice(0, 3);
 }
 
 /* =========================
-   MARKET RENDER
+   STATISTICS
 ========================= */
-function renderMarket(label, value, isStrong) {
-  return `
-    <div class="prediction-item ${isStrong ? "highlight" : ""}">
-      ${label}
-      <strong>${value}%</strong>
-    </div>
+function renderStatistics(fixtures) {
+  const box = document.getElementById("stats-summary");
+  if (!box) return;
+
+  let ns = 0, live = 0, ft = 0;
+
+  fixtures.forEach(f => {
+    const s = f.fixture.status.short;
+    if (s === "NS") ns++;
+    else if (["1H", "HT", "2H"].includes(s)) live++;
+    else if (["FT", "AET", "PEN"].includes(s)) ft++;
+  });
+
+  box.innerHTML = `
+    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
+    <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
+    <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
+    <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
   `;
 }
 
 /* =========================
-   GLOBAL STATUS RENDER
+   PREDICTIONS (UNCHANGED)
+========================= */
+function renderPredictions(fixtures) {
+  const box = document.getElementById("predictions-list");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  fixtures.forEach(match => {
+    const card = document.createElement("div");
+    card.className = "prediction-card";
+
+    const home = match.teams.home.name;
+    const away = match.teams.away.name;
+
+    if (match.confidence !== "high" || !match.predictions) {
+      card.innerHTML = `
+        <div class="prediction-market">${home} vs ${away}</div>
+        <div class="prediction-value">—</div>
+      `;
+      box.appendChild(card);
+      return;
+    }
+
+    const p = match.predictions;
+
+    card.innerHTML = `
+      <div class="prediction-market">${home} vs ${away}</div>
+      <div class="prediction-value">${p.home_win}%</div>
+    `;
+
+    box.appendChild(card);
+  });
+}
+
+/* =========================
+   GLOBAL STATUS
 ========================= */
 function renderGlobalStatus(status) {
   const message = STATUS_MESSAGES[status];
