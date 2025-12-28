@@ -1,8 +1,110 @@
 document.addEventListener("DOMContentLoaded", () => {
-  loadTodayMatches();
+  loadTopPicks();
   loadMatches();
   initBackToTop();
 });
+
+/* =========================
+   LOAD TOP PICKS (API ROOT)
+========================= */
+async function loadTopPicks() {
+  try {
+    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+
+    if (!res.ok) {
+      renderGlobalStatus("api_unavailable");
+      return;
+    }
+
+    const data = await res.json();
+    const fixtures = data.fixtures || [];
+
+    const topPicks = fixtures
+      .map(f => getTopPickCards(f))
+      .filter(card => card !== null);
+
+    renderTopPicks(topPicks);
+
+  } catch (err) {
+    console.error("loadTopPicks error:", err);
+    renderGlobalStatus("api_unavailable");
+  }
+}
+
+/* =========================
+   GET TOP PICK CARDS
+========================= */
+function getTopPickCards(f) {
+  const bestMarkets = getBestMarkets(f);
+  const highConfidencePredictions = bestMarkets.filter(m => m.value >= 50 && m.strong);
+  
+  if (highConfidencePredictions.length === 0) return null;
+
+  return `
+    <div class="prediction-card">
+      <div class="prediction-market">${f.teams.home.name} vs ${f.teams.away.name}</div>
+      ${highConfidencePredictions.map(p => `
+        <div class="prediction-value">${p.label}: ${p.value}%</div>
+      `).join('')}
+    </div>
+  `;
+}
+
+/* =========================
+   RENDER TOP PICKS
+========================= */
+function renderTopPicks(topPicks) {
+  const container = document.getElementById("top-picks-list");
+  const emptyMessage = document.getElementById("top-picks-empty");
+
+  if (topPicks.length === 0) {
+    emptyMessage.style.display = "block";
+    container.innerHTML = "";
+  } else {
+    emptyMessage.style.display = "none";
+    container.innerHTML = topPicks.join('');
+  }
+}
+
+/* =========================
+   BEST MARKETS (FROM PREDICTIONS)
+========================= */
+function getBestMarkets(f) {
+  if (!f.predictions || !f.predictions.strength) {
+    return [];
+  }
+
+  const p = f.predictions;
+  const s = p.strength;
+
+  return [
+    { label: "1", value: p.home_win, strong: s.home_win },
+    { label: "X", value: p.draw, strong: s.draw },
+    { label: "2", value: p.away_win, strong: s.away_win },
+    { label: "Over 2.5", value: p.over_25, strong: s.over_25 },
+    { label: "Under 2.5", value: p.under_25, strong: s.under_25 }
+  ]
+  .filter(m => m.value != null && m.value >= 50)
+  .sort((a, b) => b.value - a.value)
+  .slice(0, 3);
+}
+
+/* =========================
+   GLOBAL STATUS
+========================= */
+function renderGlobalStatus(status) {
+  const message = STATUS_MESSAGES[status];
+  if (!message) return;
+
+  const targets = [
+    document.getElementById("predictions-list"),
+    document.getElementById("top-picks-list")
+  ];
+
+  targets.forEach(el => {
+    if (el) el.innerHTML = `<div class="no-data">${message}</div>`;
+  });
+}
 
 /* =========================
    STATUS MESSAGES (GLOBAL)
