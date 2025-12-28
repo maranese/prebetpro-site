@@ -24,12 +24,8 @@
 ========================= */
 * { box-sizing: border-box; }
 
-html, body {
-  margin: 0;
-  padding: 0;
-}
-
 body {
+  margin: 0;
   font-family: system-ui, Arial, sans-serif;
   line-height: 1.5;
   background: var(--bg-dark);
@@ -37,10 +33,9 @@ body {
 }
 
 /* =========================
-   HERO (NO STICKY BUG)
+   HERO
 ========================= */
 .hero {
-  position: relative; /* 🔴 niente sticky */
   background: linear-gradient(90deg, var(--accent-dark), var(--accent));
   padding: 14px 16px;
 }
@@ -65,9 +60,6 @@ body {
   color: #eafff3;
 }
 
-/* =========================
-   NAV
-========================= */
 .main-nav {
   display: flex;
   gap: 18px;
@@ -98,63 +90,6 @@ h2 {
 }
 
 /* =========================
-   NO DATA
-========================= */
-.no-data {
-  background: var(--card-dark);
-  padding: 16px;
-  border-radius: 12px;
-  color: var(--text-muted-dark);
-}
-
-/* =========================
-   MATCH CARD (CRITICAL FIX)
-========================= */
-.match-card {
-  background: var(--card-dark);
-  border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 16px;
-}
-
-/* this class MUST exist for JS output */
-.match-card.dashboard {
-  display: block;
-}
-
-/* restore spacing inside injected markup */
-.match-card * {
-  color: var(--text-dark);
-}
-
-/* =========================
-   CONFIDENCE
-========================= */
-.confidence-badge {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  background: rgba(156,163,175,0.25);
-  color: #e5e7eb;
-}
-
-/* =========================
-   SHOW ALL
-========================= */
-.show-all,
-.show-details {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-soft);
-  text-decoration: none;
-}
-
-/* =========================
    TOP PICKS
 ========================= */
 .section-header {
@@ -174,6 +109,117 @@ h2 {
 }
 
 /* =========================
+   MATCH CARD – MINI DASHBOARD
+========================= */
+.match-card {
+  background: var(--card-dark);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+/* 🔑 THIS IS THE KEY */
+.match-card.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* LEFT COLUMN */
+.match-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.match-time {
+  font-weight: 800;
+}
+
+.match-teams {
+  font-weight: 800;
+}
+
+.match-league {
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.match-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted-dark);
+}
+
+.show-all {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-soft);
+  text-decoration: none;
+}
+
+/* =========================
+   CONFIDENCE BADGE
+========================= */
+.confidence-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: rgba(156,163,175,0.25);
+  color: #e5e7eb;
+}
+
+/* =========================
+   PREDICTIONS (RIGHT COLUMNS)
+========================= */
+.match-predictions {
+  display: contents; /* 🔑 allows 3 cols */
+}
+
+.prediction-box {
+  background: rgba(47,191,113,0.22);
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+}
+
+.prediction-box .market {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent-soft);
+}
+
+.prediction-box .value {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+.prediction-box.highlight {
+  outline: 2px solid var(--accent);
+}
+
+/* =========================
+   NO DATA
+========================= */
+.no-data {
+  background: var(--card-dark);
+  padding: 16px;
+  border-radius: 12px;
+  color: var(--text-muted-dark);
+}
+
+/* =========================
    FOOTER
 ========================= */
 footer {
@@ -181,4 +227,34 @@ footer {
   padding: 20px;
   font-size: 0.85rem;
   color: var(--text-muted-dark);
+}
+
+/* =========================
+   BACK TO TOP
+========================= */
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #053b24;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: none;
+  cursor: pointer;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 768px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .prediction-box {
+    margin-top: 8px;
+  }
 }
