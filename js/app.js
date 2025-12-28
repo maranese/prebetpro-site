@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  loadTopPicks();
   loadTodayMatches();
   loadMatches();
   initBackToTop();
@@ -12,6 +13,61 @@ const STATUS_MESSAGES = {
   api_unavailable: `Data temporarily unavailable.`,
   api_limited: `Data update temporarily limited.`
 };
+
+/* =========================
+   LOAD TOP PICKS
+========================= */
+async function loadTopPicks() {
+  const list = document.getElementById("top-picks-list");
+  const empty = document.getElementById("top-picks-empty");
+  if (!list || !empty) return;
+
+  list.innerHTML = "";
+  empty.style.display = "none";
+
+  try {
+    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/top-picks");
+    if (!res.ok) throw new Error("Top picks unavailable");
+
+    const data = await res.json();
+    const picks = data.top_picks || [];
+
+    if (!picks.length) {
+      empty.innerHTML = `
+        <strong>No Top Picks available today</strong><br>
+        We don’t publish Top Picks when data is unreliable.
+      `;
+      empty.style.display = "block";
+      return;
+    }
+
+    picks.forEach(pick => {
+      list.appendChild(renderTopPickCard(pick));
+    });
+
+  } catch (err) {
+    empty.innerHTML = `
+      <strong>No Top Picks available</strong><br>
+      Data temporarily unavailable.
+    `;
+    empty.style.display = "block";
+  }
+}
+/* =========================
+   TOP PICK CARD
+========================= */
+function renderTopPickCard(pick) {
+  const card = document.createElement("div");
+  card.className = "top-pick-card";
+
+  card.innerHTML = `
+    <div class="top-pick-match">${pick.match}</div>
+    <div class="top-pick-market">${pick.market}</div>
+    <div class="top-pick-value">${pick.value}%</div>
+  `;
+
+  return card;
+}
 
 /* =========================
    PREDICTION GROUPS (OFFICIAL)
