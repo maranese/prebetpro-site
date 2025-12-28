@@ -106,54 +106,9 @@ async function loadTodayMatches() {
     console.error(err);
   }
 }
-/* =========================
-   MATCH CARD (TODAY) – RESTORED
-========================= */
-function renderMatchCard(f) {
-  const card = document.createElement("div");
-  card.className = "match-card";
-
-  const time = new Date(f.fixture.date).toLocaleTimeString("it-IT", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-
-  const ht = f.score?.halftime;
-  const ft = f.score?.fulltime;
-  const et = f.score?.extratime;
-  const pen = f.score?.penalty;
-
-  let scoreHtml = "";
-
-  if (ht?.home != null)
-    scoreHtml += `<span>HT ${ht.home}–${ht.away}</span>`;
-  if (ft?.home != null)
-    scoreHtml += `<span>FT ${ft.home}–${ft.away}</span>`;
-  if (et?.home != null)
-    scoreHtml += `<span>ET ${et.home}–${et.away}</span>`;
-  if (pen?.home != null)
-    scoreHtml += `<span>PEN ${pen.home}–${pen.away}</span>`;
-
-  card.innerHTML = `
-    <div class="match-header">
-      <div class="match-teams">
-        ${f.teams.home.name} vs ${f.teams.away.name}
-      </div>
-      <div class="match-league">
-        ${f.league.name} · ${time}
-      </div>
-    </div>
-
-    <div class="match-results">
-      ${scoreHtml || "<span>Match not started</span>"}
-    </div>
-  `;
-
-  return card;
-}
 
 /* =========================
-   PREDICTIONS (GROUPED)
+   PREDICTIONS (GROUPED – ONE ROW)
 ========================= */
 function renderPredictions(fixtures) {
   const box = document.getElementById("predictions-list");
@@ -173,28 +128,24 @@ function renderPredictions(fixtures) {
     wrapper.innerHTML = `
       <h3>${match.teams.home.name} vs ${match.teams.away.name}</h3>
       <div class="prediction-meta">${match.league.name} · ${time}</div>
+
+      <div class="prediction-groups-row">
+        ${PREDICTION_GROUPS.map(group => `
+          <div class="prediction-group compact">
+            <div class="prediction-group-title">${group.title}</div>
+            <div class="prediction-pills">
+              ${group.items.map(item =>
+                renderPredictionCard(match, item)
+              ).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>
     `;
-
-    PREDICTION_GROUPS.forEach(group => {
-      const groupEl = document.createElement("div");
-      groupEl.className = "prediction-group";
-
-      groupEl.innerHTML = `
-        <h4>${group.title}</h4>
-        <div class="predictions-grid">
-          ${group.items.map(item =>
-            renderPredictionCard(match, item)
-          ).join("")}
-        </div>
-      `;
-
-      wrapper.appendChild(groupEl);
-    });
 
     box.appendChild(wrapper);
   });
 }
-
 /* =========================
    SINGLE PREDICTION CARD
 ========================= */
