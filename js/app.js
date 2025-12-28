@@ -14,6 +14,8 @@ const STATUS_MESSAGES = {
   api_limited: `Data update temporarily limited.`
 };
 
+
+
 /* =========================
    LOAD TOP PICKS
 ========================= */
@@ -51,6 +53,24 @@ async function loadTopPicks() {
     }
   }
 }
+
+/* =========================
+   TOP PICK PLACEHOLDER CARD
+========================= */
+function renderTopPickPlaceholder() {
+  const card = document.createElement("div");
+  card.className = "top-pick-card placeholder";
+
+  card.innerHTML = `
+    <div class="top-pick-match">No top prediction</div>
+    <div class="top-pick-market">Today</div>
+    <div class="top-pick-value">—</div>
+    <div class="top-pick-note">We don’t sell smoke.</div>
+  `;
+
+  return card;
+}
+
 
 /* =========================
    TOP PICK CARD
