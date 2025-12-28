@@ -5,47 +5,34 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
-   STATUS MESSAGES (GLOBAL)
+   STATUS MESSAGES
 ========================= */
 const STATUS_MESSAGES = {
   no_data: `
     Insufficient historical data.<br>
     We don’t generate predictions when data is unreliable.
   `,
-  api_unavailable: `
-    Data temporarily unavailable.
-  `,
-  api_limited: `
-    Data update temporarily limited.<br>
-    Information will refresh automatically.
-  `
+  api_unavailable: `Data temporarily unavailable.`,
+  api_limited: `Data update temporarily limited.`
 };
 
 /* =========================
-   LOAD MATCHES (API ROOT)
+   LOAD MATCHES
 ========================= */
 async function loadMatches() {
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-
     if (!res.ok) {
       renderGlobalStatus("api_unavailable");
       return;
     }
 
     const data = await res.json();
-    const fixtures = data.fixtures || [];
-
-    renderStatistics(fixtures);
-
-    if (data.status && data.status !== "ok") {
-      renderGlobalStatus(data.status);
-    }
-
-    renderPredictions(fixtures);
+    renderStatistics(data.fixtures || []);
+    renderPredictions(data.fixtures || []);
 
   } catch (err) {
-    console.error("loadMatches error:", err);
+    console.error(err);
     renderGlobalStatus("api_unavailable");
   }
 }
@@ -84,23 +71,17 @@ async function loadTodayMatches() {
 }
 
 /* =========================
-   MATCH CARD (DASHBOARD)
+   MATCH CARD
 ========================= */
 function renderMatchCard(f) {
   const card = document.createElement("div");
   card.className = "match-card dashboard";
 
   const dateObj = new Date(f.fixture.date);
-  const time = dateObj.toLocaleTimeString("it-IT", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+  const time = dateObj.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+  const dateLabel = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 
-  const dateLabel = dateObj.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short"
-  });
-
+  const scoresHtml = buildScoresRow(f.score, f.fixture.status.short);
   const bestMarkets = getBestMarkets(f);
 
   card.innerHTML = `
@@ -111,8 +92,9 @@ function renderMatchCard(f) {
       <div class="match-row primary">
         <span class="match-time">${time}</span>
         <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
-        <span class="confidence-badge">${formatConfidence(f.confidence)}</span>
       </div>
+
+      ${scoresHtml}
 
       <button class="match-toggle">Show details ⌄</button>
       <div class="match-details">
@@ -123,9 +105,9 @@ function renderMatchCard(f) {
     ${renderInlinePredictions(bestMarkets)}
   `;
 
-  // toggle details
   const toggle = card.querySelector(".match-toggle");
   const details = card.querySelector(".match-details");
+
   toggle.addEventListener("click", () => {
     details.classList.toggle("open");
     toggle.textContent = details.classList.contains("open")
@@ -137,54 +119,63 @@ function renderMatchCard(f) {
 }
 
 /* =========================
-   INLINE PREDICTIONS
+   SCORE ROW
 ========================= */
-function renderInlinePredictions(bestMarkets) {
-  // CASE: no reliable data → placeholders
-  if (!bestMarkets) {
-    return `
-      <div class="prediction-card">
-        <div class="prediction-market">No data</div>
-        <div class="prediction-value">—</div>
-      </div>
-      <div class="prediction-card">
-        <div class="prediction-market">No data</div>
-        <div class="prediction-value">—</div>
-      </div>
-      <div class="prediction-card">
-        <div class="prediction-market">No data</div>
-        <div class="prediction-value">—</div>
-      </div>
-    `;
+function buildScoresRow(score, status) {
+  if (!score) return "";
+
+  const rows = [];
+
+  if (score.halftime?.home != null) {
+    rows.push(`HT ${score.halftime.home}–${score.halftime.away}`);
   }
 
-  // CASE: data available
-  return bestMarkets
-    .map(m => `
-      <div class="prediction-card ${m.strong ? "highlight" : ""}">
-        <div class="prediction-market">${m.label}</div>
-        <div class="prediction-value">${m.value}%</div>
-      </div>
-    `)
-    .join("");
+  if (score.fulltime?.home != null) {
+    rows.push(`FT ${score.fulltime.home}–${score.fulltime.away}`);
+  }
+
+  if (status === "AET" && score.extratime?.home != null) {
+    rows.push(`ET ${score.extratime.home}–${score.extratime.away}`);
+  }
+
+  if (status === "PEN" && score.penalty?.home != null) {
+    rows.push(`PEN ${score.penalty.home}–${score.penalty.away}`);
+  }
+
+  if (!rows.length) return "";
+
+  return `
+    <div class="match-row scores">
+      ${rows.map(r => `<span>${r}</span>`).join("")}
+    </div>
+  `;
 }
 
 /* =========================
-   CONFIDENCE LABEL
+   INLINE PREDICTIONS
 ========================= */
-function formatConfidence(level) {
-  if (level === "high") return "High confidence";
-  if (level === "medium") return "Medium confidence";
-  return "Low confidence";
+function renderInlinePredictions(bestMarkets) {
+  if (!bestMarkets) {
+    return `
+      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
+      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
+      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
+    `;
+  }
+
+  return bestMarkets.map(m => `
+    <div class="prediction-card ${m.strong ? "highlight" : ""}">
+      <div class="prediction-market">${m.label}</div>
+      <div class="prediction-value">${m.value}%</div>
+    </div>
+  `).join("");
 }
 
 /* =========================
    BEST MARKETS
 ========================= */
 function getBestMarkets(f) {
-  if (!f.predictions || !f.predictions.strength) {
-    return null;
-  }
+  if (!f.predictions || !f.predictions.strength) return null;
 
   const p = f.predictions;
   const s = p.strength;
@@ -226,42 +217,6 @@ function renderStatistics(fixtures) {
 }
 
 /* =========================
-   PREDICTIONS (UNCHANGED)
-========================= */
-function renderPredictions(fixtures) {
-  const box = document.getElementById("predictions-list");
-  if (!box) return;
-
-  box.innerHTML = "";
-
-  fixtures.forEach(match => {
-    const card = document.createElement("div");
-    card.className = "prediction-card";
-
-    const home = match.teams.home.name;
-    const away = match.teams.away.name;
-
-    if (match.confidence !== "high" || !match.predictions) {
-      card.innerHTML = `
-        <div class="prediction-market">${home} vs ${away}</div>
-        <div class="prediction-value">—</div>
-      `;
-      box.appendChild(card);
-      return;
-    }
-
-    const p = match.predictions;
-
-    card.innerHTML = `
-      <div class="prediction-market">${home} vs ${away}</div>
-      <div class="prediction-value">${p.home_win}%</div>
-    `;
-
-    box.appendChild(card);
-  });
-}
-
-/* =========================
    GLOBAL STATUS
 ========================= */
 function renderGlobalStatus(status) {
@@ -275,19 +230,6 @@ function renderGlobalStatus(status) {
 
   targets.forEach(el => {
     if (el) el.innerHTML = `<div class="no-data">${message}</div>`;
-  });
-}
-
-/* =========================
-   TOP PICKS TOGGLE
-========================= */
-const toggleBtn = document.getElementById("toggle-top-picks");
-const topPicksContent = document.getElementById("top-picks-content");
-
-if (toggleBtn && topPicksContent) {
-  toggleBtn.addEventListener("click", () => {
-    const isOpen = topPicksContent.classList.toggle("open");
-    toggleBtn.textContent = isOpen ? "Hide Top Picks" : "Show Top Picks";
   });
 }
 
