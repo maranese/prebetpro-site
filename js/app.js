@@ -5,23 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
-   STATUS MESSAGES (GLOBAL)
-========================= */
-const STATUS_MESSAGES = {
-  no_data: `
-    Insufficient historical data.<br>
-    We don’t generate predictions when data is unreliable.
-  `,
-  api_unavailable: `
-    Data temporarily unavailable.
-  `,
-  api_limited: `
-    Data update temporarily limited.<br>
-    Information will refresh automatically.
-  `
-};
-
-/* =========================
    LOAD MATCHES (API ROOT)
 ========================= */
 async function loadMatches() {
@@ -39,7 +22,6 @@ async function loadMatches() {
 
     renderStatistics(fixtures);
 
-    // 🔑 status diverso da ok → messaggio SOLO in predictions / top picks
     if (data.status && data.status !== "ok") {
       renderGlobalStatus(data.status);
     }
@@ -115,8 +97,9 @@ function renderMatchCard(f) {
     <div class="match-header">
       <div>
         <div class="match-teams">
-          <img src="${f.teams.home.logo}" alt="${f.teams.home.name} logo"> ${f.teams.home.name} vs 
-          <img src="${f.teams.away.logo}" alt="${f.teams.away.name} logo"> ${f.teams.away.name}
+          <img src="${f.teams.home.logo}" alt="${f.teams.home.name}" class="team-logo" />
+          ${f.teams.home.name} vs ${f.teams.away.name}
+          <img src="${f.teams.away.logo}" alt="${f.teams.away.name}" class="team-logo" />
         </div>
         <div class="match-league">${f.league.name} · ${time}</div>
       </div>
@@ -183,71 +166,6 @@ function renderMarket(label, value, isStrong) {
 }
 
 /* =========================
-   STATISTICS
-========================= */
-function renderStatistics(fixtures) {
-  const box = document.getElementById("stats-summary");
-  if (!box) return;
-
-  let ns = 0, live = 0, ft = 0;
-
-  fixtures.forEach(f => {
-    const s = f.fixture.status.short;
-    if (s === "NS") ns++;
-    else if (["1H", "HT", "2H"].includes(s)) live++;
-    else if (["FT", "AET", "PEN"].includes(s)) ft++;
-  });
-
-  box.innerHTML = `
-    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
-    <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
-    <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
-    <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
-  `;
-}
-
-/* =========================
-   PREDICTIONS
-========================= */
-function renderPredictions(fixtures) {
-  const box = document.getElementById("predictions-list");
-  if (!box) return;
-
-  box.innerHTML = "";
-
-  fixtures.forEach(match => {
-    const card = document.createElement("div");
-    card.className = "prediction-card";
-
-    const home = match.teams.home.name;
-    const away = match.teams.away.name;
-
-    if (match.confidence !== "high" || !match.predictions) {
-      card.innerHTML = `
-        <div class="prediction-header">${home} vs ${away}</div>
-        <div class="prediction-info">${STATUS_MESSAGES.no_data}</div>
-      `;
-      box.appendChild(card);
-      return;
-    }
-
-    const p = match.predictions;
-    const hi = v => v >= 70 ? "highlight" : "";
-
-    card.innerHTML = `
-      <div class="prediction-header">${home} vs ${away}</div>
-      <div class="prediction-grid">
-        <div class="prediction-item ${hi(p.home_win)}">1 <strong>${p.home_win}%</strong></div>
-        <div class="prediction-item ${hi(p.draw)}">X <strong>${p.draw}%</strong></div>
-        <div class="prediction-item ${hi(p.away_win)}">2 <strong>${p.away_win}%</strong></div>
-      </div>
-    `;
-
-    box.appendChild(card);
-  });
-}
-
-/* =========================
    GLOBAL STATUS RENDER
 ========================= */
 function renderGlobalStatus(status) {
@@ -261,6 +179,19 @@ function renderGlobalStatus(status) {
 
   targets.forEach(el => {
     if (el) el.innerHTML = `<div class="no-data">${message}</div>`;
+  });
+}
+
+/* =========================
+   TOP PICKS TOGGLE
+========================= */
+const toggleBtn = document.getElementById("toggle-top-picks");
+const topPicksContent = document.getElementById("top-picks-content");
+
+if (toggleBtn && topPicksContent) {
+  toggleBtn.addEventListener("click", () => {
+    const isOpen = topPicksContent.classList.toggle("open");
+    toggleBtn.textContent = isOpen ? "Hide Top Picks" : "Show Top Picks";
   });
 }
 
