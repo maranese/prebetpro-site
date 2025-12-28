@@ -295,25 +295,30 @@ body.dark .prediction-meta {
   gap: 16px;
 }
 
-/* Group */
+/* Group container */
 .prediction-group.compact {
   display: flex;
   flex-direction: column;
+  align-items: center; /* ⬅️ CENTRA TUTTO */
   gap: 6px;
 }
 
+/* Group title */
 .prediction-group-title {
   font-size: 0.75rem;
   font-weight: 800;
   color: var(--accent);
+  text-align: center; /* ⬅️ CENTRA TESTO */
 }
 
 /* Pills container */
 .prediction-pills {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center; /* ⬅️ CENTRA LE CARD */
   gap: 6px;
 }
+
 
 /* =========================
    PREDICTION CARD (COMPACT)
