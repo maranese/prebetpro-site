@@ -34,12 +34,10 @@ async function loadMatches() {
     }
 
     const data = await res.json();
-    const status = data.status || "ok";
     const fixtures = data.fixtures || [];
 
     renderStatistics(fixtures);
 
-    // 🔑 status diverso da ok → messaggio SOLO in predictions / top picks
     if (data.status && data.status !== "ok") {
       renderGlobalStatus(data.status);
     }
@@ -86,11 +84,11 @@ async function loadTodayMatches() {
 }
 
 /* =========================
-   MATCH CARD (TODAY)
+   MATCH CARD (MINI DASHBOARD)
 ========================= */
 function renderMatchCard(f) {
   const card = document.createElement("div");
-  card.className = `match-card confidence-${f.confidence}`;
+  card.className = `match-card dashboard confidence-${f.confidence}`;
 
   const time = new Date(f.fixture.date).toLocaleTimeString("it-IT", {
     hour: "2-digit",
@@ -104,31 +102,43 @@ function renderMatchCard(f) {
   const pen = f.score?.penalty;
 
   let scoreHtml = "";
-  if (ht?.home != null) scoreHtml += `<div>HT: ${ht.home}–${ht.away}</div>`;
-  if (ft?.home != null) scoreHtml += `<div>FT: ${ft.home}–${ft.away}</div>`;
-  if (status === "AET" && et) scoreHtml += `<div>AET: ${et.home}–${et.away}</div>`;
-  if (status === "PEN" && pen) scoreHtml += `<div>PEN: ${pen.home}–${pen.away}</div>`;
+  if (ht?.home != null) scoreHtml += `<span>HT ${ht.home}–${ht.away}</span>`;
+  if (ft?.home != null) scoreHtml += `<span>FT ${ft.home}–${ft.away}</span>`;
+  if (status === "AET" && et) scoreHtml += `<span>ET ${et.home}–${et.away}</span>`;
+  if (status === "PEN" && pen) scoreHtml += `<span>PEN ${pen.home}–${pen.away}</span>`;
 
   const bestMarkets = getBestMarkets(f);
 
   card.innerHTML = `
-    <div class="match-header">
-      <div>
-        <div class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</div>
-        <div class="match-league">${f.league.name} · ${time}</div>
+    <div class="match-main">
+      <div class="match-header">
+        <span class="match-time">${time}</span>
+        <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
+        <span class="confidence-badge confidence-${f.confidence}">
+          ${formatConfidence(f.confidence)}
+        </span>
       </div>
-      <span class="confidence-badge confidence-${f.confidence}">
-        ${formatConfidence(f.confidence)}
-      </span>
+
+      <div class="match-league">${f.league.name}</div>
+
+      <div class="match-scores">
+        ${scoreHtml || ""}
+      </div>
+
+      <a class="show-all" href="#predictions">Show all</a>
     </div>
 
-    <div class="match-info">${scoreHtml}</div>
-
-    <div class="prediction-grid">
-      ${bestMarkets.map(m => renderMarket(m.label, m.value, m.strong)).join("")}
-      <div class="prediction-item view-all" onclick="location.href='#predictions'">
-        Show all
-      </div>
+    <div class="match-predictions">
+      ${
+        bestMarkets.length
+          ? bestMarkets.map(m => `
+              <div class="prediction-box ${m.strong ? "highlight" : ""}">
+                <div class="market">${m.label}</div>
+                <div class="value">${m.value}%</div>
+              </div>
+            `).join("")
+          : ""
+      }
     </div>
   `;
 
@@ -162,13 +172,13 @@ function getBestMarkets(f) {
     { label: "Goal", value: p.btts, strong: s.btts },
     { label: "No Goal", value: p.no_btts, strong: s.no_btts }
   ]
-    .filter(m => m.value != null)
+    .filter(m => m.value != null && m.value >= 50)
     .sort((a, b) => b.value - a.value)
     .slice(0, 3);
 }
 
 /* =========================
-   MARKET RENDER
+   MARKET RENDER (UNTOUCHED)
 ========================= */
 function renderMarket(label, value, isStrong) {
   return `
