@@ -391,31 +391,7 @@ body.dark footer {
   color: var(--text-muted-dark);
 }
 
-/* =========================
-   BACK TO TOP
-========================= */
-#back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent);
-  color: #053b24;
-  border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: none;
-  cursor: pointer;
-}
 
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 900px) {
-  .match-card.dashboard {
-    grid-template-columns: 1fr;
-  }
-}
 /* =========================
    ICONS (LEAGUE & TEAMS)
 ========================= */
@@ -447,4 +423,92 @@ body.dark footer {
 .match-teams .vs {
   margin: 0 6px;
   font-weight: 600;
+}
+/* =========================
+   TOP PICKS – SCROLLING CARDS
+========================= */
+
+.top-picks-grid {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+
+  scrollbar-width: none; /* Firefox */
+}
+
+.top-picks-grid::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
+/* Fade hint on the right */
+.top-picks {
+  position: relative;
+}
+
+.top-picks::after {
+  content: "";
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 60px;
+  height: calc(100% - 60px);
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0),
+    var(--bg-light)
+  );
+}
+
+body.dark .top-picks::after {
+  background: linear-gradient(
+    to right,
+    rgba(15,17,21,0),
+    var(--bg-dark)
+  );
+}
+
+/* =========================
+   TOP PICK PLACEHOLDER
+========================= */
+
+.top-pick-card.placeholder {
+  opacity: 0.75;
+  border-left: 4px solid var(--neutral);
+}
+
+.top-pick-note {
+  font-size: 0.75rem;
+  color: var(--text-muted-light);
+  margin-top: 6px;
+}
+
+body.dark .top-pick-note {
+  color: var(--text-muted-dark);
+}
+/* =========================
+   BACK TO TOP
+========================= */
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #053b24;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: none;
+  cursor: pointer;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
 }
