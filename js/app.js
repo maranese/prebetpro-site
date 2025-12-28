@@ -170,15 +170,6 @@ function renderInlinePredictions(bestMarkets) {
 }
 
 /* =========================
-   CONFIDENCE LABEL
-========================= */
-function formatConfidence(level) {
-  if (level === "high") return "High confidence";
-  if (level === "medium") return "Medium confidence";
-  return "Low confidence";
-}
-
-/* =========================
    BEST MARKETS
 ========================= */
 function getBestMarkets(f) {
