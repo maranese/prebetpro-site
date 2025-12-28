@@ -73,155 +73,96 @@ body {
 }
 
 /* =========================
-   NAVIGATION
+   MATCH CARDS
 ========================= */
-.main-nav {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.main-nav a {
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-#theme-toggle {
-  border: none;
-  background: #fff;
-  color: var(--accent-dark);
-  padding: 6px 10px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-/* =========================
-   MAIN
-========================= */
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 30px 16px;
-}
-
-section {
-  margin-bottom: 50px;
-}
-
-h2 {
-  border-left: 4px solid var(--accent);
-  padding-left: 10px;
-}
-
-/* =========================
-   THEME VARIABLES
-========================= */
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-  --card-bg: var(--card-dark);
-  --text-muted: var(--text-muted-dark);
-}
-
-body:not(.dark) {
-  --card-bg: var(--card-light);
-  --text-muted: var(--text-muted-light);
-}
-
-/* =========================
-   GENERIC CARDS
-========================= */
-.match-card,
-.stat-card,
-.report-match,
-.no-data,
-.prediction-card,
-.top-pick-card {
-  background: var(--card-bg);
+.match-card {
+  background: var(--card-light);
   padding: 16px;
   border-radius: 12px;
   margin-bottom: 14px;
-}
-
-.match-card {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
 }
 
 .match-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .match-teams {
   font-weight: 700;
+  font-size: 1rem;
   display: flex;
   gap: 10px;
-  align-items: center;
+}
+
+.team-logo {
+  width: 20px;
+  height: 20px;
 }
 
 .match-league {
-  font-size: 0.9rem;
+  color: var(--accent-dark);
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.confidence-badge {
+  background: rgba(47, 191, 113, 0.2);
+  color: var(--accent-dark);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
 }
 
 .match-info {
+  color: var(--text-muted-light);
   font-size: 0.85rem;
-  color: var(--text-muted);
+}
+
+.prediction-grid {
+  display: flex;
+  gap: 10px;
+}
+
+.prediction-item {
+  background: var(--accent-soft);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.view-all {
+  font-weight: bold;
+  cursor: pointer;
 }
 
 /* =========================
-   PREDICTIONS / TOP PICKS
+   TOP PICKS
 ========================= */
 .top-picks-content {
   display: flex;
-  overflow-x: auto;
-  gap: 16px;
+  gap: 10px;
+  overflow-x: scroll;
+  padding: 10px 0;
+}
+
+.top-picks-grid {
+  display: flex;
+  gap: 10px;
 }
 
 .top-pick-card {
-  width: 220px;
-  flex-shrink: 0;
   background: var(--card-light);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 12px;
   padding: 16px;
+  border-radius: 12px;
+  width: 250px;
 }
 
 .top-pick-card .prediction-item {
-  font-size: 0.85rem;
-  color: var(--accent-dark);
-}
-
-.top-picks-content {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height 0.45s ease, opacity 0.35s ease;
-}
-
-.top-picks-content.open {
-  max-height: 1200px; /* abbastanza per molte card */
-  opacity: 1;
-}
-
-/* =========================
-   MATCHES (UI)
-========================= */
-.match-teams img {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
-}
-
-.match-league img {
-  width: 25px;
-  height: 25px;
+  margin: 10px 0;
 }
 
 /* =========================
@@ -232,91 +173,10 @@ body.dark {
   color: var(--text-dark);
 }
 
-body.dark .match-card,
-body.dark .stat-card,
-body.dark .report-match,
-body.dark .no-data,
-body.dark .prediction-card,
+body.dark .match-card {
+  background: var(--card-dark);
+}
+
 body.dark .top-pick-card {
   background: var(--card-dark);
-}
-
-body.dark .match-info,
-body.dark footer {
-  color: var(--text-muted-dark);
-}
-
-body.dark .top-pick-card,
-body.dark .toggle-btn {
-  box-shadow:
-    0 0 0 1px rgba(95, 216, 157, 0.6),
-    0 0 10px rgba(95, 216, 157, 0.25);
-}
-
-/* =========================
-   FOOTER
-========================= */
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-}
-
-/* =========================
-   BACK TO TOP
-========================= */
-#back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent);
-  color: #053b24;
-  border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: none;
-  cursor: pointer;
-}
-
-/* =========================
-   PREMIUM (FUTURE-READY)
-========================= */
-.top-picks-content {
-  position: relative;
-}
-
-/* Blur for free users (future switch) */
-body:not(.is-premium) #top-picks-list {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
-}
-
-.premium-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
-  background: rgba(255,255,255,0.85);
-  z-index: 5;
-}
-
-body.is-premium .premium-overlay {
-  display: none;
-}
-
-/* Dark mode premium */
-body.dark .premium-overlay {
-  backdrop-filter: blur(3px);
-  background: rgba(15,17,21,0.9);
-}
-
-body.dark .premium-box {
-  background: var(--card-dark);
-  box-shadow: 0 0 0 1px rgba(95,216,157,0.4),
-              0 12px 30px rgba(0,0,0,0.6);
 }
