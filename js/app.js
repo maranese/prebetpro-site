@@ -5,17 +5,50 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
-   LOAD MATCHES
+   STATUS MESSAGES (GLOBAL)
+========================= */
+const STATUS_MESSAGES = {
+  no_data: `
+    Insufficient historical data.<br>
+    We don’t generate predictions when data is unreliable.
+  `,
+  api_unavailable: `
+    Data temporarily unavailable.
+  `,
+  api_limited: `
+    Data update temporarily limited.<br>
+    Information will refresh automatically.
+  `
+};
+
+/* =========================
+   LOAD MATCHES (API ROOT)
 ========================= */
 async function loadMatches() {
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) return;
+
+    if (!res.ok) {
+      renderGlobalStatus("api_unavailable");
+      return;
+    }
 
     const data = await res.json();
-    renderPredictions(data.fixtures || []);
-  } catch (e) {
-    console.error(e);
+    const status = data.status || "ok";
+    const fixtures = data.fixtures || [];
+
+    renderStatistics(fixtures);
+
+    // 🔑 status diverso da ok → messaggio SOLO in predictions / top picks
+    if (data.status && data.status !== "ok") {
+      renderGlobalStatus(data.status);
+    }
+
+    renderPredictions(fixtures);
+
+  } catch (err) {
+    console.error("loadMatches error:", err);
+    renderGlobalStatus("api_unavailable");
   }
 }
 
@@ -24,6 +57,7 @@ async function loadMatches() {
 ========================= */
 async function loadTodayMatches() {
   const container = document.getElementById("matches");
+  const noMatches = document.getElementById("no-matches");
   if (!container) return;
 
   container.innerHTML = "";
@@ -33,17 +67,26 @@ async function loadTodayMatches() {
     if (!res.ok) return;
 
     const data = await res.json();
-    (data.fixtures || [])
+    const fixtures = data.fixtures || [];
+
+    if (!fixtures.length) {
+      noMatches.style.display = "block";
+      return;
+    }
+
+    noMatches.style.display = "none";
+
+    fixtures
       .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date))
       .forEach(f => container.appendChild(renderMatchCard(f)));
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
   }
 }
 
 /* =========================
-   MATCH CARD
+   MATCH CARD (TODAY)
 ========================= */
 function renderMatchCard(f) {
   const card = document.createElement("div");
@@ -93,30 +136,19 @@ function renderMatchCard(f) {
 }
 
 /* =========================
-   INLINE PREDICTIONS
+   CONFIDENCE LABEL
 ========================= */
-function renderInlinePredictions(markets) {
-  if (!markets) {
-    return `
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-    `;
-  }
-
-  return markets.map(m => `
-    <div class="prediction-card ${m.strong ? "highlight" : ""}">
-      <div class="prediction-market">${m.label}</div>
-      <div class="prediction-value">${m.value}%</div>
-    </div>
-  `).join("");
+function formatConfidence(level) {
+  if (level === "high") return "High confidence";
+  if (level === "medium") return "Medium confidence";
+  return "Low confidence";
 }
 
 /* =========================
    BEST MARKETS
 ========================= */
 function getBestMarkets(f) {
-  if (!f.predictions || !f.predictions.strength) return null;
+  if (!f.predictions?.strength) return [];
 
   const p = f.predictions;
   const s = p.strength;
@@ -125,45 +157,24 @@ function getBestMarkets(f) {
     { label: "1", value: p.home_win, strong: s.home_win },
     { label: "X", value: p.draw, strong: s.draw },
     { label: "2", value: p.away_win, strong: s.away_win },
-    { label: "Over 2.5", value: p.over_25, strong: s.over_25 }
+    { label: "Under 2.5", value: p.under_25, strong: s.under_25 },
+    { label: "Over 2.5", value: p.over_25, strong: s.over_25 },
+    { label: "Goal", value: p.btts, strong: s.btts },
+    { label: "No Goal", value: p.no_btts, strong: s.no_btts }
   ]
-    .filter(m => m.value >= 50)
+    .filter(m => m.value != null)
     .sort((a, b) => b.value - a.value)
     .slice(0, 3);
 }
 
 /* =========================
-   PREDICTIONS
+   MARKET RENDER
 ========================= */
-function renderPredictions(fixtures) {
-  const box = document.getElementById("predictions-list");
-  if (!box) return;
-
-  box.innerHTML = "";
-
-  fixtures.forEach(f => {
-    const card = document.createElement("div");
-    card.className = "prediction-card";
-
-    card.innerHTML = `
-      <div class="prediction-market">${f.teams.home.name} vs ${f.teams.away.name}</div>
-      <div class="prediction-value">—</div>
-    `;
-
-    box.appendChild(card);
-  });
-}
-
-/* =========================
-   BACK TO TOP
-========================= */
-function initBackToTop() {
-  const btn = document.getElementById("back-to-top");
-  if (!btn) return;
-
-  window.addEventListener("scroll", () => {
-    btn.style.display = window.scrollY > 300 ? "block" : "none";
-  });
-
-  btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+function renderMarket(label, value, isStrong) {
+  return `
+    <div class="prediction-item ${isStrong ? "highlight" : ""}">
+      ${label}
+      <strong>${value}%</strong>
+    </div>
+  `;
 }
