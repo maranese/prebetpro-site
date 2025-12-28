@@ -86,12 +86,23 @@ function renderMatchCard(f) {
 
   card.innerHTML = `
     <div class="match-day">TODAY · ${dateLabel}</div>
-    <div class="match-league">${f.league.name}</div>
+
+    <div class="match-league">
+      ${f.league.logo ? `<img src="${f.league.logo}" class="league-logo" alt="">` : ""}
+      <span>${f.league.name}</span>
+    </div>
 
     <div class="match-main">
       <div class="match-row primary">
         <span class="match-time">${time}</span>
-        <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
+
+        <span class="match-teams">
+          ${f.teams.home.logo ? `<img src="${f.teams.home.logo}" class="team-logo" alt="">` : ""}
+          ${f.teams.home.name}
+          <span class="vs">vs</span>
+          ${f.teams.away.logo ? `<img src="${f.teams.away.logo}" class="team-logo" alt="">` : ""}
+          ${f.teams.away.name}
+        </span>
       </div>
 
       ${scoresHtml}
@@ -126,21 +137,10 @@ function buildScoresRow(score, status) {
 
   const rows = [];
 
-  if (score.halftime?.home != null) {
-    rows.push(`HT ${score.halftime.home}–${score.halftime.away}`);
-  }
-
-  if (score.fulltime?.home != null) {
-    rows.push(`FT ${score.fulltime.home}–${score.fulltime.away}`);
-  }
-
-  if (status === "AET" && score.extratime?.home != null) {
-    rows.push(`ET ${score.extratime.home}–${score.extratime.away}`);
-  }
-
-  if (status === "PEN" && score.penalty?.home != null) {
-    rows.push(`PEN ${score.penalty.home}–${score.penalty.away}`);
-  }
+  if (score.halftime?.home != null) rows.push(`HT ${score.halftime.home}–${score.halftime.away}`);
+  if (score.fulltime?.home != null) rows.push(`FT ${score.fulltime.home}–${score.fulltime.away}`);
+  if (status === "AET" && score.extratime?.home != null) rows.push(`ET ${score.extratime.home}–${score.extratime.away}`);
+  if (status === "PEN" && score.penalty?.home != null) rows.push(`PEN ${score.penalty.home}–${score.penalty.away}`);
 
   if (!rows.length) return "";
 
@@ -190,47 +190,6 @@ function getBestMarkets(f) {
     .filter(m => m.value != null && m.value >= 50)
     .sort((a, b) => b.value - a.value)
     .slice(0, 3);
-}
-
-/* =========================
-   STATISTICS
-========================= */
-function renderStatistics(fixtures) {
-  const box = document.getElementById("stats-summary");
-  if (!box) return;
-
-  let ns = 0, live = 0, ft = 0;
-
-  fixtures.forEach(f => {
-    const s = f.fixture.status.short;
-    if (s === "NS") ns++;
-    else if (["1H", "HT", "2H"].includes(s)) live++;
-    else if (["FT", "AET", "PEN"].includes(s)) ft++;
-  });
-
-  box.innerHTML = `
-    <div class="stat-card"><h3>${fixtures.length}</h3><p>Total</p></div>
-    <div class="stat-card"><h3>${ns}</h3><p>Not started</p></div>
-    <div class="stat-card"><h3>${live}</h3><p>Live</p></div>
-    <div class="stat-card"><h3>${ft}</h3><p>Finished</p></div>
-  `;
-}
-
-/* =========================
-   GLOBAL STATUS
-========================= */
-function renderGlobalStatus(status) {
-  const message = STATUS_MESSAGES[status];
-  if (!message) return;
-
-  const targets = [
-    document.getElementById("predictions-list"),
-    document.getElementById("top-picks-list")
-  ];
-
-  targets.forEach(el => {
-    if (el) el.innerHTML = `<div class="no-data">${message}</div>`;
-  });
 }
 
 /* =========================
