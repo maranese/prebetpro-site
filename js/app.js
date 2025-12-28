@@ -108,7 +108,7 @@ async function loadTodayMatches() {
 }
 
 /* =========================
-   PREDICTIONS (GROUPED)
+   PREDICTIONS (GROUPED – ONE ROW)
 ========================= */
 function renderPredictions(fixtures) {
   const box = document.getElementById("predictions-list");
@@ -128,28 +128,24 @@ function renderPredictions(fixtures) {
     wrapper.innerHTML = `
       <h3>${match.teams.home.name} vs ${match.teams.away.name}</h3>
       <div class="prediction-meta">${match.league.name} · ${time}</div>
+
+      <div class="prediction-groups-row">
+        ${PREDICTION_GROUPS.map(group => `
+          <div class="prediction-group compact">
+            <div class="prediction-group-title">${group.title}</div>
+            <div class="prediction-pills">
+              ${group.items.map(item =>
+                renderPredictionCard(match, item)
+              ).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>
     `;
-
-    PREDICTION_GROUPS.forEach(group => {
-      const groupEl = document.createElement("div");
-      groupEl.className = "prediction-group";
-
-      groupEl.innerHTML = `
-        <h4>${group.title}</h4>
-        <div class="predictions-grid">
-          ${group.items.map(item =>
-            renderPredictionCard(match, item)
-          ).join("")}
-        </div>
-      `;
-
-      wrapper.appendChild(groupEl);
-    });
 
     box.appendChild(wrapper);
   });
 }
-
 /* =========================
    SINGLE PREDICTION CARD
 ========================= */
