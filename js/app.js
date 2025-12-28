@@ -8,51 +8,21 @@ document.addEventListener("DOMContentLoaded", () => {
    STATUS MESSAGES
 ========================= */
 const STATUS_MESSAGES = {
-  no_data: `Insufficient historical data.`,
-  api_unavailable: `Data temporarily unavailable.`,
-  api_limited: `Data update temporarily limited.`
+  no_data: `
+    Insufficient historical data.<br>
+    We don’t generate predictions when data is unreliable.
+  `,
+  api_unavailable: `
+    Data temporarily unavailable.
+  `,
+  api_limited: `
+    Data update temporarily limited.<br>
+    Information will refresh automatically.
+  `
 };
 
 /* =========================
-   PREDICTION GROUPS (OFFICIAL)
-========================= */
-const PREDICTION_GROUPS = [
-  {
-    title: "1X2",
-    items: [
-      { label: "1", path: "home_win", strength: "home_win" },
-      { label: "X", path: "draw", strength: "draw" },
-      { label: "2", path: "away_win", strength: "away_win" }
-    ]
-  },
-  {
-    title: "Double Chance",
-    items: [
-      { label: "1X", path: "double_chance.1x", strength: "dc_1x" },
-      { label: "X2", path: "double_chance.x2", strength: "dc_x2" },
-      { label: "12", path: "double_chance.12", strength: "dc_12" }
-    ]
-  },
-  {
-    title: "Goals",
-    items: [
-      { label: "Over 1.5", path: "over_15", strength: "over_15" },
-      { label: "Under 1.5", path: "under_15", strength: null },
-      { label: "Over 2.5", path: "over_25", strength: "over_25" },
-      { label: "Under 2.5", path: "under_25", strength: "under_25" }
-    ]
-  },
-  {
-    title: "Both Teams To Score",
-    items: [
-      { label: "Goal", path: "btts", strength: "btts" },
-      { label: "No Goal", path: "no_btts", strength: "no_btts" }
-    ]
-  }
-];
-
-/* =========================
-   LOAD MATCHES
+   LOAD MATCHES (ROOT API)
 ========================= */
 async function loadMatches() {
   try {
@@ -69,7 +39,7 @@ async function loadMatches() {
     renderPredictions(fixtures);
 
   } catch (err) {
-    console.error(err);
+    console.error("loadMatches error:", err);
     renderGlobalStatus("api_unavailable");
   }
 }
@@ -103,12 +73,54 @@ async function loadTodayMatches() {
       .forEach(f => container.appendChild(renderMatchCard(f)));
 
   } catch (err) {
-    console.error(err);
+    console.error("loadTodayMatches error:", err);
   }
 }
 
 /* =========================
-   PREDICTIONS (GROUPED – ONE ROW)
+   MATCH CARD (DASHBOARD)
+========================= */
+function renderMatchCard(f) {
+  const card = document.createElement("div");
+  card.className = "match-card";
+
+  const time = new Date(f.fixture.date).toLocaleTimeString("it-IT", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  const status = f.fixture.status.short;
+  const ht = f.score?.halftime;
+  const ft = f.score?.fulltime;
+  const et = f.score?.extratime;
+  const pen = f.score?.penalty;
+
+  let scoreHtml = "";
+  if (ht?.home != null) scoreHtml += `<span>HT ${ht.home}–${ht.away}</span>`;
+  if (ft?.home != null) scoreHtml += `<span>FT ${ft.home}–${ft.away}</span>`;
+  if (status === "AET" && et) scoreHtml += `<span>ET ${et.home}–${et.away}</span>`;
+  if (status === "PEN" && pen) scoreHtml += `<span>PEN ${pen.home}–${pen.away}</span>`;
+
+  card.innerHTML = `
+    <div class="match-header">
+      <div class="match-teams">
+        ${f.teams.home.name} vs ${f.teams.away.name}
+      </div>
+      <div class="match-league">
+        ${f.league.name} · ${time}
+      </div>
+    </div>
+
+    <div class="match-scores">
+      ${scoreHtml || "<span>—</span>"}
+    </div>
+  `;
+
+  return card;
+}
+
+/* =========================
+   PREDICTIONS (GROUPED)
 ========================= */
 function renderPredictions(fixtures) {
   const box = document.getElementById("predictions-list");
@@ -128,57 +140,21 @@ function renderPredictions(fixtures) {
     wrapper.innerHTML = `
       <h3>${match.teams.home.name} vs ${match.teams.away.name}</h3>
       <div class="prediction-meta">${match.league.name} · ${time}</div>
-
-      <div class="prediction-groups-row">
-        ${PREDICTION_GROUPS.map(group => `
-          <div class="prediction-group compact">
-            <div class="prediction-group-title">${group.title}</div>
-            <div class="prediction-pills">
-              ${group.items.map(item =>
-                renderPredictionCard(match, item)
-              ).join("")}
-            </div>
-          </div>
-        `).join("")}
-      </div>
     `;
+
+    if (!match.predictions) {
+      wrapper.innerHTML += `
+        <div class="no-data">
+          Insufficient historical data.<br>
+          We don’t generate predictions when data is unreliable.
+        </div>
+      `;
+      box.appendChild(wrapper);
+      return;
+    }
 
     box.appendChild(wrapper);
   });
-}
-/* =========================
-   SINGLE PREDICTION CARD
-========================= */
-function renderPredictionCard(match, item) {
-  const p = match.predictions;
-  const hasData = !!p;
-  let value = "—";
-  let highlight = false;
-
-  if (hasData) {
-    const v = getValueByPath(p, item.path);
-    if (v != null) value = `${v}%`;
-
-    if (p.strength && item.strength && p.strength[item.strength]) {
-      highlight = true;
-    }
-  }
-
-  return `
-    <div class="prediction-card ${highlight ? "highlight" : ""}">
-      <div class="prediction-market">${item.label}</div>
-      <div class="prediction-value">
-        ${hasData ? value : "Insufficient data"}
-      </div>
-    </div>
-  `;
-}
-
-/* =========================
-   UTILS
-========================= */
-function getValueByPath(obj, path) {
-  return path.split(".").reduce((o, k) => (o ? o[k] : null), obj);
 }
 
 /* =========================
