@@ -47,41 +47,47 @@ async function loadTodayMatches() {
 ========================= */
 function renderMatchCard(f) {
   const card = document.createElement("div");
-  card.className = "match-card dashboard";
+  card.className = `match-card confidence-${f.confidence}`;
 
-  const date = new Date(f.fixture.date);
-  const time = date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
-  const day = date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+  const time = new Date(f.fixture.date).toLocaleTimeString("it-IT", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
-  const markets = getBestMarkets(f);
+  const status = f.fixture.status.short;
+  const ht = f.score?.halftime;
+  const ft = f.score?.fulltime;
+  const et = f.score?.extratime;
+  const pen = f.score?.penalty;
+
+  let scoreHtml = "";
+  if (ht?.home != null) scoreHtml += `<div>HT: ${ht.home}–${ht.away}</div>`;
+  if (ft?.home != null) scoreHtml += `<div>FT: ${ft.home}–${ft.away}</div>`;
+  if (status === "AET" && et) scoreHtml += `<div>AET: ${et.home}–${et.away}</div>`;
+  if (status === "PEN" && pen) scoreHtml += `<div>PEN: ${pen.home}–${pen.away}</div>`;
+
+  const bestMarkets = getBestMarkets(f);
 
   card.innerHTML = `
-    <div class="match-day">TODAY · ${day}</div>
-    <div class="match-league">${f.league.name}</div>
-
-    <div class="match-main">
-      <div class="match-row primary">
-        <span class="match-time">${time}</span>
-        <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
+    <div class="match-header">
+      <div>
+        <div class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</div>
+        <div class="match-league">${f.league.name} · ${time}</div>
       </div>
-
-      <button class="match-toggle">Show details ⌄</button>
-      <div class="match-details">
-        ${f.fixture.venue?.name ? `🏟 ${f.fixture.venue.name}` : ""}
-      </div>
+      <span class="confidence-badge confidence-${f.confidence}">
+        ${formatConfidence(f.confidence)}
+      </span>
     </div>
 
-    ${renderInlinePredictions(markets)}
-  `;
+    <div class="match-info">${scoreHtml}</div>
 
-  const toggle = card.querySelector(".match-toggle");
-  const details = card.querySelector(".match-details");
-  toggle.onclick = () => {
-    details.classList.toggle("open");
-    toggle.textContent = details.classList.contains("open")
-      ? "Hide details ^"
-      : "Show details ⌄";
-  };
+    <div class="prediction-grid">
+      ${bestMarkets.map(m => renderMarket(m.label, m.value, m.strong)).join("")}
+      <div class="prediction-item view-all" onclick="location.href='#predictions'">
+        Show all
+      </div>
+    </div>
+  `;
 
   return card;
 }
