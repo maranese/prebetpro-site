@@ -1,219 +1,378 @@
-document.addEventListener("DOMContentLoaded", () => {
-  loadData();
-  initBackToTop();
-});
-
 /* =========================
-   LOAD DATA (SINGLE FETCH)
+   ROOT VARIABLES
 ========================= */
-async function loadData() {
-  try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) return;
+:root {
+  --accent: #2fbf71;
+  --accent-soft: #5fd89d;
+  --accent-dark: #1f8a55;
 
-    const data = await res.json();
-    const fixtures = data.fixtures || [];
+  --bg-light: #ffffff;
+  --bg-dark: #0f1115;
 
-    renderTopPicks(fixtures);
-    renderTodayMatches(fixtures);
-    renderPredictions(fixtures);
+  --card-light: #f3f4f6;
+  --card-dark: #1a1d24;
 
-  } catch (e) {
-    console.error(e);
-  }
+  --text-light: #111111;
+  --text-dark: #f1f1f1;
+
+  --text-muted-light: #555555;
+  --text-muted-dark: #b5b5b5;
 }
 
 /* =========================
-   TOP PICKS
+   RESET
 ========================= */
-function renderTopPicks(fixtures) {
-  const box = document.getElementById("top-picks-list");
-  if (!box) return;
+* {
+  box-sizing: border-box;
+}
 
-  box.innerHTML = "";
+body {
+  margin: 0;
+  font-family: system-ui, Arial, sans-serif;
+  line-height: 1.5;
+  background: var(--bg-light);
+  color: var(--text-light);
+}
 
-  const picks = [];
-
-  fixtures.forEach(f => {
-    if (f.confidence !== "high" || !f.predictions?.strength) return;
-
-    const p = f.predictions;
-    const s = p.strength;
-
-    [
-      { label: "1", value: p.home_win, strong: s.home_win },
-      { label: "X", value: p.draw, strong: s.draw },
-      { label: "2", value: p.away_win, strong: s.away_win },
-      { label: "Over 2.5", value: p.over_25, strong: s.over_25 },
-      { label: "Under 2.5", value: p.under_25, strong: s.under_25 }
-    ].forEach(m => {
-      if (m.strong && m.value != null) {
-        picks.push(m);
-      }
-    });
-  });
-
-  // Ordina per valore decrescente
-  picks.sort((a, b) => b.value - a.value);
-
-  if (!picks.length) {
-    box.innerHTML = `
-      <div class="prediction-card placeholder">
-        <div class="prediction-market">No Top Picks</div>
-        <div class="prediction-value">today</div>
-      </div>
-      <div class="prediction-card placeholder">
-        <div class="prediction-market">No Top Picks</div>
-        <div class="prediction-value">today</div>
-      </div>
-      <div class="prediction-card placeholder">
-        <div class="prediction-market">No Top Picks</div>
-        <div class="prediction-value">today</div>
-      </div>
-    `;
-    return;
-  }
-
-  picks.forEach(p => {
-    box.innerHTML += `
-      <div class="prediction-card highlight">
-        <div class="prediction-market">${p.label}</div>
-        <div class="prediction-value">${p.value}%</div>
-      </div>
-    `;
-  });
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
 }
 
 /* =========================
-   MATCHES
+   HERO / HEADER
 ========================= */
-function renderTodayMatches(fixtures) {
-  const container = document.getElementById("matches");
-  if (!container) return;
+.hero {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  padding: 14px 16px;
+}
 
-  container.innerHTML = "";
+.hero-inner {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 
-  fixtures
-    .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date))
-    .forEach(f => container.appendChild(renderMatchCard(f)));
+.logo {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.4rem;
+  text-decoration: none;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: #eafff3;
+}
+
+.main-nav {
+  display: flex;
+  gap: 18px;
+}
+
+.main-nav a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 /* =========================
-   MATCH CARD
+   MAIN
 ========================= */
-function renderMatchCard(f) {
-  const card = document.createElement("div");
-  card.className = "match-card dashboard";
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 16px;
+}
 
-  const date = new Date(f.fixture.date);
-  const time = date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
-  const day = date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+section {
+  margin-bottom: 50px;
+}
 
-  const markets = getBestMarkets(f);
-
-  card.innerHTML = `
-    <div class="match-day">TODAY · ${day}</div>
-    <div class="match-league">${f.league.name}</div>
-
-    <div class="match-main">
-      <div class="match-row primary">
-        <span class="match-time">${time}</span>
-        <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
-      </div>
-
-      <button class="match-toggle">Show details ⌄</button>
-      <div class="match-details">
-        ${f.fixture.venue?.name ? `🏟 ${f.fixture.venue.name}` : ""}
-      </div>
-    </div>
-
-    ${renderInlinePredictions(markets)}
-  `;
-
-  const toggle = card.querySelector(".match-toggle");
-  const details = card.querySelector(".match-details");
-  toggle.onclick = () => {
-    details.classList.toggle("open");
-    toggle.textContent = details.classList.contains("open")
-      ? "Hide details ^"
-      : "Show details ⌄";
-  };
-
-  return card;
+h2 {
+  border-left: 4px solid var(--accent);
+  padding-left: 10px;
 }
 
 /* =========================
-   INLINE PREDICTIONS
+   GENERIC CARDS
 ========================= */
-function renderInlinePredictions(markets) {
-  if (!markets) {
-    return `
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-    `;
-  }
+.match-card,
+.prediction-card,
+.stat-card,
+.no-data {
+  background: var(--card-light);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
 
-  return markets.map(m => `
-    <div class="prediction-card ${m.strong ? "highlight" : ""}">
-      <div class="prediction-market">${m.label}</div>
-      <div class="prediction-value">${m.value}%</div>
-    </div>
-  `).join("");
+body.dark .match-card,
+body.dark .prediction-card,
+body.dark .stat-card,
+body.dark .no-data {
+  background: var(--card-dark);
 }
 
 /* =========================
-   BEST MARKETS
+   MATCH CARD (DASHBOARD)
 ========================= */
-function getBestMarkets(f) {
-  if (!f.predictions || !f.predictions.strength) return null;
+.match-card.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+}
 
-  const p = f.predictions;
-  const s = p.strength;
+/* Day label */
+.match-day {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-soft);
+  letter-spacing: 0.08em;
+}
 
-  return [
-    { label: "1", value: p.home_win, strong: s.home_win },
-    { label: "X", value: p.draw, strong: s.draw },
-    { label: "2", value: p.away_win, strong: s.away_win },
-    { label: "Over 2.5", value: p.over_25, strong: s.over_25 }
-  ]
-    .filter(m => m.value >= 50)
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 3);
+/* League */
+.match-league {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 /* =========================
-   PREDICTIONS
+   MATCH MAIN (LEFT)
 ========================= */
-function renderPredictions(fixtures) {
-  const box = document.getElementById("predictions-list");
-  if (!box) return;
+.match-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-  box.innerHTML = "";
+.match-row.primary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
 
-  fixtures.forEach(f => {
-    const card = document.createElement("div");
-    card.className = "prediction-card";
+.match-time {
+  font-weight: 800;
+}
 
-    card.innerHTML = `
-      <div class="prediction-market">${f.teams.home.name} vs ${f.teams.away.name}</div>
-      <div class="prediction-value">—</div>
-    `;
+.match-teams {
+  font-weight: 800;
+}
 
-    box.appendChild(card);
-  });
+.match-row.scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .match-row.scores {
+  color: var(--text-muted-dark);
+}
+
+/* =========================
+   CONFIDENCE BADGE
+========================= */
+.confidence-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: rgba(156, 163, 175, 0.25);
+  color: #374151;
+}
+
+body.dark .confidence-badge {
+  color: #e5e7eb;
+}
+
+/* =========================
+   DETAILS
+========================= */
+.match-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-soft);
+  cursor: pointer;
+  text-align: left;
+}
+
+.match-details {
+  display: none;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  color: var(--text-muted-light);
+}
+
+body.dark .match-details {
+  color: var(--text-muted-dark);
+}
+
+.match-details.open {
+  display: block;
+}
+
+/* =========================
+   INLINE PREDICTIONS (MATCHES)
+========================= */
+.match-inline-predictions {
+  display: contents;
+}
+
+/* =========================
+   PREDICTION CARD (UNIT)
+========================= */
+.prediction-card {
+  background: rgba(47, 191, 113, 0.18);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+
+body.dark .prediction-card {
+  background: rgba(95, 216, 157, 0.22);
+}
+
+.prediction-card.highlight {
+  outline: 2px solid var(--accent);
+}
+
+.prediction-market {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+.prediction-value {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+/* =========================
+   PREDICTIONS SECTION
+========================= */
+.prediction-match-group {
+  margin-bottom: 30px;
+}
+
+.prediction-match-group h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.predictions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+/* =========================
+   NO DATA
+========================= */
+.no-data {
+  font-size: 0.9rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .no-data {
+  color: var(--text-muted-dark);
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted-light);
+}
+
+body.dark footer {
+  color: var(--text-muted-dark);
 }
 
 /* =========================
    BACK TO TOP
 ========================= */
-function initBackToTop() {
-  const btn = document.getElementById("back-to-top");
-  if (!btn) return;
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #053b24;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: none;
+  cursor: pointer;
+}
+/* =========================
+   TOP PICKS
+========================= */
+.top-picks {
+  margin-bottom: 60px;
+}
 
-  window.addEventListener("scroll", () => {
-    btn.style.display = window.scrollY > 300 ? "block" : "none";
-  });
+.top-picks.centered {
+  text-align: center;
+}
 
-  btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+.top-picks-grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 16px 0;
+  scroll-snap-type: x mandatory;
+}
+
+.top-picks-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.top-picks-grid::-webkit-scrollbar-thumb {
+  background: var(--accent-soft);
+  border-radius: 4px;
+}
+
+/* Prediction cards inside Top Picks */
+.top-picks-grid .prediction-card {
+  min-width: 160px;
+  scroll-snap-align: start;
+}
+
+/* Placeholder Top Pick */
+.prediction-card.placeholder {
+  background: rgba(156, 163, 175, 0.18);
+}
+
+body.dark .prediction-card.placeholder {
+  background: rgba(156, 163, 175, 0.22);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
 }
