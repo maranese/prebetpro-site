@@ -52,29 +52,6 @@ const PREDICTION_GROUPS = [
 ];
 
 /* =========================
-   LOAD MATCHES
-========================= */
-async function loadMatches() {
-  try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) {
-      renderGlobalStatus("api_unavailable");
-      return;
-    }
-
-    const data = await res.json();
-    const fixtures = data.fixtures || [];
-
-    renderStatistics(fixtures);
-    renderPredictions(fixtures);
-
-  } catch (err) {
-    console.error(err);
-    renderGlobalStatus("api_unavailable");
-  }
-}
-
-/* =========================
    LOAD MATCHES (API ROOT)
 ========================= */
 async function loadMatches() {
@@ -137,7 +114,7 @@ async function loadTodayMatches() {
 }
 
 /* =========================
-   MATCH CARD (DASHBOARD)
+   MATCH CARD (DASHBOARD) – RESTORED
 ========================= */
 function renderMatchCard(f) {
   const card = document.createElement("div");
@@ -176,9 +153,9 @@ function renderMatchCard(f) {
     ${renderInlinePredictions(bestMarkets)}
   `;
 
-  // toggle details
   const toggle = card.querySelector(".match-toggle");
   const details = card.querySelector(".match-details");
+
   toggle.addEventListener("click", () => {
     details.classList.toggle("open");
     toggle.textContent = details.classList.contains("open")
@@ -187,6 +164,58 @@ function renderMatchCard(f) {
   });
 
   return card;
+}
+
+/* =========================
+   INLINE PREDICTIONS (TODAY)
+========================= */
+function renderInlinePredictions(bestMarkets) {
+  if (!bestMarkets) {
+    return `
+      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
+      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
+      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
+    `;
+  }
+
+  return bestMarkets
+    .map(m => `
+      <div class="prediction-card ${m.strong ? "highlight" : ""}">
+        <div class="prediction-market">${m.label}</div>
+        <div class="prediction-value">${m.value}%</div>
+      </div>
+    `)
+    .join("");
+}
+
+/* =========================
+   CONFIDENCE LABEL
+========================= */
+function formatConfidence(level) {
+  if (level === "high") return "High confidence";
+  if (level === "medium") return "Medium confidence";
+  return "Low confidence";
+}
+
+/* =========================
+   BEST MARKETS (TODAY)
+========================= */
+function getBestMarkets(f) {
+  if (!f.predictions || !f.predictions.strength) return null;
+
+  const p = f.predictions;
+  const s = p.strength;
+
+  return [
+    { label: "1", value: p.home_win, strong: s.home_win },
+    { label: "X", value: p.draw, strong: s.draw },
+    { label: "2", value: p.away_win, strong: s.away_win },
+    { label: "Over 2.5", value: p.over_25, strong: s.over_25 },
+    { label: "Under 2.5", value: p.under_25, strong: s.under_25 }
+  ]
+    .filter(m => m.value != null && m.value >= 50)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3);
 }
 
 /* =========================
@@ -228,6 +257,7 @@ function renderPredictions(fixtures) {
     box.appendChild(wrapper);
   });
 }
+
 /* =========================
    SINGLE PREDICTION CARD
 ========================= */
