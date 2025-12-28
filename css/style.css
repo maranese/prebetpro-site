@@ -17,10 +17,6 @@
 
   --text-muted-light: #555555;
   --text-muted-dark: #b5b5b5;
-
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --neutral: #9ca3af;
 }
 
 /* =========================
@@ -33,9 +29,14 @@
 body {
   margin: 0;
   font-family: system-ui, Arial, sans-serif;
+  line-height: 1.5;
   background: var(--bg-light);
   color: var(--text-light);
-  line-height: 1.5;
+}
+
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
 }
 
 /* =========================
@@ -46,137 +47,290 @@ body {
   top: 0;
   z-index: 1000;
   background: linear-gradient(90deg, var(--accent-dark), var(--accent));
-  padding: 12px 16px;
+  padding: 14px 16px;
 }
 
 .hero-inner {
   max-width: 1100px;
   margin: auto;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
 }
 
 .logo {
   color: #fff;
   font-weight: 800;
-  text-decoration: none;
   font-size: 1.4rem;
+  text-decoration: none;
 }
 
 .tagline {
   font-size: 0.8rem;
   color: #eafff3;
-  opacity: 0.9;
+}
+
+.main-nav {
+  display: flex;
+  gap: 18px;
+}
+
+.main-nav a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 /* =========================
-   MATCH CARDS
+   MAIN
 ========================= */
-.match-card {
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 16px;
+}
+
+section {
+  margin-bottom: 50px;
+}
+
+h2 {
+  border-left: 4px solid var(--accent);
+  padding-left: 10px;
+}
+
+/* =========================
+   GENERIC CARDS
+========================= */
+.match-card,
+.prediction-card,
+.stat-card,
+.no-data {
   background: var(--card-light);
+  border-radius: 16px;
   padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 14px;
-  display: flex;
-  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
-.match-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+body.dark .match-card,
+body.dark .prediction-card,
+body.dark .stat-card,
+body.dark .no-data {
+  background: var(--card-dark);
 }
 
-.match-teams {
+/* =========================
+   MATCH CARD (DASHBOARD)
+========================= */
+.match-card.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* Day label */
+.match-day {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-soft);
+  letter-spacing: 0.08em;
+}
+
+/* League */
+.match-league {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
   font-weight: 700;
-  font-size: 1rem;
+  color: var(--accent);
+}
+
+/* =========================
+   MATCH MAIN (LEFT)
+========================= */
+.match-main {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-row.primary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
 }
 
-.team-logo {
-  width: 20px;
-  height: 20px;
+.match-time {
+  font-weight: 800;
 }
 
-.match-league {
-  color: var(--accent-dark);
-  font-size: 0.85rem;
-  margin-top: 5px;
+.match-teams {
+  font-weight: 800;
 }
 
+.match-row.scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .match-row.scores {
+  color: var(--text-muted-dark);
+}
+
+/* =========================
+   CONFIDENCE BADGE
+========================= */
 .confidence-badge {
-  background: rgba(47, 191, 113, 0.2);
-  color: var(--accent-dark);
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 800;
+  background: rgba(156, 163, 175, 0.25);
+  color: #374151;
 }
 
-.match-info {
+body.dark .confidence-badge {
+  color: #e5e7eb;
+}
+
+/* =========================
+   DETAILS
+========================= */
+.match-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-soft);
+  cursor: pointer;
+  text-align: left;
+}
+
+.match-details {
+  display: none;
+  font-size: 0.8rem;
+  margin-top: 6px;
   color: var(--text-muted-light);
+}
+
+body.dark .match-details {
+  color: var(--text-muted-dark);
+}
+
+.match-details.open {
+  display: block;
+}
+
+/* =========================
+   INLINE PREDICTIONS (MATCHES)
+========================= */
+.match-inline-predictions {
+  display: contents;
+}
+
+/* =========================
+   PREDICTION CARD (UNIT)
+========================= */
+.prediction-card {
+  background: rgba(47, 191, 113, 0.18);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+
+body.dark .prediction-card {
+  background: rgba(95, 216, 157, 0.22);
+}
+
+.prediction-card.highlight {
+  outline: 2px solid var(--accent);
+}
+
+.prediction-market {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+.prediction-value {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+/* =========================
+   PREDICTIONS SECTION
+========================= */
+.prediction-match-group {
+  margin-bottom: 30px;
+}
+
+.prediction-match-group h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.predictions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+/* =========================
+   NO DATA
+========================= */
+.no-data {
+  font-size: 0.9rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .no-data {
+  color: var(--text-muted-dark);
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+  text-align: center;
+  padding: 20px;
   font-size: 0.85rem;
+  color: var(--text-muted-light);
 }
 
-.prediction-grid {
-  display: flex;
-  gap: 10px;
+body.dark footer {
+  color: var(--text-muted-dark);
 }
 
-.prediction-item {
-  background: var(--accent-soft);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-}
-
-.view-all {
-  font-weight: bold;
+/* =========================
+   BACK TO TOP
+========================= */
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #053b24;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: none;
   cursor: pointer;
 }
 
 /* =========================
-   TOP PICKS
+   RESPONSIVE
 ========================= */
-.top-picks-content {
-  display: flex;
-  gap: 10px;
-  overflow-x: scroll;
-  padding: 10px 0;
-}
-
-.top-picks-grid {
-  display: flex;
-  gap: 10px;
-}
-
-.top-pick-card {
-  background: var(--card-light);
-  padding: 16px;
-  border-radius: 12px;
-  width: 250px;
-}
-
-.top-pick-card .prediction-item {
-  margin: 10px 0;
-}
-
-/* =========================
-   DARK MODE
-========================= */
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-}
-
-body.dark .match-card {
-  background: var(--card-dark);
-}
-
-body.dark .top-pick-card {
-  background: var(--card-dark);
+@media (max-width: 900px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
 }
