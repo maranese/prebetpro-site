@@ -17,10 +17,6 @@
 
   --text-muted-light: #555555;
   --text-muted-dark: #b5b5b5;
-
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --neutral: #9ca3af;
 }
 
 /* =========================
@@ -33,9 +29,14 @@
 body {
   margin: 0;
   font-family: system-ui, Arial, sans-serif;
+  line-height: 1.5;
   background: var(--bg-light);
   color: var(--text-light);
-  line-height: 1.5;
+}
+
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
 }
 
 /* =========================
@@ -46,56 +47,39 @@ body {
   top: 0;
   z-index: 1000;
   background: linear-gradient(90deg, var(--accent-dark), var(--accent));
-  padding: 12px 16px;
+  padding: 14px 16px;
 }
 
 .hero-inner {
   max-width: 1100px;
   margin: auto;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
 }
 
 .logo {
   color: #fff;
   font-weight: 800;
-  text-decoration: none;
   font-size: 1.4rem;
+  text-decoration: none;
 }
 
 .tagline {
   font-size: 0.8rem;
   color: #eafff3;
-  opacity: 0.9;
 }
 
-/* =========================
-   NAVIGATION
-========================= */
 .main-nav {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 18px;
 }
 
 .main-nav a {
   color: #fff;
   font-weight: 700;
   text-decoration: none;
-  font-size: 0.9rem;
-}
-
-#theme-toggle {
-  border: none;
-  background: #fff;
-  color: var(--accent-dark);
-  padding: 6px 10px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: bold;
 }
 
 /* =========================
@@ -120,77 +104,207 @@ h2 {
    GENERIC CARDS
 ========================= */
 .match-card,
-.stat-card,
-.report-match,
-.no-data,
 .prediction-card,
-.top-pick-card {
+.stat-card,
+.no-data {
   background: var(--card-light);
+  border-radius: 16px;
   padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 14px;
-}
-
-/* =========================
-   MATCH CARD
-========================= */
-.match-league {
-  font-weight: 700;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.match-teams {
-  font-weight: 700;
-  margin: 6px 0;
-}
-
-.match-info {
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-  display: flex;
-  justify-content: space-between;
-}
-
-.match-info div {
-  padding-right: 10px;
-}
-
-.prediction-item {
-  padding: 10px 12px;
-  margin: 5px 0;
-  background-color: var(--card-light);
-  border-radius: 8px;
-}
-
-.prediction-item.highlight {
-  background-color: #2fd19d;
-}
-
-.prediction-item strong {
-  font-weight: bold;
-}
-
-/* =========================
-   DARK MODE
-========================= */
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
+  margin-bottom: 16px;
 }
 
 body.dark .match-card,
-body.dark .stat-card,
-body.dark .report-match,
-body.dark .no-data,
 body.dark .prediction-card,
-body.dark .top-pick-card {
+body.dark .stat-card,
+body.dark .no-data {
   background: var(--card-dark);
 }
 
-body.dark .match-info,
+/* =========================
+   MATCH CARD (DASHBOARD)
+========================= */
+.match-card.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* Day label */
+.match-day {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-soft);
+  letter-spacing: 0.08em;
+}
+
+/* League */
+.match-league {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* =========================
+   MATCH MAIN (LEFT)
+========================= */
+.match-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-row.primary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.match-time {
+  font-weight: 800;
+}
+
+.match-teams {
+  font-weight: 800;
+}
+
+.match-row.scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .match-row.scores {
+  color: var(--text-muted-dark);
+}
+
+/* =========================
+   CONFIDENCE BADGE
+========================= */
+.confidence-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: rgba(156, 163, 175, 0.25);
+  color: #374151;
+}
+
+body.dark .confidence-badge {
+  color: #e5e7eb;
+}
+
+/* =========================
+   DETAILS
+========================= */
+.match-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-soft);
+  cursor: pointer;
+  text-align: left;
+}
+
+.match-details {
+  display: none;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  color: var(--text-muted-light);
+}
+
+body.dark .match-details {
+  color: var(--text-muted-dark);
+}
+
+.match-details.open {
+  display: block;
+}
+
+/* =========================
+   INLINE PREDICTIONS (MATCHES)
+========================= */
+.match-inline-predictions {
+  display: contents;
+}
+
+/* =========================
+   PREDICTION CARD (UNIT)
+========================= */
+.prediction-card {
+  background: rgba(47, 191, 113, 0.18);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+
+body.dark .prediction-card {
+  background: rgba(95, 216, 157, 0.22);
+}
+
+.prediction-card.highlight {
+  outline: 2px solid var(--accent);
+}
+
+.prediction-market {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+.prediction-value {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+/* =========================
+   PREDICTIONS SECTION
+========================= */
+.prediction-match-group {
+  margin-bottom: 30px;
+}
+
+.prediction-match-group h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.predictions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+/* =========================
+   NO DATA
+========================= */
+.no-data {
+  font-size: 0.9rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .no-data {
+  color: var(--text-muted-dark);
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted-light);
+}
+
 body.dark footer {
   color: var(--text-muted-dark);
 }
@@ -213,79 +327,10 @@ body.dark footer {
 }
 
 /* =========================
-   TOP PICKS ANIMATION
+   RESPONSIVE
 ========================= */
-.top-picks-content {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition: max-height 0.45s ease, opacity 0.35s ease, transform 0.35s ease;
-}
-
-.top-picks-content.open {
-  max-height: 1200px;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* =========================
-   PREMIUM (FUTURE-READY)
-========================= */
-.top-picks-content {
-  position: relative;
-}
-
-/* Blur for free users (future switch) */
-body:not(.is-premium) #top-picks-list {
-  filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Overlay */
-.premium-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
-  background: rgba(255,255,255,0.85);
-  z-index: 5;
-}
-
-/* Hide for premium users */
-body.is-premium .premium-overlay {
-  display: none;
-}
-
-.premium-box {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 24px 28px;
-  text-align: center;
-  max-width: 320px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-
-.premium-box h3 {
-  margin: 0 0 6px;
-  color: var(--accent-dark);
-}
-
-.premium-box p {
-  font-size: 0.85rem;
-  color: var(--text-muted-light);
-  margin-bottom: 16px;
-}
-
-.premium-cta {
-  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
-  color: #053b24;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-weight: 800;
-  cursor: pointer;
+@media (max-width: 900px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
 }
