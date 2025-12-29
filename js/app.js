@@ -14,18 +14,16 @@ const STATUS_MESSAGES = {
   api_limited: `Data update temporarily limited.`
 };
 
-
-
 /* =========================
    LOAD TOP PICKS
 ========================= */
 async function loadTopPicks() {
   const list = document.getElementById("top-picks-list");
   const empty = document.getElementById("top-picks-empty");
-  if (!list) return;
+  if (!list || !empty) return;
 
   list.innerHTML = "";
-  if (empty) empty.style.display = "none";
+  empty.style.display = "none";
 
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/top-picks");
@@ -35,10 +33,11 @@ async function loadTopPicks() {
     const picks = data.top_picks || [];
 
     if (!picks.length) {
-      // 👉 PLACEHOLDER CARDS
-      for (let i = 0; i < 4; i++) {
-        list.appendChild(renderTopPickPlaceholder());
-      }
+      empty.innerHTML = `
+        <strong>No Top Picks available today</strong><br>
+        We don’t publish Top Picks when data is unreliable.
+      `;
+      empty.style.display = "block";
       return;
     }
 
@@ -47,50 +46,13 @@ async function loadTopPicks() {
     });
 
   } catch (err) {
-    // fallback etico
-    for (let i = 0; i < 4; i++) {
-      list.appendChild(renderTopPickPlaceholder());
-    }
+    empty.innerHTML = `
+      <strong>No Top Picks available</strong><br>
+      Data temporarily unavailable.
+    `;
+    empty.style.display = "block";
   }
 }
-
-/* =========================
-   TOP PICKS RENDER
-========================= */
-function renderTopPicks(picks = []) {
-  const list = document.getElementById("top-picks-list");
-  if (!list) return;
-
-  list.innerHTML = "";
-
-  if (!picks.length) {
-    // placeholder cards
-    for (let i = 0; i < 4; i++) {
-      list.appendChild(renderTopPickPlaceholderCard());
-    }
-    return;
-  }
-
-  picks.forEach(pick => {
-    list.appendChild(renderTopPickCard(pick));
-  });
-}
-
-function renderTopPickPlaceholderCard() {
-  const card = document.createElement("div");
-  card.className = "top-pick-card placeholder";
-
-  card.innerHTML = `
-    <div class="top-pick-match">No Top Prediction</div>
-    <div class="top-pick-meta">Today</div>
-
-    <div class="top-pick-market">We don’t sell smoke.</div>
-    <div class="top-pick-value">—</div>
-  `;
-
-  return card;
-}
-
 /* =========================
    TOP PICK CARD
 ========================= */
@@ -100,15 +62,12 @@ function renderTopPickCard(pick) {
 
   card.innerHTML = `
     <div class="top-pick-match">${pick.match}</div>
-    <div class="top-pick-meta">Today</div>
-
     <div class="top-pick-market">${pick.market}</div>
     <div class="top-pick-value">${pick.value}%</div>
   `;
 
   return card;
 }
-
 
 /* =========================
    PREDICTION GROUPS (OFFICIAL)
