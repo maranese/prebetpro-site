@@ -143,6 +143,46 @@ async function loadMatches() {
     renderGlobalStatus("api_unavailable");
   }
 }
+/* =========================
+   LEAGUE PRIORITY (FRONTEND ONLY)
+========================= */
+const LEAGUE_PRIORITY = [
+  // TOP EUROPE
+  "premier league",
+  "serie a",
+  "serie b",
+  "la liga",
+  "bundesliga",
+  "ligue 1",
+
+  // UEFA
+  "champions league",
+  "europa league",
+  "conference league",
+
+  // NAZIONALI
+  "world cup",
+  "euro",
+  "africa cup",
+  "asian cup",
+  "copa america",
+  "nations league",
+
+  // ALTRO RILEVANTE
+  "saudi pro league"
+];
+
+function getLeagueWeight(fixture) {
+  if (!fixture?.league?.name) return 999;
+
+  const name = fixture.league.name.toLowerCase();
+
+  const index = LEAGUE_PRIORITY.findIndex(l =>
+    name.includes(l)
+  );
+
+  return index !== -1 ? index : 999;
+}
 
 /* =========================
    LOAD TODAY MATCHES
@@ -169,9 +209,14 @@ async function loadTodayMatches() {
     noMatches.style.display = "none";
 
     fixtures
-      .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date))
-      .forEach(f => container.appendChild(renderMatchCard(f)));
+  .sort((a, b) => {
+    const leagueDiff = getLeagueWeight(a) - getLeagueWeight(b);
+    if (leagueDiff !== 0) return leagueDiff;
 
+    // stesso livello → ordina per orario
+    return new Date(a.fixture.date) - new Date(b.fixture.date);
+  })
+  .forEach(f => container.appendChild(renderMatchCard(f)));
   } catch (err) {
     console.error(err);
   }
