@@ -6,12 +6,20 @@
   --accent-soft: #5fd89d;
   --accent-dark: #1f8a55;
 
-  --bg-light: #ffffff;
+  --bg-light: #ffffff;pre
   --bg-dark: #0f1115;
 
   --card-light: #f3f4f6;
   --card-dark: #1a1d24;
+ --card-bg: var(--card-light);
+  --text-muted: var(--text-muted-light);
+  --neutral: #9ca3af;
+}
 
+body.dark {
+  --card-bg: var(--card-dark);
+  --text-muted: var(--text-muted-dark);
+}
   --text-light: #111111;
   --text-dark: #f1f1f1;
 
@@ -235,35 +243,6 @@ body.dark .match-details {
   display: contents;
 }
 
-/* =========================
-   PREDICTION CARD (UNIT)
-========================= */
-.prediction-card {
-  background: rgba(47, 191, 113, 0.18);
-  border-radius: 14px;
-  padding: 12px;
-  text-align: center;
-}
-
-body.dark .prediction-card {
-  background: rgba(95, 216, 157, 0.22);
-}
-
-.prediction-card.highlight {
-  outline: 2px solid var(--accent);
-}
-
-.prediction-market {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--accent-dark);
-}
-
-.prediction-value {
-  font-size: 1.2rem;
-  font-weight: 900;
-  color: var(--accent);
-}
 
 /* =========================
    PREDICTIONS – GROUPED ROW
