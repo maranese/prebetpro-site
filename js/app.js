@@ -197,11 +197,14 @@ function renderMatchCard(f) {
 
   const bestMarkets = getBestMarkets(f);
   const status = f.fixture.status.short;
-  const isFinished = status === "FT" || status === "AET" || status === "PEN";
 
-const ftScore = isFinished
-  ? `${f.score.fulltime.home} - ${f.score.fulltime.away}`
-  : null;
+const hasHT =
+  f.score?.halftime?.home != null &&
+  f.score?.halftime?.away != null;
+
+const hasFT =
+  f.score?.fulltime?.home != null &&
+  f.score?.fulltime?.away != null;
   card.innerHTML = `
     <div class="match-day">TODAY · ${dateLabel}</div>
     <div class="match-league">
@@ -225,17 +228,11 @@ const ftScore = isFinished
 
 ${ftScore ? `
   <div class="match-row scores">
-  ${
-    f.score?.halftime?.home != null
-      ? `<span>HT ${f.score.halftime.home} - ${f.score.halftime.away}</span>`
-      : ""
-  }
-  ${
-    f.goals?.home != null
-      ? `<span>FT ${f.goals.home} - ${f.goals.away}</span>`
-      : ""
-  }
-</div>
+    <strong>FT</strong> ${ftScore}
+  </div>
+` : ""}
+
+
       <button class="match-toggle">Show details ⌄</button>
       <div class="match-details">
         ${f.fixture.venue?.name ? `🏟 ${f.fixture.venue.name}` : ""}
