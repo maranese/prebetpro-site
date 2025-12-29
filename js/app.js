@@ -53,18 +53,6 @@ async function loadTopPicks() {
    TOP PICK CARD
 ========================= */
 function renderTopPickCard(pick) {
-  const card = document.createElement("div");
-  card.className = "prediction-card top-pick";
-
-  card.innerHTML = `
-    <div class="prediction-market">${pick.match}</div>
-    <div class="prediction-market">${pick.market}</div>
-    <div class="prediction-value">${pick.value}%</div>
-  `;
-
-  return card;
-}
-function renderTopPickCard(pick) {
   return `
     <div class="prediction-card highlight">
       <div class="prediction-market">${pick.market}</div>
