@@ -18,34 +18,36 @@ const STATUS_MESSAGES = {
    LOAD TOP PICKS (FINAL)
 ========================= */
 async function loadTopPicks() {
-  const list = document.getElementById("top-picks-list");
-  const empty = document.getElementById("top-picks-empty");
-  if (!list || !empty) return;
+  const container = document.getElementById("top-picks-container");
+  if (!container) return;
 
-  list.innerHTML = "";
-  empty.style.display = "none";
+  container.innerHTML = "";
 
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/top-picks");
-    if (!res.ok) throw new Error("No top picks");
+    if (!res.ok) {
+      container.innerHTML = renderTopPickPlaceholder();
+      return;
+    }
 
     const data = await res.json();
     const picks = data.top_picks || [];
 
-    // CASE: no picks → placeholders
     if (!picks.length) {
-      list.innerHTML = renderTopPickPlaceholders();
+      container.innerHTML = renderTopPickPlaceholder();
       return;
     }
 
-    picks.forEach(pick => {
-      list.appendChild(renderTopPickCard(pick));
-    });
+    picks.forEach(p =>
+      container.insertAdjacentHTML("beforeend", renderTopPickCard(p))
+    );
 
-  } catch {
-    list.innerHTML = renderTopPickPlaceholders();
+  } catch (err) {
+    console.error("Top Picks error:", err);
+    container.innerHTML = renderTopPickPlaceholder();
   }
 }
+
 
 /* =========================
    TOP PICK CARD
@@ -62,18 +64,29 @@ function renderTopPickCard(pick) {
 
   return card;
 }
-
-function renderTopPickPlaceholders() {
+function renderTopPickCard(pick) {
   return `
-    <div class="prediction-card top-pick placeholder">
-      <div class="prediction-market">No Top Picks today</div>
-      <div class="prediction-value">
-        We publish Top Picks only when data is reliable.
+    <div class="prediction-card highlight">
+      <div class="prediction-market">${pick.market}</div>
+      <div class="prediction-value">${pick.value}%</div>
+      <div class="prediction-meta">
+        ${pick.match}
       </div>
     </div>
   `;
 }
 
+function renderTopPickPlaceholder() {
+  return `
+    <div class="prediction-card placeholder">
+      <div class="prediction-market">No Top Picks today</div>
+      <div class="prediction-value">—</div>
+      <div class="prediction-meta">
+        We publish Top Picks only when data is reliable.
+      </div>
+    </div>
+  `;
+}
 
 /* =========================
    PREDICTION GROUPS (OFFICIAL)
