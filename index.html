@@ -71,9 +71,17 @@
     </div>
   </section>
 
-  <!-- ================= REPORTS ================= -->
+<!-- ================= REPORTS ================= -->
 <section id="reports">
   <h2>Daily Report</h2>
+
+  <!-- FILTER -->
+  <div style="margin-bottom:16px;">
+    <select id="report-range">
+      <option value="7d">Last 7 days</option>
+      <option value="30d">Last 30 days</option>
+    </select>
+  </div>
 
   <!-- SUMMARY -->
   <div id="report-summary" class="stats-grid"></div>
