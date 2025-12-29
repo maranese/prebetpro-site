@@ -764,6 +764,32 @@ body.dark .chart-card {
 body.dark .report-historical-info p {
   color: var(--text-muted-dark);
 }
+
+/* =========================
+   REPORT – FILTERS
+========================= */
+.report-filters {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.report-filter {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.report-filter.active {
+  background: var(--accent);
+  color: #053b24;
+}
+
 /* =========================
    BACK TO TOP
 ========================= */
