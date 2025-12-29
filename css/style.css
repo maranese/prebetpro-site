@@ -589,39 +589,7 @@ body.dark footer {
     font-weight: 700;
   }
 }
-/* =========================
-   HEADER / NAV – MOBILE
-========================= */
-@media (max-width: 768px) {
 
-  /* mostra hamburger */
-  .nav-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: 2px solid #ffffff;
-    color: #ffffff;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 800;
-    cursor: pointer;
-  }
-
-  /* nasconde menu orizzontale */
-  .main-nav {
-    display: none;
-    width: 100%;
-    flex-direction: column;
-    margin-top: 12px;
-    gap: 12px;
-  }
-
-  /* menu aperto */
-  .main-nav.open {
-    display: flex;
-  }
-}
 /* =========================
    RESPONSIVE
 ========================= */
@@ -643,16 +611,36 @@ body {
   max-width: 100%;
 }
 /* =========================
-   HEADER / NAV – MOBILE FIX DEFINITIVO
+   HEADER / NAV – RESPONSIVE (UNICO)
 ========================= */
+
+/* Desktop default */
+.nav-toggle {
+  display: none;
+}
+
+/* Mobile */
 @media (max-width: 768px) {
 
-  /* header container */
   .hero-inner {
     flex-wrap: wrap;
   }
 
-  /* NASCONDE IL MENU ORIZZONTALE */
+  /* hamburger */
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  /* menu chiuso */
   .main-nav {
     display: none;
     width: 100%;
@@ -661,7 +649,7 @@ body {
     gap: 12px;
   }
 
-  /* menu aperto (quando aggiungi .open via JS) */
+  /* menu aperto */
   .main-nav.open {
     display: flex;
   }
