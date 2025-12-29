@@ -452,6 +452,60 @@ body.dark footer {
 .prediction-card.top-pick.placeholder {
   opacity: 0.6;
 }
+/* =========================
+   TOP PICKS (FINAL)
+========================= */
+
+:root {
+  --top-pick-accent: #f97316; /* orange / fire */
+}
+
+/* Container */
+.top-picks-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar (clean UX) */
+.top-picks-scroll::-webkit-scrollbar {
+  display: none;
+}
+.top-picks-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Top Pick = SAME card, special accent */
+.top-picks .prediction-card {
+  min-width: 240px;
+  border-left: 4px solid var(--top-pick-accent);
+  box-shadow:
+    0 0 0 1px rgba(249, 115, 22, 0.35),
+    0 6px 18px rgba(249, 115, 22, 0.15);
+}
+
+/* Emphasize percentage */
+.top-picks .prediction-value {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--top-pick-accent);
+}
+
+/* Placeholder (same shape, calmer tone) */
+.top-picks .prediction-card.placeholder {
+  opacity: 0.75;
+  font-style: italic;
+  border-left-color: var(--neutral);
+  box-shadow: none;
+}
+
+/* Dark mode refinement */
+body.dark .top-picks .prediction-card {
+  background: var(--card-dark);
+}
 
 
 /* =========================
