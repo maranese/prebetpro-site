@@ -395,7 +395,7 @@ async function loadReport() {
       <div class="stat-card"><h3>${data.summary.lost}</h3><p>Lost</p></div>
       <div class="stat-card"><h3>${data.summary.accuracy}%</h3><p>Accuracy</p></div>
     `;
-
+   renderReportCharts(data.summary);
     // PICKS
     listBox.innerHTML = "";
     data.picks.forEach(p => {
@@ -415,6 +415,56 @@ async function loadReport() {
     emptyBox.style.display = "block";
   }
 }
+
+/* =========================
+   REPORT CHARTS
+========================= */
+function renderReportCharts(summary) {
+  const ctxAccuracy = document.getElementById("accuracy-chart");
+  const ctxWL = document.getElementById("wl-chart");
+
+  if (!ctxAccuracy || !ctxWL) return;
+
+  // Accuracy (single point now, future-ready)
+  new Chart(ctxAccuracy, {
+    type: "line",
+    data: {
+      labels: ["Today"],
+      datasets: [{
+        label: "Accuracy %",
+        data: [summary.accuracy],
+        borderColor: "#2fbf71",
+        backgroundColor: "rgba(47,191,113,0.2)",
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 100 }
+      }
+    }
+  });
+
+  // Win / Loss
+  new Chart(ctxWL, {
+    type: "bar",
+    data: {
+      labels: ["Won", "Lost"],
+      datasets: [{
+        data: [summary.won, summary.lost],
+        backgroundColor: ["#22c55e", "#ef4444"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
 /* =========================
    UTILS
 ========================= */
