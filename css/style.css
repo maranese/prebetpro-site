@@ -903,6 +903,33 @@ body.dark .pill-btn:hover {
 .nav-toggle {
   display: none;
 }
+
+/* =========================
+   PREDICTION CARD – VARIANTS (SAFE)
+========================= */
+
+/* Compact cards (Predictions grouped only) */
+.prediction-card.compact {
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+/* Compact typography */
+.prediction-card.compact .prediction-market {
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.prediction-card.compact .prediction-value {
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+/* Dark mode – compact keeps same contrast */
+body.dark .prediction-card.compact {
+  background: rgba(95, 216, 157, 0.18);
+}
+
 /* =========================
    BACK TO TOP
 ========================= */
@@ -911,7 +938,7 @@ body.dark .pill-btn:hover {
   bottom: 20px;
   right: 20px;
   background: var(--accent);
-  color: #053b24;
+  color: #dff2ea;
   border: none;
   width: 42px;
   height: 42px;
