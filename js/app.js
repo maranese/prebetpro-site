@@ -235,8 +235,8 @@ ${(htScore || ftScore) ? `
 
       <button class="match-toggle">Show details ⌄</button>
       <div class="match-details">
-        ${f.fixture.venue?.name ? `🏟 ${f.fixture.venue.name}` : ""}
-      </div>
+  ${renderMatchDetails(f)}
+</div>
     </div>
 
     ${renderInlinePredictions(bestMarkets)}
@@ -632,6 +632,63 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+/*========================
+RENDER SHOW DETAIL
+======================*/
+function renderMatchDetails(f) {
+  const venue = f.fixture.venue;
+  const referee = f.fixture.referee;
+
+  const events = f.events || [];
+  const stats = f.statistics || [];
+
+  const goals = events.filter(e => e.type === "Goal");
+  const cards = events.filter(e => e.type === "Card");
+
+  const getStat = (team, type) =>
+    stats
+      .find(s => s.team.id === team.id)
+      ?.statistics.find(st => st.type === type)?.value ?? "—";
+
+  return `
+    <div class="details-section">
+      <div class="details-block">
+        <strong>Match info</strong><br>
+        ${venue?.name ? `🏟 ${venue.name}${venue.city ? ` (${venue.city})` : ""}<br>` : ""}
+        ${referee ? `👨‍⚖️ Referee: ${referee}` : ""}
+      </div>
+
+      ${goals.length ? `
+        <div class="details-block">
+          <strong>Goals</strong><br>
+          ${goals.map(g =>
+            `⚽ ${g.player.name} (${g.time.elapsed}')`
+          ).join("<br>")}
+        </div>
+      ` : ""}
+
+      ${cards.length ? `
+        <div class="details-block">
+          <strong>Cards</strong><br>
+          ${cards.map(c =>
+            `${c.detail === "Yellow Card" ? "🟨" : "🟥"} ${c.player.name} (${c.time.elapsed}')`
+          ).join("<br>")}
+        </div>
+      ` : ""}
+
+      ${stats.length ? `
+        <div class="details-block">
+          <strong>Stats</strong><br>
+          Shots: ${getStat(f.teams.home, "Total Shots")} – ${getStat(f.teams.away, "Total Shots")}<br>
+          On target: ${getStat(f.teams.home, "Shots on Goal")} – ${getStat(f.teams.away, "Shots on Goal")}<br>
+          Possession: ${getStat(f.teams.home, "Ball Possession")} – ${getStat(f.teams.away, "Ball Possession")}<br>
+          Corners: ${getStat(f.teams.home, "Corner Kicks")} – ${getStat(f.teams.away, "Corner Kicks")}
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
 
 /* =========================
    BACK TO TOP
