@@ -15,7 +15,7 @@ const STATUS_MESSAGES = {
 };
 
 /* =========================
-   LOAD TOP PICKS
+   LOAD TOP PICKS (FINAL)
 ========================= */
 async function loadTopPicks() {
   const list = document.getElementById("top-picks-list");
@@ -27,17 +27,14 @@ async function loadTopPicks() {
 
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/top-picks");
-    if (!res.ok) throw new Error("Top picks unavailable");
+    if (!res.ok) throw new Error("No top picks");
 
     const data = await res.json();
     const picks = data.top_picks || [];
 
+    // CASE: no picks → placeholders
     if (!picks.length) {
-      empty.innerHTML = `
-        <strong>No Top Picks available today</strong><br>
-        We don’t publish Top Picks when data is unreliable.
-      `;
-      empty.style.display = "block";
+      list.innerHTML = renderTopPickPlaceholders();
       return;
     }
 
@@ -45,28 +42,42 @@ async function loadTopPicks() {
       list.appendChild(renderTopPickCard(pick));
     });
 
-  } catch (err) {
-    empty.innerHTML = `
-      <strong>No Top Picks available</strong><br>
-      Data temporarily unavailable.
-    `;
-    empty.style.display = "block";
+  } catch {
+    list.innerHTML = renderTopPickPlaceholders();
   }
 }
+
 /* =========================
    TOP PICK CARD
 ========================= */
 function renderTopPickCard(pick) {
   const card = document.createElement("div");
-  card.className = "top-pick-card";
+  card.className = "prediction-card top-pick";
 
   card.innerHTML = `
-    <div class="top-pick-match">${pick.match}</div>
-    <div class="top-pick-market">${pick.market}</div>
-    <div class="top-pick-value">${pick.value}%</div>
+    <div class="prediction-market">${pick.match}</div>
+    <div class="prediction-market">${pick.market}</div>
+    <div class="prediction-value">${pick.value}%</div>
   `;
 
   return card;
+}
+
+function renderTopPickPlaceholders() {
+  return `
+    <div class="prediction-card top-pick placeholder">
+      <div class="prediction-market">No Top Picks</div>
+      <div class="prediction-value">—</div>
+    </div>
+    <div class="prediction-card top-pick placeholder">
+      <div class="prediction-market">Data not reliable</div>
+      <div class="prediction-value">—</div>
+    </div>
+    <div class="prediction-card top-pick placeholder">
+      <div class="prediction-market">We don’t sell smoke</div>
+      <div class="prediction-value">—</div>
+    </div>
+  `;
 }
 
 /* =========================
