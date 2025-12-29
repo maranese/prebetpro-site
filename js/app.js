@@ -464,7 +464,89 @@ function renderReportCharts(summary) {
     }
   });
 }
+/* =========================
+   REPORT SUMMARY (FILTERED)
+========================= */
+let accuracyChart = null;
+let wlChart = null;
 
+async function loadReportSummary(range = "7d") {
+  try {
+    const res = await fetch(
+      `https://prebetpro-api.vincenzodiguida.workers.dev/report/summary?range=${range}`
+    );
+    if (!res.ok) return;
+
+    const data = await res.json();
+    renderSummaryCharts(data);
+  } catch (err) {
+    console.error("Report summary error", err);
+  }
+}
+
+function renderSummaryCharts(data) {
+  const accCtx = document.getElementById("accuracy-chart");
+  const wlCtx = document.getElementById("wl-chart");
+
+  if (!accCtx || !wlCtx) return;
+
+  // 🔁 reset charts
+  if (accuracyChart) accuracyChart.destroy();
+  if (wlChart) wlChart.destroy();
+
+  // Accuracy by day
+  accuracyChart = new Chart(accCtx, {
+    type: "line",
+    data: {
+      labels: data.by_day.map(d => d.date),
+      datasets: [{
+        label: "Accuracy %",
+        data: data.by_day.map(d =>
+          d.total ? Math.round((d.won / d.total) * 100) : 0
+        ),
+        borderColor: "#2fbf71",
+        backgroundColor: "rgba(47,191,113,0.2)",
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { min: 0, max: 100 } }
+    }
+  });
+
+  // Win / Loss
+  wlChart = new Chart(wlCtx, {
+    type: "bar",
+    data: {
+      labels: ["Won", "Lost"],
+      datasets: [{
+        data: [data.summary.won, data.summary.lost],
+        backgroundColor: ["#22c55e", "#ef4444"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+/* =========================
+   REPORT FILTER INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const select = document.getElementById("report-range");
+  if (!select) return;
+
+  loadReportSummary(select.value);
+
+  select.addEventListener("change", e => {
+    loadReportSummary(e.target.value);
+  });
+});
 /* =========================
    UTILS
 ========================= */
