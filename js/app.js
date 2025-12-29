@@ -550,9 +550,10 @@ async function loadReportSummary(range = "7d") {
       `https://prebetpro-api.vincenzodiguida.workers.dev/report/summary?range=${range}`
     );
     if (!res.ok) return;
-}
+
     const data = await res.json();
     renderSummaryCharts(data);
+
   } catch (err) {
     console.error("Report summary error", err);
   }
