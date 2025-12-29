@@ -878,7 +878,19 @@ body.dark .report-filter-label {
 body.dark .pill-btn:hover {
   background: rgba(95, 216, 157, 0.18);
 }
+/* =========================
+   HEADER – PILL BUTTONS (INVERSE)
+========================= */
 
+.hero .pill-btn {
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  background: transparent;
+}
+
+.hero .pill-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
 /* =========================
    BACK TO TOP
 ========================= */
