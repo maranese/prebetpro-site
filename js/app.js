@@ -225,11 +225,17 @@ const ftScore = isFinished
 
 ${ftScore ? `
   <div class="match-row scores">
-    <strong>FT</strong> ${ftScore}
-  </div>
-` : ""}
-
-
+  ${
+    f.score?.halftime?.home != null
+      ? `<span>HT ${f.score.halftime.home} - ${f.score.halftime.away}</span>`
+      : ""
+  }
+  ${
+    f.goals?.home != null
+      ? `<span>FT ${f.goals.home} - ${f.goals.away}</span>`
+      : ""
+  }
+</div>
       <button class="match-toggle">Show details ⌄</button>
       <div class="match-details">
         ${f.fixture.venue?.name ? `🏟 ${f.fixture.venue.name}` : ""}
