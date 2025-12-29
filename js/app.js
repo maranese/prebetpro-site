@@ -145,6 +145,68 @@ async function loadMatches() {
 }
 
 /* =========================
+   MATCH FILTER (COMPETITIONS WANTED)
+========================= */
+
+// parole da escludere
+const EXCLUDED_KEYWORDS = [
+  "friendly",
+  "u21",
+  "u20",
+  "u19",
+  "u18",
+  "women",
+  "youth",
+  "reserve",
+  "reserves",
+  "pre-season",
+  "preseason",
+  "test match"
+];
+
+function isCompetitionAllowed(f) {
+  if (!f || !f.league) return false;
+
+  const leagueName = (f.league.name || "").toLowerCase();
+  const country = (f.league.country || "").toLowerCase();
+
+  // 🔹 Escludi se contiene keyword esplicite
+  if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
+    return false;
+  }
+
+  // 🔹 Top leagues
+  if (isTopLeague(f)) return true;
+
+  // 🔹 Nazionali senior
+  // tasto “Senior National Teams”:
+  if (country === "world" || leagueName.includes("nations") || leagueName.includes("world")) {
+    return true;
+  }
+
+  // 🔹 Competizioni UEFA/FIFA Club
+  const CLUB_MAJOR = [
+    "champions league",
+    "europa league",
+    "conference league",
+    "club world cup",
+    "super cup"
+  ];
+
+  if (CLUB_MAJOR.some(x => leagueName.includes(x))) {
+    return true;
+  }
+
+  // 🔹 Altre coppe ufficiali nazionali
+  if (f.league.type === "Cup") {
+    return true;
+  }
+
+  // altro → escludi
+  return false;
+}
+
+/* =========================
    MATCH SORTING LOGIC (SAFE)
 ========================= */
 
@@ -216,22 +278,25 @@ async function loadTodayMatches() {
 
     noMatches.style.display = "none";
 
-    fixtures
-      .sort((a, b) => {
-        const pA = getMatchPriorityIndex(a);
-        const pB = getMatchPriorityIndex(b);
-        if (pA !== pB) return pA - pB;
+    const filtered = fixtures.filter(isCompetitionAllowed);
 
-        const nA = isNationalCompetition(a);
-        const nB = isNationalCompetition(b);
-        if (nA !== nB) return nA ? 1 : -1;
+filtered.sort((a, b) => {
+  const pA = getMatchPriorityIndex(a);
+  const pB = getMatchPriorityIndex(b);
+  if (pA !== pB) return pA - pB;
 
-        const cA = (a.league.country || "").localeCompare(b.league.country || "");
-        if (cA !== 0) return cA;
+  // nazionali dopo top
+  const nA = isNationalCompetition(a);
+  const nB = isNationalCompetition(b);
+  if (nA !== nB) return nA ? 1 : -1;
 
-        return new Date(a.fixture.date) - new Date(b.fixture.date);
-      })
-      .forEach(f => container.appendChild(renderMatchCard(f)));
+  const cA = (a.league.country || "").localeCompare(b.league.country || "");
+  if (cA !== 0) return cA;
+
+  return new Date(a.fixture.date) - new Date(b.fixture.date);
+});
+
+filtered.forEach(f => container.appendChild(renderMatchCard(f)));
 
   } catch (err) {
     console.error(err);
