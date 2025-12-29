@@ -6,20 +6,12 @@
   --accent-soft: #5fd89d;
   --accent-dark: #1f8a55;
 
-  --bg-light: #ffffff;pre
+  --bg-light: #ffffff;
   --bg-dark: #0f1115;
 
   --card-light: #f3f4f6;
   --card-dark: #1a1d24;
- --card-bg: var(--card-light);
-  --text-muted: var(--text-muted-light);
-  --neutral: #9ca3af;
-}
 
-body.dark {
-  --card-bg: var(--card-dark);
-  --text-muted: var(--text-muted-dark);
-}
   --text-light: #111111;
   --text-dark: #f1f1f1;
 
@@ -243,6 +235,35 @@ body.dark .match-details {
   display: contents;
 }
 
+/* =========================
+   PREDICTION CARD (UNIT)
+========================= */
+.prediction-card {
+  background: rgba(47, 191, 113, 0.18);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+
+body.dark .prediction-card {
+  background: rgba(95, 216, 157, 0.22);
+}
+
+.prediction-card.highlight {
+  outline: 2px solid var(--accent);
+}
+
+.prediction-market {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+.prediction-value {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent);
+}
 
 /* =========================
    PREDICTIONS – GROUPED ROW
@@ -404,7 +425,7 @@ body.dark footer {
   font-weight: 600;
 }
 /* =========================
-   TOP PICK CARD
+   TOP PICKS – SCROLLING CARDS
 ========================= */
 
 .top-picks-grid {
@@ -412,47 +433,32 @@ body.dark footer {
   gap: 14px;
   overflow-x: auto;
   padding-bottom: 6px;
-  scrollbar-width: none;
+
+  scrollbar-width: none; /* Firefox */
 }
 
 .top-picks-grid::-webkit-scrollbar {
-  display: none;
+  display: none; /* Chrome / Safari */
 }
 
-.top-pick-card {
-  min-width: 220px;
-  background: var(--card-bg);
-  border-radius: 14px;
-  padding: 14px;
-  border-left: 4px solid var(--accent);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* Fade hint on the right */
+.top-picks {
+  position: relative;
 }
 
-.top-pick-card.placeholder {
-  border-left-color: var(--neutral);
-  opacity: 0.8;
-}
-
-.top-pick-match {
-  font-weight: 700;
-}
-
-.top-pick-meta {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.top-pick-market {
-  margin-top: 6px;
-  font-weight: 600;
-}
-
-.top-pick-value {
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: var(--accent);
+.top-picks::after {
+  content: "";
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 60px;
+  height: calc(100% - 60px);
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0),
+    var(--bg-light)
+  );
 }
 
 body.dark .top-picks::after {
