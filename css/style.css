@@ -654,7 +654,64 @@ html, body {
     font-size: 1rem;
   }
 }
+/* =========================
+   REPORT – SUMMARY
+========================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
 
+.stat-card h3 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.stat-card p {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* =========================
+   REPORT – PICK CARD
+========================= */
+.report-pick {
+  background: var(--card-light);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+body.dark .report-pick {
+  background: var(--card-dark);
+}
+
+.report-pick.win {
+  border-left: 4px solid var(--success);
+}
+
+.report-pick.loss {
+  border-left: 4px solid #ef4444;
+}
+
+.report-pick .match {
+  font-weight: 800;
+}
+
+.report-pick .market {
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.report-pick .result {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
 /* =========================
    BACK TO TOP
 ========================= */
