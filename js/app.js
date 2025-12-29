@@ -198,12 +198,25 @@ function renderMatchCard(f) {
 
   card.innerHTML = `
     <div class="match-day">TODAY · ${dateLabel}</div>
-    <div class="match-league">${f.league.name}</div>
+    <div class="match-league">
+  <img class="league-logo" src="${f.league.logo}" alt="${f.league.name}">
+  <span>${f.league.name}</span>
+</div>
 
     <div class="match-main">
       <div class="match-row primary">
       <span class="match-time">${time}</span>
-      <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
+     <div class="match-teams">
+  <img class="team-logo" src="${f.teams.home.logo}" alt="${f.teams.home.name}">
+  <span>${f.teams.home.name}</span>
+
+  <span class="vs">vs</span>
+
+  <span>${f.teams.away.name}</span>
+  <img class="team-logo" src="${f.teams.away.logo}" alt="${f.teams.away.name}">
+</div>
+
+      
     </div>
 
 
