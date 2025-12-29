@@ -535,6 +535,27 @@ function renderSummaryCharts(data) {
 }
 
 /* =========================
+   REPORT FILTER MENU LOGIC
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const select = document.getElementById("report-range");
+  if (!select) return;
+
+  select.addEventListener("change", () => {
+    const value = select.value;
+
+    // TODAY = daily report
+    if (value === "today") {
+      loadReport();
+      return;
+    }
+
+    // AGGREGATED
+    loadReportSummary(value);
+  });
+});
+
+/* =========================
    REPORT FILTER INIT
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
