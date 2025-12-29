@@ -625,6 +625,35 @@ html, body {
   max-width: 100%;
   overflow-x: hidden;
 }
+/* =========================
+   HEADER / NAV – MOBILE FIX DEFINITIVO
+========================= */
+@media (max-width: 768px) {
+
+  /* header container */
+  .hero-inner {
+    flex-wrap: wrap;
+  }
+
+  /* NASCONDE IL MENU ORIZZONTALE */
+  .main-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    margin-top: 12px;
+    gap: 12px;
+  }
+
+  /* menu aperto (quando aggiungi .open via JS) */
+  .main-nav.open {
+    display: flex;
+  }
+
+  .main-nav a {
+    padding: 10px 0;
+    font-size: 1rem;
+  }
+}
 
 /* =========================
    BACK TO TOP
