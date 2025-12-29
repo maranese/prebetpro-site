@@ -425,68 +425,35 @@ body.dark footer {
   font-weight: 600;
 }
 /* =========================
-   TOP PICKS – SCROLLING CARDS
+   TOP PICKS – HORIZONTAL SCROLL
 ========================= */
 
-.top-picks-grid {
+#top-picks-list {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 6px;
 
+  scroll-behavior: smooth;
   scrollbar-width: none; /* Firefox */
 }
 
-.top-picks-grid::-webkit-scrollbar {
+#top-picks-list::-webkit-scrollbar {
   display: none; /* Chrome / Safari */
 }
 
-/* Fade hint on the right */
-.top-picks {
-  position: relative;
+/* Card size for Top Picks */
+.prediction-card.top-pick {
+  min-width: 180px;
+  flex-shrink: 0;
 }
 
-.top-picks::after {
-  content: "";
-  position: absolute;
-  top: 60px;
-  right: 0;
-  width: 60px;
-  height: calc(100% - 60px);
-  pointer-events: none;
-  background: linear-gradient(
-    to right,
-    rgba(255,255,255,0),
-    var(--bg-light)
-  );
+/* Placeholder style */
+.prediction-card.top-pick.placeholder {
+  opacity: 0.6;
 }
 
-body.dark .top-picks::after {
-  background: linear-gradient(
-    to right,
-    rgba(15,17,21,0),
-    var(--bg-dark)
-  );
-}
 
-/* =========================
-   TOP PICK PLACEHOLDER
-========================= */
-
-.top-pick-card.placeholder {
-  opacity: 0.75;
-  border-left: 4px solid var(--neutral);
-}
-
-.top-pick-note {
-  font-size: 0.75rem;
-  color: var(--text-muted-light);
-  margin-top: 6px;
-}
-
-body.dark .top-pick-note {
-  color: var(--text-muted-dark);
-}
 /* =========================
    BACK TO TOP
 ========================= */
