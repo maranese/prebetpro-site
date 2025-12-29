@@ -712,6 +712,35 @@ body.dark .report-pick {
   font-size: 0.8rem;
   font-weight: 700;
 }
+
+/* =========================
+   REPORT – CHARTS
+========================= */
+.report-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.chart-card {
+  background: var(--card-light);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+body.dark .chart-card {
+  background: var(--card-dark);
+}
+
+.chart-card h3 {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
 /* =========================
    BACK TO TOP
 ========================= */
