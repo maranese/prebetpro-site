@@ -72,13 +72,26 @@
   </section>
 
   <!-- ================= REPORTS ================= -->
- <section id="reports">
+<section id="reports">
   <h2>Daily Report</h2>
 
   <!-- SUMMARY -->
   <div id="report-summary" class="stats-grid"></div>
 
-  <!-- PICKS LIST -->
+  <!-- CHARTS -->
+  <div class="report-charts">
+    <div class="chart-card">
+      <h3>Accuracy Trend</h3>
+      <canvas id="accuracy-chart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>Win / Loss</h3>
+      <canvas id="wl-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- PICKS -->
   <div id="report-list"></div>
 
   <!-- EMPTY -->
@@ -87,6 +100,9 @@
     Top Picks are evaluated only after full time.
   </div>
 </section>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </main>
 
