@@ -87,9 +87,19 @@
     Select a time range to analyze performance.
   </p>
 
-  <div class="report-filters">
-    <button class="report-filter active" data-range="7d">Last 7 days</button>
-    <button class="report-filter" data-range="30d">Last 30 days</button>
+<div class="report-filter-bar">
+  <label for="report-range" class="report-filter-label">
+    Period
+  </label>
+
+  <div class="report-select-wrapper">
+    <select id="report-range" class="report-select">
+      <option value="today">Today</option>
+      <option value="7d" selected>Last 7 days</option>
+      <option value="30d">Last 30 days</option>
+      <option value="custom" disabled>Custom range (soon)</option>
+    </select>
+    <span class="select-arrow">▾</span>
   </div>
 </div>
 
