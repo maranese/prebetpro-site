@@ -854,6 +854,31 @@ body.dark .report-filter-label {
     align-items: flex-start;
   }
 }
+
+/* =========================
+   HEADER – PILL BUTTONS
+========================= */
+
+.pill-btn {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pill-btn:hover {
+  background: rgba(47, 191, 113, 0.12);
+}
+
+body.dark .pill-btn:hover {
+  background: rgba(95, 216, 157, 0.18);
+}
+
 /* =========================
    BACK TO TOP
 ========================= */
