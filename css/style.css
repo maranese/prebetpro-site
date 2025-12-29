@@ -453,11 +453,11 @@ body.dark footer {
   opacity: 0.6;
 }
 /* =========================
-   TOP PICKS (FINAL)
+   TOP PICKS – VISIBILITY FIX
 ========================= */
 
 :root {
-  --top-pick-accent: #f97316; /* orange / fire */
+  --top-pick-accent: #f97316; /* fire orange */
 }
 
 /* Container */
@@ -465,11 +465,10 @@ body.dark footer {
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
   scroll-behavior: smooth;
 }
 
-/* Hide scrollbar (clean UX) */
 .top-picks-scroll::-webkit-scrollbar {
   display: none;
 }
@@ -478,34 +477,56 @@ body.dark footer {
   scrollbar-width: none;
 }
 
-/* Top Pick = SAME card, special accent */
+/* Card base (same as prediction-card, but emphasized) */
 .top-picks .prediction-card {
   min-width: 240px;
+  background: var(--card-dark);
   border-left: 4px solid var(--top-pick-accent);
   box-shadow:
-    0 0 0 1px rgba(249, 115, 22, 0.35),
-    0 6px 18px rgba(249, 115, 22, 0.15);
+    0 0 0 1px rgba(249, 115, 22, 0.45),
+    0 8px 22px rgba(249, 115, 22, 0.25);
 }
 
-/* Emphasize percentage */
+/* Market label (e.g. Over 2.5, 1X, Goal) */
+.top-picks .prediction-market {
+  color: #ffffff; /* FULL WHITE */
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Percentage */
 .top-picks .prediction-value {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 900;
   color: var(--top-pick-accent);
+  margin-top: 6px;
 }
 
-/* Placeholder (same shape, calmer tone) */
+/* Match + meta info */
+.top-picks .prediction-meta {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #e5e7eb; /* light gray, readable */
+}
+
+/* Placeholder (still readable, but calmer) */
 .top-picks .prediction-card.placeholder {
-  opacity: 0.75;
-  font-style: italic;
-  border-left-color: var(--neutral);
+  border-left-color: #6b7280;
   box-shadow: none;
 }
 
-/* Dark mode refinement */
-body.dark .top-picks .prediction-card {
-  background: var(--card-dark);
+.top-picks .prediction-card.placeholder .prediction-market {
+  color: #f1f5f9;
 }
+
+.top-picks .prediction-card.placeholder .prediction-value {
+  color: #9ca3af;
+}
+
+.top-picks .prediction-card.placeholder .prediction-meta {
+  color: #9ca3af;
+}
+
 
 
 /* =========================
