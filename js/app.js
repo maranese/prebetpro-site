@@ -145,44 +145,51 @@ async function loadMatches() {
 }
 
 /* =========================
-   COUNTRY PRIORITY (FRONTEND)
+   MATCH SORTING LOGIC (SAFE)
 ========================= */
-const COUNTRY_PRIORITY = [
-  // TOP EUROPE
-  "england",
-  "italy",
-  "spain",
-  "germany",
-  "france",
 
-  // UEFA / EUROPE SECONDARY
-  "portugal",
-  "netherlands",
-  "belgium",
-  "turkey",
-  "scotland",
+// ordine globale per PRIORITÀ
+const MATCH_PRIORITY = [
+  // Top 5 Europe
+  { country: "England", league: "Premier League" },
+  { country: "Italy", league: "Serie A" },
+  { country: "Spain", league: "La Liga" },
+  { country: "Germany", league: "Bundesliga" },
+  { country: "France", league: "Ligue 1" },
 
-  // NATIONAL TEAMS & CONTINENTAL
-  "world",
-  "europe",
-  "africa",
-  "asia",
-  "south america",
-
-  // OTHER RELEVANT
-  "saudi arabia"
+  // Extra rilevanti
+  { country: "Saudi Arabia", league: "Professional League" }
 ];
 
-function getLeagueWeight(fixture) {
-  if (!fixture?.league?.country) return 999;
+function getMatchPriorityIndex(f) {
+  if (!f?.league) return 999;
 
-  const country = fixture.league.country.toLowerCase();
+  const country = f.league.country;
+  const league = f.league.name;
 
-  const index = COUNTRY_PRIORITY.findIndex(c =>
-    country.includes(c)
+  const idx = MATCH_PRIORITY.findIndex(
+    p => p.country === country && league.includes(p.league)
   );
 
-  return index !== -1 ? index : 999;
+  return idx !== -1 ? idx : 999;
+}
+
+function isNationalCompetition(f) {
+  if (!f?.league) return false;
+
+  const name = f.league.name.toLowerCase();
+  const country = (f.league.country || "").toLowerCase();
+
+  return (
+    f.league.type === "Cup" &&
+    (
+      country === "world" ||
+      name.includes("nations") ||
+      name.includes("world") ||
+      name.includes("euro") ||
+      name.includes("copa")
+    )
+  );
 }
 
 /* =========================
@@ -209,18 +216,25 @@ async function loadTodayMatches() {
 
     noMatches.style.display = "none";
 
-    fixtures
-  .sort((a, b) => {
-    const leagueDiff = getLeagueWeight(a) - getLeagueWeight(b);
-    if (leagueDiff !== 0) return leagueDiff;
+   fixtures.sort((a, b) => {
+  const pA = getMatchPriorityIndex(a);
+  const pB = getMatchPriorityIndex(b);
+  if (pA !== pB) return pA - pB;
 
-    // stesso livello → ordina per orario
-    return new Date(a.fixture.date) - new Date(b.fixture.date);
-  })
+  const nA = isNationalCompetition(a);
+  const nB = isNationalCompetition(b);
+  if (nA !== nB) return nA ? 1 : -1;
+
+  const cA = (a.league.country || "").localeCompare(b.league.country || "");
+  if (cA !== 0) return cA;
+
+  return new Date(a.fixture.date) - new Date(b.fixture.date);
+});
+
+/*================ 
+NON TOCCARE
+===================*/
   .forEach(f => container.appendChild(renderMatchCard(f)));
-  } catch (err) {
-    console.error(err);
-  }
 }
 
 /* =========================
@@ -536,7 +550,7 @@ async function loadReportSummary(range = "7d") {
       `https://prebetpro-api.vincenzodiguida.workers.dev/report/summary?range=${range}`
     );
     if (!res.ok) return;
-
+}
     const data = await res.json();
     renderSummaryCharts(data);
   } catch (err) {
