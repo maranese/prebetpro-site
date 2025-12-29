@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadTopPicks();
   loadTodayMatches();
-  loadMatches();
   initBackToTop();
   loadReport();
 });
