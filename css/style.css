@@ -740,7 +740,30 @@ body.dark .chart-card {
   text-transform: uppercase;
   color: var(--accent);
 }
+/* =========================
+   REPORT – HISTORICAL INFO
+========================= */
+.report-historical-info {
+  margin: 20px 0 16px;
+  padding-left: 4px;
+}
 
+.report-historical-info h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.report-historical-info p {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .report-historical-info p {
+  color: var(--text-muted-dark);
+}
 /* =========================
    BACK TO TOP
 ========================= */
