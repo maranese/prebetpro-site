@@ -621,9 +621,13 @@ body.dark footer {
 /* =========================
    GLOBAL MOBILE FIX
 ========================= */
-html, body {
+html {
   max-width: 100%;
   overflow-x: hidden;
+}
+
+body {
+  max-width: 100%;
 }
 /* =========================
    HEADER / NAV – MOBILE FIX DEFINITIVO
