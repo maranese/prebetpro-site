@@ -266,24 +266,25 @@ function isFrontendCompetitionAllowed(f) {
 
   const leagueName = (f.league.name || "").toLowerCase();
   const country = (f.league.country || "").toLowerCase();
+  const type = f.league.type;
 
-  // ❌ keyword escluse
+  // ❌ esclusioni hard
   if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
     return false;
   }
 
-  // ✅ coppe internazionali
-  if (INTERNATIONAL_CLUB_COMPETITIONS.some(c => leagueName.includes(c))) {
-    return true;
-  }
-
-  // ✅ nazionali senior
+  /* =========================
+     NAZIONALI SENIOR (AFCON, EURO, WC, COPA)
+  ========================= */
   if (
-    f.league.type === "Cup" &&
+    type === "Cup" &&
     (
       country === "world" ||
+      country === "africa" ||
+      country === "europe" ||
+      country === "south america" ||
       leagueName.includes("nations") ||
-      leagueName.includes("world") ||
+      leagueName.includes("world cup") ||
       leagueName.includes("euro") ||
       leagueName.includes("copa")
     )
@@ -291,7 +292,20 @@ function isFrontendCompetitionAllowed(f) {
     return true;
   }
 
-  // ✅ club football: nazione ammessa (div 1 + 2)
+  /* =========================
+     COPPE INTERNAZIONALI CLUB
+  ========================= */
+  if (
+    INTERNATIONAL_CLUB_COMPETITIONS.some(c =>
+      leagueName.includes(c)
+    )
+  ) {
+    return true;
+  }
+
+  /* =========================
+     CLUB FOOTBALL (TOP + 2ND DIVISION)
+  ========================= */
   if (ALLOWED_COUNTRIES.includes(country)) {
     return true;
   }
