@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadTodayMatches();
   loadMatches();
   initBackToTop();
+  loadReport();
 });
 
 /* =========================
@@ -362,6 +363,58 @@ function renderPredictionCard(match, item) {
   `;
 }
 
+/* =========================
+   LOAD REPORT
+========================= */
+async function loadReport() {
+  const summaryBox = document.getElementById("report-summary");
+  const listBox = document.getElementById("report-list");
+  const emptyBox = document.getElementById("report-empty");
+
+  if (!summaryBox || !listBox) return;
+
+  try {
+    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/report");
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+
+    if (!data.summary || data.summary.total === 0) {
+      emptyBox.style.display = "block";
+      summaryBox.innerHTML = "";
+      listBox.innerHTML = "";
+      return;
+    }
+
+    emptyBox.style.display = "none";
+
+    // SUMMARY
+    summaryBox.innerHTML = `
+      <div class="stat-card"><h3>${data.summary.total}</h3><p>Total Picks</p></div>
+      <div class="stat-card"><h3>${data.summary.won}</h3><p>Won</p></div>
+      <div class="stat-card"><h3>${data.summary.lost}</h3><p>Lost</p></div>
+      <div class="stat-card"><h3>${data.summary.accuracy}%</h3><p>Accuracy</p></div>
+    `;
+
+    // PICKS
+    listBox.innerHTML = "";
+    data.picks.forEach(p => {
+      const div = document.createElement("div");
+      div.className = `report-pick ${p.result ? "win" : "loss"}`;
+      div.innerHTML = `
+        <div class="match">${p.match}</div>
+        <div class="market">${p.market} · ${p.probability}%</div>
+        <div class="result">
+          FT ${p.ft} — ${p.result ? "WIN" : "LOSS"}
+        </div>
+      `;
+      listBox.appendChild(div);
+    });
+
+  } catch {
+    emptyBox.style.display = "block";
+  }
+}
 /* =========================
    UTILS
 ========================= */
