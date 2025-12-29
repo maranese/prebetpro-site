@@ -198,7 +198,10 @@ function renderMatchCard(f) {
   const bestMarkets = getBestMarkets(f);
   const status = f.fixture.status.short;
   const isFinished = status === "FT" || status === "AET" || status === "PEN";
-
+  const htScore =
+  f.score?.halftime?.home != null
+    ? `${f.score.halftime.home} - ${f.score.halftime.away}`
+    : null;
 const ftScore = isFinished
   ? `${f.score.fulltime.home} - ${f.score.fulltime.away}`
   : null;
@@ -223,12 +226,12 @@ const ftScore = isFinished
   </div>
 </div>
 
-${ftScore ? `
+${(htScore || ftScore) ? `
   <div class="match-row scores">
-    <strong>FT</strong> ${ftScore}
+    ${htScore ? `<strong>HT</strong> ${htScore}` : ""}
+    ${ftScore ? `<span style="margin-left:8px"><strong>FT</strong> ${ftScore}</span>` : ""}
   </div>
 ` : ""}
-
 
       <button class="match-toggle">Show details ⌄</button>
       <div class="match-details">
