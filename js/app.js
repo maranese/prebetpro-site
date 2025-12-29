@@ -143,42 +143,43 @@ async function loadMatches() {
     renderGlobalStatus("api_unavailable");
   }
 }
+
 /* =========================
-   LEAGUE PRIORITY (FRONTEND ONLY)
+   COUNTRY PRIORITY (FRONTEND)
 ========================= */
-const LEAGUE_PRIORITY = [
+const COUNTRY_PRIORITY = [
   // TOP EUROPE
-  "premier league",
-  "serie a",
-  "serie b",
-  "la liga",
-  "bundesliga",
-  "ligue 1",
+  "england",
+  "italy",
+  "spain",
+  "germany",
+  "france",
 
-  // UEFA
-  "champions league",
-  "europa league",
-  "conference league",
+  // UEFA / EUROPE SECONDARY
+  "portugal",
+  "netherlands",
+  "belgium",
+  "turkey",
+  "scotland",
 
-  // NAZIONALI
-  "world cup",
-  "euro",
-  "africa cup",
-  "asian cup",
-  "copa america",
-  "nations league",
+  // NATIONAL TEAMS & CONTINENTAL
+  "world",
+  "europe",
+  "africa",
+  "asia",
+  "south america",
 
-  // ALTRO RILEVANTE
-  "saudi pro league"
+  // OTHER RELEVANT
+  "saudi arabia"
 ];
 
 function getLeagueWeight(fixture) {
-  if (!fixture?.league?.name) return 999;
+  if (!fixture?.league?.country) return 999;
 
-  const name = fixture.league.name.toLowerCase();
+  const country = fixture.league.country.toLowerCase();
 
-  const index = LEAGUE_PRIORITY.findIndex(l =>
-    name.includes(l)
+  const index = COUNTRY_PRIORITY.findIndex(c =>
+    country.includes(c)
   );
 
   return index !== -1 ? index : 999;
