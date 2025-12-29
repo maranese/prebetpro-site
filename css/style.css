@@ -895,6 +895,13 @@ body.dark .pill-btn:hover {
 .hero .pill-btn:hover {
   background: rgba(255, 255, 255, 0.15);
 }
+
+/* =========================
+   NAV TOGGLE (DESKTOP DEFAULT)
+========================= */
+.nav-toggle {
+  display: none;
+}
 /* =========================
    BACK TO TOP
 ========================= */
