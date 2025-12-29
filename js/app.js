@@ -202,10 +202,10 @@ function renderMatchCard(f) {
 
     <div class="match-main">
       <div class="match-row primary">
-        <span class="match-time">${time}</span>
-        <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
-        <span class="confidence-badge">${formatConfidence(f.confidence)}</span>
-      </div>
+      <span class="match-time">${time}</span>
+      <span class="match-teams">${f.teams.home.name} vs ${f.teams.away.name}</span>
+    </div>
+
 
       <button class="match-toggle">Show details ⌄</button>
       <div class="match-details">
