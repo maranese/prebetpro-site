@@ -80,13 +80,18 @@
   <div id="report-summary" class="stats-grid"></div>
 
   <!-- HISTORICAL LABEL -->
-  <div class="report-historical-info">
-    <h3>📈 Historical Performance</h3>
-    <p>
-      Aggregated results based on <strong>Top Picks only</strong>.
-      Use filters to analyze performance over time.
-    </p>
+ <div class="report-historical-info">
+  <h3>📈 Historical Performance</h3>
+  <p>
+    Aggregated results based on <strong>Top Picks only</strong>.
+    Select a time range to analyze performance.
+  </p>
+
+  <div class="report-filters">
+    <button class="report-filter active" data-range="7d">Last 7 days</button>
+    <button class="report-filter" data-range="30d">Last 30 days</button>
   </div>
+</div>
 
   <!-- CHARTS -->
   <div class="report-charts">
