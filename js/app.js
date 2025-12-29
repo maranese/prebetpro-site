@@ -210,6 +210,39 @@ const ftScore = isFinished
 </div>
 
     <div class="match-main">
+    /* =========================
+   MATCH CARD (DASHBOARD) – RESTORED
+========================= */
+function renderMatchCard(f) {
+  const card = document.createElement("div");
+  card.className = "match-card dashboard";
+
+  const dateObj = new Date(f.fixture.date);
+  const time = dateObj.toLocaleTimeString("it-IT", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  const dateLabel = dateObj.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short"
+  });
+
+  const bestMarkets = getBestMarkets(f);
+  const status = f.fixture.status.short;
+  const isFinished = status === "FT" || status === "AET" || status === "PEN";
+
+const ftScore = isFinished
+  ? `${f.score.fulltime.home} - ${f.score.fulltime.away}`
+  : null;
+  card.innerHTML = `
+    <div class="match-day">TODAY · ${dateLabel}</div>
+    <div class="match-league">
+  <img class="league-logo" src="${f.league.logo}" alt="${f.league.name}">
+  <span>${f.league.name}</span>
+</div>
+
+    <div class="match-main">
     <div class="match-row primary">
   <span class="match-time">${time}</span>
   <div class="match-teams">
@@ -221,6 +254,36 @@ const ftScore = isFinished
     <span>${f.teams.away.name}</span>
     <img class="team-logo" src="${f.teams.away.logo}" alt="${f.teams.away.name}">
   </div>
+</div>
+
+${ftScore ? `
+  <div class="match-row scores">
+    <strong>FT</strong> ${ftScore}
+  </div>
+` : ""}
+
+
+      <button class="match-toggle">Show details ⌄</button>
+      <div class="match-details">
+        ${f.fixture.venue?.name ? `🏟 ${f.fixture.venue.name}` : ""}
+      </div>
+    </div>
+
+    ${renderInlinePredictions(bestMarkets)}
+  `;
+
+  const toggle = card.querySelector(".match-toggle");
+  const details = card.querySelector(".match-details");
+
+  toggle.addEventListener("click", () => {
+    details.classList.toggle("open");
+    toggle.textContent = details.classList.contains("open")
+      ? "Hide details ^"
+      : "Show details ⌄";
+  });
+
+  return card;
+}
 </div>
 
 ${ftScore ? `
