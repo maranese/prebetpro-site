@@ -228,6 +228,77 @@ function isTopLeague(f) {
     l => country === l.country && league.includes(l.league)
   );
 }
+
+/* =========================
+   FRONTEND COMPETITION SCOPE (SINGLE SOURCE OF TRUTH)
+========================= */
+
+// Nazioni ammesse (Divisione 1 + 2)
+const ALLOWED_COUNTRIES = [
+  // Europe
+  "england","italy","spain","germany","france","portugal",
+  "netherlands","belgium","turkey","scotland","austria",
+  "switzerland","greece",
+
+  // Americas
+  "brazil","argentina","usa","mexico","colombia","chile","uruguay",
+
+  // Asia
+  "saudi arabia","japan","south korea","qatar","australia","china",
+
+  // Africa (top)
+  "morocco","egypt","tunisia","algeria","south africa"
+];
+
+// Coppe club internazionali sempre ammesse
+const INTERNATIONAL_CLUB_COMPETITIONS = [
+  "champions league",
+  "europa league",
+  "conference league",
+  "libertadores",
+  "sudamericana",
+  "club world cup",
+  "super cup"
+];
+
+function isFrontendCompetitionAllowed(f) {
+  if (!f || !f.league) return false;
+
+  const leagueName = (f.league.name || "").toLowerCase();
+  const country = (f.league.country || "").toLowerCase();
+
+  // ❌ keyword escluse
+  if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
+    return false;
+  }
+
+  // ✅ coppe internazionali
+  if (INTERNATIONAL_CLUB_COMPETITIONS.some(c => leagueName.includes(c))) {
+    return true;
+  }
+
+  // ✅ nazionali senior
+  if (
+    f.league.type === "Cup" &&
+    (
+      country === "world" ||
+      leagueName.includes("nations") ||
+      leagueName.includes("world") ||
+      leagueName.includes("euro") ||
+      leagueName.includes("copa")
+    )
+  ) {
+    return true;
+  }
+
+  // ✅ club football: nazione ammessa (div 1 + 2)
+  if (ALLOWED_COUNTRIES.includes(country)) {
+    return true;
+  }
+
+  return false;
+}
+
 /* =========================
    MATCH SORTING LOGIC (SAFE)
 ========================= */
@@ -300,7 +371,7 @@ async function loadTodayMatches() {
 
     noMatches.style.display = "none";
 
-    const filtered = fixtures.filter(isCompetitionAllowed);
+   const filtered = fixtures.filter(isFrontendCompetitionAllowed);
 
 filtered.sort((a, b) => {
   const pA = getMatchPriorityIndex(a);
@@ -466,7 +537,9 @@ function renderPredictions(fixtures) {
 
   box.innerHTML = "";
 
-  fixtures.forEach(match => {
+ fixtures
+  .filter(isFrontendCompetitionAllowed)
+  .forEach(match => {
     const wrapper = document.createElement("div");
     wrapper.className = "prediction-match-group";
 
