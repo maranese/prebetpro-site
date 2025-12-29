@@ -253,9 +253,11 @@ const ftScore = isFinished
   : null;
   card.innerHTML = `
     <div class="match-day">TODAY · ${dateLabel}</div>
-    <div class="match-league">
+   <div class="match-league">
   <img class="league-logo" src="${f.league.logo}" alt="${f.league.name}">
-  <span>${f.league.name}</span>
+  <span>
+    ${f.league.country} – ${f.league.name}
+  </span>
 </div>
 
     <div class="match-main">
