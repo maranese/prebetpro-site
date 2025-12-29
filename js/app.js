@@ -197,14 +197,11 @@ function renderMatchCard(f) {
 
   const bestMarkets = getBestMarkets(f);
   const status = f.fixture.status.short;
+  const isFinished = status === "FT" || status === "AET" || status === "PEN";
 
-const hasHT =
-  f.score?.halftime?.home != null &&
-  f.score?.halftime?.away != null;
-
-const hasFT =
-  f.score?.fulltime?.home != null &&
-  f.score?.fulltime?.away != null;
+const ftScore = isFinished
+  ? `${f.score.fulltime.home} - ${f.score.fulltime.away}`
+  : null;
   card.innerHTML = `
     <div class="match-day">TODAY · ${dateLabel}</div>
     <div class="match-league">
