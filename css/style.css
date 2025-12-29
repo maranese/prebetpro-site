@@ -589,7 +589,42 @@ body.dark footer {
     font-weight: 700;
   }
 }
+/* =========================
+   HEADER / NAV MOBILE FIX
+========================= */
+@media (max-width: 768px) {
+  header,
+  .navbar,
+  .nav,
+  .nav-container {
+    width: 100%;
+    max-width: 100%;
+  }
 
+  .nav {
+    flex-wrap: wrap;
+  }
+
+  .nav a {
+    white-space: normal;
+  }
+}
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   GLOBAL MOBILE FIX
+========================= */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 
 /* =========================
    BACK TO TOP
