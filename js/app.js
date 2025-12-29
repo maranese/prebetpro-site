@@ -196,7 +196,12 @@ function renderMatchCard(f) {
   });
 
   const bestMarkets = getBestMarkets(f);
+  const status = f.fixture.status.short;
+  const isFinished = status === "FT" || status === "AET" || status === "PEN";
 
+const ftScore = isFinished
+  ? `${f.score.fulltime.home} - ${f.score.fulltime.away}`
+  : null;
   card.innerHTML = `
     <div class="match-day">TODAY · ${dateLabel}</div>
     <div class="match-league">
@@ -205,20 +210,24 @@ function renderMatchCard(f) {
 </div>
 
     <div class="match-main">
-      <div class="match-row primary">
-      <span class="match-time">${time}</span>
-     <div class="match-teams">
-  <img class="team-logo" src="${f.teams.home.logo}" alt="${f.teams.home.name}">
-  <span>${f.teams.home.name}</span>
+    <div class="match-row primary">
+  <span class="match-time">${time}</span>
+  <div class="match-teams">
+    <img class="team-logo" src="${f.teams.home.logo}" alt="${f.teams.home.name}">
+    <span>${f.teams.home.name}</span>
 
-  <span class="vs">vs</span>
+    <span class="vs">vs</span>
 
-  <span>${f.teams.away.name}</span>
-  <img class="team-logo" src="${f.teams.away.logo}" alt="${f.teams.away.name}">
+    <span>${f.teams.away.name}</span>
+    <img class="team-logo" src="${f.teams.away.logo}" alt="${f.teams.away.name}">
+  </div>
 </div>
 
-      
-    </div>
+${ftScore ? `
+  <div class="match-row scores">
+    <strong>FT</strong> ${ftScore}
+  </div>
+` : ""}
 
 
       <button class="match-toggle">Show details ⌄</button>
