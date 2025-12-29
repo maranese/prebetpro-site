@@ -205,7 +205,29 @@ function isCompetitionAllowed(f) {
   // altro → escludi
   return false;
 }
+/* =========================
+   TOP LEAGUES DEFINITION
+========================= */
 
+const TOP_LEAGUES = [
+  { country: "england", league: "premier league" },
+  { country: "italy", league: "serie a" },
+  { country: "spain", league: "la liga" },
+  { country: "germany", league: "bundesliga" },
+  { country: "france", league: "ligue 1" },
+  { country: "saudi arabia", league: "professional league" }
+];
+
+function isTopLeague(f) {
+  if (!f || !f.league) return false;
+
+  const country = (f.league.country || "").toLowerCase();
+  const league = (f.league.name || "").toLowerCase();
+
+  return TOP_LEAGUES.some(
+    l => country === l.country && league.includes(l.league)
+  );
+}
 /* =========================
    MATCH SORTING LOGIC (SAFE)
 ========================= */
