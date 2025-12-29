@@ -789,7 +789,71 @@ body.dark .report-historical-info p {
   background: var(--accent);
   color: #053b24;
 }
+/* =========================
+   REPORT – FILTER MENU
+========================= */
 
+.report-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  margin-bottom: 24px;
+}
+
+.report-filter-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted-light);
+}
+
+body.dark .report-filter-label {
+  color: var(--text-muted-dark);
+}
+
+.report-select-wrapper {
+  position: relative;
+}
+
+.report-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 36px 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.report-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(47, 191, 113, 0.25);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  pointer-events: none;
+  color: var(--accent);
+}
+
+/* Mobile alignment */
+@media (max-width: 600px) {
+  .report-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 /* =========================
    BACK TO TOP
 ========================= */
