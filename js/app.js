@@ -66,19 +66,14 @@ function renderTopPickCard(pick) {
 function renderTopPickPlaceholders() {
   return `
     <div class="prediction-card top-pick placeholder">
-      <div class="prediction-market">No Top Picks</div>
-      <div class="prediction-value">—</div>
-    </div>
-    <div class="prediction-card top-pick placeholder">
-      <div class="prediction-market">Data not reliable</div>
-      <div class="prediction-value">—</div>
-    </div>
-    <div class="prediction-card top-pick placeholder">
-      <div class="prediction-market">We don’t sell smoke</div>
-      <div class="prediction-value">—</div>
+      <div class="prediction-market">No Top Picks today</div>
+      <div class="prediction-value">
+        We publish Top Picks only when data is reliable.
+      </div>
     </div>
   `;
 }
+
 
 /* =========================
    PREDICTION GROUPS (OFFICIAL)
