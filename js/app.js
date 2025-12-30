@@ -274,27 +274,6 @@ function isCompetitionAllowed(f) {
   return false;
 }
 
-  // 🔹 Competizioni UEFA/FIFA Club
-  const CLUB_MAJOR = [
-    "champions league",
-    "europa league",
-    "conference league",
-    "club world cup",
-    "super cup"
-  ];
-
-  if (CLUB_MAJOR.some(x => leagueName.includes(x))) {
-    return true;
-  }
-
-  // 🔹 Altre coppe ufficiali nazionali
-  if (f.league.type === "Cup") {
-    return true;
-  }
-
-  // altro → escludi
-  return false;
-}
 /* =========================
    TOP LEAGUES DEFINITION
 ========================= */
