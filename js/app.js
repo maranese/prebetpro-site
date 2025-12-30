@@ -496,8 +496,7 @@ function renderPredictions(fixtures) {
   box.innerHTML = "";
 
  fixtures
-  .filter(isFrontendCompetitionAllowed)
-  .forEach(match => {
+  fixtures.forEach(match => {
     const wrapper = document.createElement("div");
     wrapper.className = "prediction-match-group";
 
