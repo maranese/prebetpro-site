@@ -190,11 +190,32 @@ function isCompetitionAllowed(f) {
   // 🔹 Top leagues
   if (isTopLeague(f)) return true;
 
-  // 🔹 Nazionali senior
-  // tasto “Senior National Teams”:
-  if (country === "world" || leagueName.includes("nations") || leagueName.includes("world")) {
-    return true;
-  }
+  // 🔹 Nazionali senior (Africa Cup, Euro, Copa, Asian Cup, WC, Qualifiers)
+const NATIONAL_KEYWORDS = [
+  "africa cup",
+  "asian cup",
+  "copa america",
+  "euro",
+  "world cup",
+  "wc",
+  "qualification",
+  "qualifiers",
+  "nations cup",
+  "afcon"
+];
+
+if (
+  f.league.type === "Cup" &&
+  (
+    country === "world" ||
+    country === "africa" ||
+    country === "asia" ||
+    country === "south america" ||
+    NATIONAL_KEYWORDS.some(k => leagueName.includes(k))
+  )
+) {
+  return true;
+}
 
   // 🔹 Competizioni UEFA/FIFA Club
   const CLUB_MAJOR = [
