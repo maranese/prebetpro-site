@@ -130,8 +130,7 @@ async function loadMatches() {
     const fixtures = data.fixtures || [];
 
     // 🔑 UNICA FONTE FRONTEND
-    FRONTEND_FIXTURES = fixtures
-      .filter(isCompetitionAllowed)
+    FRONTEND_FIXTURES = fixtures.filter(isFrontendCompetitionAllowed)
       .sort((a, b) => {
         const pA = getMatchPriorityIndex(a);
         const pB = getMatchPriorityIndex(b);
@@ -200,48 +199,6 @@ function isSecondDivision(leagueName) {
 }
 
 
-function isCompetitionAllowed(f) {
-  if (!f || !f.league) return false;
-
-  const leagueName = (f.league.name || "").toLowerCase();
-  const country = (f.league.country || "").toLowerCase();
-
-  // 🔴 esclusioni forti
-  if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
-    return false;
-  }
-
-  // 🔵 Nazionali senior
-  if (
-    f.league.type === "Cup" &&
-    (
-      country === "world" ||
-      country === "africa" ||
-      country === "asia" ||
-      country === "south america" ||
-      leagueName.includes("nations") ||
-      leagueName.includes("cup")
-    )
-  ) {
-    return true;
-  }
-
-  // 🔵 Club: solo nazioni ammesse
-  if (!ALLOWED_COUNTRIES.includes(country)) {
-    return false;
-  }
-
-  // 🔵 Top league
-  if (isTopLeague(f)) return true;
-
-  // 🔵 Seconda divisione (Serie B automatica)
-  if (isSecondDivision(leagueName)) return true;
-
-  // 🔵 Coppe nazionali ufficiali
-  if (f.league.type === "Cup") return true;
-
-  return false;
-}
 
 /* =========================
    TOP LEAGUES DEFINITION
@@ -268,35 +225,35 @@ function isTopLeague(f) {
 }
 
 /* =========================
-   FRONTEND COMPETITION SCOPE (SINGLE SOURCE OF TRUTH)
+   FRONTEND COMPETITION FILTER (SINGLE SOURCE OF TRUTH)
 ========================= */
 
-// Nazioni ammesse (Divisione 1 + 2)
-const ALLOWED_COUNTRIES = [
-  // Europe
-  "england","italy","spain","germany","france","portugal",
-  "netherlands","belgium","turkey","scotland","austria",
-  "switzerland","greece",
-
-  // Americas
-  "brazil","argentina","usa","mexico","colombia","chile","uruguay",
-
-  // Asia
-  "saudi arabia","japan","south korea","qatar","australia","china",
-
-  // Africa (top)
-  "morocco","egypt","tunisia","algeria","south africa"
+// Campionati TOP mondiali → Divisione 1 + 2
+const TOP_GLOBAL_COUNTRIES = [
+  "england","italy","spain","germany","france",
+  "portugal","netherlands","belgium",
+  "brazil","argentina",
+  "japan","south korea",
+  "saudi arabia"
 ];
 
-// Coppe club internazionali sempre ammesse
+// Europa secondaria → SOLO prima divisione
+const EURO_SECONDARY_COUNTRIES = [
+  "croatia","bulgaria","serbia","slovenia","slovakia",
+  "czech republic","poland","romania","hungary",
+  "denmark","sweden","norway","finland","iceland",
+  "greece","austria","switzerland","scotland","ireland"
+];
+
+// Coppe club internazionali
 const INTERNATIONAL_CLUB_COMPETITIONS = [
   "champions league",
   "europa league",
   "conference league",
-  "libertadores",
-  "sudamericana",
   "club world cup",
-  "super cup"
+  "super cup",
+  "libertadores",
+  "sudamericana"
 ];
 
 function isFrontendCompetitionAllowed(f) {
@@ -312,19 +269,21 @@ function isFrontendCompetitionAllowed(f) {
   }
 
   /* =========================
-     NAZIONALI SENIOR (AFCON, EURO, WC, COPA)
+     NAZIONALI SENIOR
+     (AFCON, EURO, WC, COPA, QUALIFICAZIONI)
   ========================= */
   if (
     type === "Cup" &&
     (
       country === "world" ||
       country === "africa" ||
-      country === "europe" ||
+      country === "asia" ||
       country === "south america" ||
-      leagueName.includes("nations") ||
       leagueName.includes("world cup") ||
       leagueName.includes("euro") ||
-      leagueName.includes("copa")
+      leagueName.includes("copa") ||
+      leagueName.includes("afcon") ||
+      leagueName.includes("nations")
     )
   ) {
     return true;
@@ -333,23 +292,37 @@ function isFrontendCompetitionAllowed(f) {
   /* =========================
      COPPE INTERNAZIONALI CLUB
   ========================= */
-  if (
-    INTERNATIONAL_CLUB_COMPETITIONS.some(c =>
-      leagueName.includes(c)
-    )
-  ) {
+  if (INTERNATIONAL_CLUB_COMPETITIONS.some(c => leagueName.includes(c))) {
     return true;
   }
 
   /* =========================
-     CLUB FOOTBALL (TOP + 2ND DIVISION)
+     TOP CAMPIONATI MONDIALI
+     (prima + seconda divisione)
   ========================= */
-  if (ALLOWED_COUNTRIES.includes(country)) {
+  if (TOP_GLOBAL_COUNTRIES.includes(country)) {
+    return true;
+  }
+
+  /* =========================
+     EUROPA SECONDARIA
+     (SOLO prima divisione)
+  ========================= */
+  if (
+    EURO_SECONDARY_COUNTRIES.includes(country) &&
+    !isSecondDivision(leagueName)
+  ) {
     return true;
   }
 
   return false;
 }
+
+  
+
+ 
+
+  
 
 /* =========================
    MATCH SORTING LOGIC (SAFE)
@@ -425,7 +398,7 @@ async function loadTodayMatches() {
     }
 
     // 🔹 filtro frontend (stesso concetto dei match visibili)
-    const filtered = fixtures.filter(isCompetitionAllowed);
+  const filtered = FRONTEND_FIXTURES;
 
     if (!filtered.length) {
       noMatches.style.display = "block";
