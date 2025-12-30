@@ -376,6 +376,9 @@ function isNationalCompetition(f) {
 /* =========================
    LOAD TODAY MATCHES
 ========================= */
+/* =========================
+   LOAD TODAY MATCHES (FRONTEND FILTERED)
+========================= */
 async function loadTodayMatches() {
   const container = document.getElementById("matches");
   const noMatches = document.getElementById("no-matches");
@@ -383,17 +386,50 @@ async function loadTodayMatches() {
 
   container.innerHTML = "";
 
-  if (!FRONTEND_FIXTURES || !FRONTEND_FIXTURES.length) {
-    noMatches.style.display = "block";
-    return;
+  try {
+    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+    if (!res.ok) return;
+
+    const data = await res.json();
+    const fixtures = data.fixtures || [];
+
+    if (!fixtures.length) {
+      noMatches.style.display = "block";
+      return;
+    }
+
+    // 🔹 filtro frontend (stesso concetto dei match visibili)
+    const filtered = fixtures.filter(isCompetitionAllowed);
+
+    if (!filtered.length) {
+      noMatches.style.display = "block";
+      return;
+    }
+
+    noMatches.style.display = "none";
+
+    filtered
+      .sort((a, b) => {
+        const pA = getMatchPriorityIndex(a);
+        const pB = getMatchPriorityIndex(b);
+        if (pA !== pB) return pA - pB;
+
+        const nA = isNationalCompetition(a);
+        const nB = isNationalCompetition(b);
+        if (nA !== nB) return nA ? 1 : -1;
+
+        const cA = (a.league.country || "").localeCompare(b.league.country || "");
+        if (cA !== 0) return cA;
+
+        return new Date(a.fixture.date) - new Date(b.fixture.date);
+      })
+      .forEach(f => container.appendChild(renderMatchCard(f)));
+
+  } catch (err) {
+    console.error("loadTodayMatches error:", err);
   }
-
-  noMatches.style.display = "none";
-
-  FRONTEND_FIXTURES.forEach(f => {
-    container.appendChild(renderMatchCard(f));
-  });
 }
+
 /* =========================
    MATCH CARD (DASHBOARD) – RESTORED
 ========================= */
