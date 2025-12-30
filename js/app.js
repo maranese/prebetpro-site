@@ -266,33 +266,84 @@ const INTERNATIONAL_CLUB_COMPETITIONS = [
 function isFrontendCompetitionAllowed(f) {
   if (!f || !f.league) return false;
 
-  const leagueName = (f.league.name || "").toLowerCase();
+  const league = (f.league.name || "").toLowerCase();
   const country = (f.league.country || "").toLowerCase();
-  const type = f.league.type;
 
-  // ❌ esclusioni hard
-  if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
+  /* =========================
+     ESCLUSIONI HARD (RUMORE)
+  ========================= */
+  if (
+    league.includes("friendly") ||
+    league.includes("women") ||
+    league.includes("u21") ||
+    league.includes("u20") ||
+    league.includes("u19") ||
+    league.includes("u18") ||
+    league.includes("youth") ||
+    league.includes("reserve")
+  ) {
     return false;
   }
 
-  // 🌍 Nazionali senior (robusto API-Football)
-if (
-  type === "Cup" &&
-  (
-    leagueName.includes("africa cup") ||
-    leagueName.includes("afcon") ||
-    leagueName.includes("euro") ||
-    leagueName.includes("copa america") ||
-    leagueName.includes("asian cup") ||
-    leagueName.includes("world cup") ||
-    leagueName.includes("nations league") ||
-    leagueName.includes("qualification") ||
-    leagueName.includes("qualifiers")
-  )
-) {
-  return true;
-}
+  /* =========================
+     NAZIONALI & TORNEI FIFA / UEFA / CAF / AFC
+  ========================= */
+  if (
+    league.includes("world cup") ||
+    league.includes("qualification") ||
+    league.includes("qualifiers") ||
+    league.includes("euro") ||
+    league.includes("nations league") ||
+    league.includes("africa cup") ||
+    league.includes("afcon") ||
+    league.includes("copa america") ||
+    league.includes("asian cup")
+  ) {
+    return true;
+  }
 
+  /* =========================
+     COPPE INTERNAZIONALI CLUB
+  ========================= */
+  if (
+    league.includes("champions league") ||
+    league.includes("europa league") ||
+    league.includes("conference league") ||
+    league.includes("libertadores") ||
+    league.includes("sudamericana") ||
+    league.includes("club world cup") ||
+    league.includes("super cup")
+  ) {
+    return true;
+  }
+
+  /* =========================
+     CLUB FOOTBALL – PAESI AMMESSI
+     (prima + seconda divisione solo dove ha senso)
+  ========================= */
+  const ALLOWED_COUNTRIES = [
+    // EUROPA TOP + SECOND DIVISION
+    "england","italy","spain","germany","france",
+    "portugal","netherlands","belgium",
+
+    // EUROPA SECONDARIA (SOLO 1ª DIVISIONE)
+    "croatia","bulgaria","serbia","slovenia","slovakia",
+    "czech republic","poland","romania","hungary",
+    "denmark","sweden","norway","finland","iceland",
+    "greece","austria","switzerland","scotland","ireland",
+
+    // AMERICHE
+    "brazil","argentina","mexico","usa",
+
+    // ASIA & MIDDLE EAST
+    "japan","south korea","saudi arabia","qatar","australia",
+
+    // AFRICA TOP
+    "morocco","egypt","tunisia","algeria","south africa"
+  ];
+
+  return ALLOWED_COUNTRIES.includes(country);
+}
   /* =========================
      COPPE INTERNAZIONALI CLUB
   ========================= */
