@@ -176,37 +176,6 @@ const EXCLUDED_KEYWORDS = [
   "test match"
 ];
 
-/* =========================
-   FRONTEND ALLOWED COUNTRIES
-========================= */
-
-const ALLOWED_COUNTRIES = [
-  // EUROPE TOP
-  "england",
-  "italy",
-  "spain",
-  "germany",
-  "france",
-  "portugal",
-  "netherlands",
-  "belgium",
-  "turkey",
-  "scotland",
-
-  // AMERICAS
-  "brazil",
-  "argentina",
-  "usa",
-  "mexico",
-
-  // ASIA / OCEANIA
-  "japan",
-  "south korea",
-  "australia",
-
-  // MIDDLE EAST
-  "saudi arabia"
-];
 
 /* =========================
    SECOND DIVISION DETECTION
