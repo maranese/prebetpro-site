@@ -230,10 +230,17 @@ function isTopLeague(f) {
 
 // Campionati TOP mondiali → Divisione 1 + 2
 const TOP_GLOBAL_COUNTRIES = [
+  // Europe top
   "england","italy","spain","germany","france",
   "portugal","netherlands","belgium",
+
+  // Americas top
   "brazil","argentina",
+
+  // Asia top
   "japan","south korea",
+
+  // Middle East
   "saudi arabia"
 ];
 
@@ -268,26 +275,23 @@ function isFrontendCompetitionAllowed(f) {
     return false;
   }
 
-  /* =========================
-     NAZIONALI SENIOR
-     (AFCON, EURO, WC, COPA, QUALIFICAZIONI)
-  ========================= */
-  if (
-    type === "Cup" &&
-    (
-      country === "world" ||
-      country === "africa" ||
-      country === "asia" ||
-      country === "south america" ||
-      leagueName.includes("world cup") ||
-      leagueName.includes("euro") ||
-      leagueName.includes("copa") ||
-      leagueName.includes("afcon") ||
-      leagueName.includes("nations")
-    )
-  ) {
-    return true;
-  }
+  // 🌍 Nazionali senior (robusto API-Football)
+if (
+  type === "Cup" &&
+  (
+    leagueName.includes("africa cup") ||
+    leagueName.includes("afcon") ||
+    leagueName.includes("euro") ||
+    leagueName.includes("copa america") ||
+    leagueName.includes("asian cup") ||
+    leagueName.includes("world cup") ||
+    leagueName.includes("nations league") ||
+    leagueName.includes("qualification") ||
+    leagueName.includes("qualifiers")
+  )
+) {
+  return true;
+}
 
   /* =========================
      COPPE INTERNAZIONALI CLUB
