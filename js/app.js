@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadTopPicks();
+    loadMatches();
   loadTodayMatches();
-  loadMatches();
   initBackToTop();
   loadReport();
 });
@@ -376,44 +376,24 @@ function isNationalCompetition(f) {
 /* =========================
    LOAD TODAY MATCHES
 ========================= */
-async function loadMatches() {
-  try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) {
-      renderGlobalStatus("api_unavailable");
-      return;
-    }
+async function loadTodayMatches() {
+  const container = document.getElementById("matches");
+  const noMatches = document.getElementById("no-matches");
+  if (!container) return;
 
-    const data = await res.json();
-    const fixtures = data.fixtures || [];
+  container.innerHTML = "";
 
-    // 🔑 SINGLE SOURCE OF TRUTH
-    FRONTEND_FIXTURES = fixtures
-      .filter(isFrontendCompetitionAllowed)
-      .sort((a, b) => {
-        const pA = getMatchPriorityIndex(a);
-        const pB = getMatchPriorityIndex(b);
-        if (pA !== pB) return pA - pB;
-
-        const nA = isNationalCompetition(a);
-        const nB = isNationalCompetition(b);
-        if (nA !== nB) return nA ? 1 : -1;
-
-        const cA = (a.league.country || "").localeCompare(b.league.country || "");
-        if (cA !== 0) return cA;
-
-        return new Date(a.fixture.date) - new Date(b.fixture.date);
-      });
-
-    renderStatistics(FRONTEND_FIXTURES);
-    renderPredictions(FRONTEND_FIXTURES);
-
-  } catch (err) {
-    console.error("loadMatches error:", err);
-    renderGlobalStatus("api_unavailable");
+  if (!FRONTEND_FIXTURES || !FRONTEND_FIXTURES.length) {
+    noMatches.style.display = "block";
+    return;
   }
-}
 
+  noMatches.style.display = "none";
+
+  FRONTEND_FIXTURES.forEach(f => {
+    container.appendChild(renderMatchCard(f));
+  });
+}
 /* =========================
    MATCH CARD (DASHBOARD) – RESTORED
 ========================= */
