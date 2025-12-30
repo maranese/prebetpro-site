@@ -176,73 +176,68 @@ const EXCLUDED_KEYWORDS = [
   "test match"
 ];
 
-
-/* =========================
-   SECOND DIVISION DETECTION
-========================= */
-
-const SECOND_DIVISION_KEYWORDS = [
-  "serie b",
-  "championship",
-  "segunda",
-  "2. bundesliga",
-  "ligue 2",
-  "segunda divisão",
-  "j2 league",
-  "k league 2",
-  "mls next pro"
-];
-
-function isSecondDivision(leagueName) {
-  return SECOND_DIVISION_KEYWORDS.some(k =>
-    leagueName.includes(k)
-  );
-}
-
-
 function isCompetitionAllowed(f) {
   if (!f || !f.league) return false;
 
   const leagueName = (f.league.name || "").toLowerCase();
   const country = (f.league.country || "").toLowerCase();
 
-  // 🔴 esclusioni forti
+  // 🔹 Escludi se contiene keyword esplicite
   if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
     return false;
   }
 
-  // 🔵 Nazionali senior
-  if (
-    f.league.type === "Cup" &&
-    (
-      country === "world" ||
-      country === "africa" ||
-      country === "asia" ||
-      country === "south america" ||
-      leagueName.includes("nations") ||
-      leagueName.includes("cup")
-    )
-  ) {
+  // 🔹 Top leagues
+  if (isTopLeague(f)) return true;
+
+  // 🔹 Nazionali senior (Africa Cup, Euro, Copa, Asian Cup, WC, Qualifiers)
+const NATIONAL_KEYWORDS = [
+  "africa cup",
+  "asian cup",
+  "copa america",
+  "euro",
+  "world cup",
+  "wc",
+  "qualification",
+  "qualifiers",
+  "nations cup",
+  "afcon"
+];
+
+if (
+  f.league.type === "Cup" &&
+  (
+    country === "world" ||
+    country === "africa" ||
+    country === "asia" ||
+    country === "south america" ||
+    NATIONAL_KEYWORDS.some(k => leagueName.includes(k))
+  )
+) {
+  return true;
+}
+
+  // 🔹 Competizioni UEFA/FIFA Club
+  const CLUB_MAJOR = [
+    "champions league",
+    "europa league",
+    "conference league",
+    "club world cup",
+    "super cup"
+  ];
+
+  if (CLUB_MAJOR.some(x => leagueName.includes(x))) {
     return true;
   }
 
-  // 🔵 Club: solo nazioni ammesse
-  if (!ALLOWED_COUNTRIES.includes(country)) {
-    return false;
+  // 🔹 Altre coppe ufficiali nazionali
+  if (f.league.type === "Cup") {
+    return true;
   }
 
-  // 🔵 Top league
-  if (isTopLeague(f)) return true;
-
-  // 🔵 Seconda divisione (Serie B automatica)
-  if (isSecondDivision(leagueName)) return true;
-
-  // 🔵 Coppe nazionali ufficiali
-  if (f.league.type === "Cup") return true;
-
+  // altro → escludi
   return false;
 }
-
 /* =========================
    TOP LEAGUES DEFINITION
 ========================= */
