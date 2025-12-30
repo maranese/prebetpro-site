@@ -121,7 +121,6 @@ const PREDICTION_GROUPS = [
 async function loadMatches() {
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-
     if (!res.ok) {
       renderGlobalStatus("api_unavailable");
       return;
@@ -130,13 +129,26 @@ async function loadMatches() {
     const data = await res.json();
     const fixtures = data.fixtures || [];
 
-    renderStatistics(fixtures);
+    // 🔑 UNICA FONTE FRONTEND
+    FRONTEND_FIXTURES = fixtures
+      .filter(isCompetitionAllowed)
+      .sort((a, b) => {
+        const pA = getMatchPriorityIndex(a);
+        const pB = getMatchPriorityIndex(b);
+        if (pA !== pB) return pA - pB;
 
-    if (data.status && data.status !== "ok") {
-      renderGlobalStatus(data.status);
-    }
+        const nA = isNationalCompetition(a);
+        const nB = isNationalCompetition(b);
+        if (nA !== nB) return nA ? 1 : -1;
 
-    renderPredictions(fixtures);
+        const cA = (a.league.country || "").localeCompare(b.league.country || "");
+        if (cA !== 0) return cA;
+
+        return new Date(a.fixture.date) - new Date(b.fixture.date);
+      });
+
+    renderStatistics(FRONTEND_FIXTURES);
+    renderPredictions(FRONTEND_FIXTURES);
 
   } catch (err) {
     console.error("loadMatches error:", err);
@@ -364,49 +376,41 @@ function isNationalCompetition(f) {
 /* =========================
    LOAD TODAY MATCHES
 ========================= */
-async function loadTodayMatches() {
-  const container = document.getElementById("matches");
-  const noMatches = document.getElementById("no-matches");
-  if (!container) return;
-
-  container.innerHTML = "";
-
+async function loadMatches() {
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) return;
+    if (!res.ok) {
+      renderGlobalStatus("api_unavailable");
+      return;
+    }
 
     const data = await res.json();
     const fixtures = data.fixtures || [];
 
-    if (!fixtures.length) {
-      noMatches.style.display = "block";
-      return;
-    }
+    // 🔑 SINGLE SOURCE OF TRUTH
+    FRONTEND_FIXTURES = fixtures
+      .filter(isFrontendCompetitionAllowed)
+      .sort((a, b) => {
+        const pA = getMatchPriorityIndex(a);
+        const pB = getMatchPriorityIndex(b);
+        if (pA !== pB) return pA - pB;
 
-    noMatches.style.display = "none";
+        const nA = isNationalCompetition(a);
+        const nB = isNationalCompetition(b);
+        if (nA !== nB) return nA ? 1 : -1;
 
-   const filtered = fixtures.filter(isFrontendCompetitionAllowed);
+        const cA = (a.league.country || "").localeCompare(b.league.country || "");
+        if (cA !== 0) return cA;
 
-filtered.sort((a, b) => {
-  const pA = getMatchPriorityIndex(a);
-  const pB = getMatchPriorityIndex(b);
-  if (pA !== pB) return pA - pB;
+        return new Date(a.fixture.date) - new Date(b.fixture.date);
+      });
 
-  // nazionali dopo top
-  const nA = isNationalCompetition(a);
-  const nB = isNationalCompetition(b);
-  if (nA !== nB) return nA ? 1 : -1;
-
-  const cA = (a.league.country || "").localeCompare(b.league.country || "");
-  if (cA !== 0) return cA;
-
-  return new Date(a.fixture.date) - new Date(b.fixture.date);
-});
-
-filtered.forEach(f => container.appendChild(renderMatchCard(f)));
+    renderStatistics(FRONTEND_FIXTURES);
+    renderPredictions(FRONTEND_FIXTURES);
 
   } catch (err) {
-    console.error(err);
+    console.error("loadMatches error:", err);
+    renderGlobalStatus("api_unavailable");
   }
 }
 
