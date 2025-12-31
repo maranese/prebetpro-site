@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadTopPicks();
-    loadMatches();
   loadTodayMatches();
+  loadMatches();
   initBackToTop();
   loadReport();
 });
@@ -121,6 +121,7 @@ const PREDICTION_GROUPS = [
 async function loadMatches() {
   try {
     const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+
     if (!res.ok) {
       renderGlobalStatus("api_unavailable");
       return;
@@ -129,226 +130,18 @@ async function loadMatches() {
     const data = await res.json();
     const fixtures = data.fixtures || [];
 
-    // 🔑 UNICA FONTE FRONTEND
-    FRONTEND_FIXTURES = fixtures
-      .filter(isCompetitionAllowed)
-      .sort((a, b) => {
-        const pA = getMatchPriorityIndex(a);
-        const pB = getMatchPriorityIndex(b);
-        if (pA !== pB) return pA - pB;
+    renderStatistics(fixtures);
 
-        const nA = isNationalCompetition(a);
-        const nB = isNationalCompetition(b);
-        if (nA !== nB) return nA ? 1 : -1;
+    if (data.status && data.status !== "ok") {
+      renderGlobalStatus(data.status);
+    }
 
-        const cA = (a.league.country || "").localeCompare(b.league.country || "");
-        if (cA !== 0) return cA;
-
-        return new Date(a.fixture.date) - new Date(b.fixture.date);
-      });
-
-    renderStatistics(FRONTEND_FIXTURES);
-    renderPredictions(FRONTEND_FIXTURES);
+    renderPredictions(fixtures);
 
   } catch (err) {
     console.error("loadMatches error:", err);
     renderGlobalStatus("api_unavailable");
   }
-}
-
-/* =========================
-   MATCH FILTER (COMPETITIONS WANTED)
-========================= */
-
-// parole da escludere
-const EXCLUDED_KEYWORDS = [
-  "friendly",
-  "u21",
-  "u20",
-  "u19",
-  "u18",
-  "women",
-  "youth",
-  "reserve",
-  "reserves",
-  "pre-season",
-  "preseason",
-  "test match"
-];
-
-
-/* =========================
-   SECOND DIVISION DETECTION
-========================= */
-
-const SECOND_DIVISION_KEYWORDS = [
-  "serie b",
-  "championship",
-  "segunda",
-  "2. bundesliga",
-  "ligue 2",
-  "segunda divisão",
-  "j2 league",
-  "k league 2",
-  "mls next pro"
-];
-
-function isSecondDivision(leagueName) {
-  return SECOND_DIVISION_KEYWORDS.some(k =>
-    leagueName.includes(k)
-  );
-}
-
-
-function isCompetitionAllowed(f) {
-  if (!f || !f.league) return false;
-
-  const leagueName = (f.league.name || "").toLowerCase();
-  const country = (f.league.country || "").toLowerCase();
-
-  // 🔴 esclusioni forti
-  if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
-    return false;
-  }
-
-  // 🔵 Nazionali senior
-  if (
-    f.league.type === "Cup" &&
-    (
-      country === "world" ||
-      country === "africa" ||
-      country === "asia" ||
-      country === "south america" ||
-      leagueName.includes("nations") ||
-      leagueName.includes("cup")
-    )
-  ) {
-    return true;
-  }
-
-  // 🔵 Club: solo nazioni ammesse
-  if (!ALLOWED_COUNTRIES.includes(country)) {
-    return false;
-  }
-
-  // 🔵 Top league
-  if (isTopLeague(f)) return true;
-
-  // 🔵 Seconda divisione (Serie B automatica)
-  if (isSecondDivision(leagueName)) return true;
-
-  // 🔵 Coppe nazionali ufficiali
-  if (f.league.type === "Cup") return true;
-
-  return false;
-}
-
-/* =========================
-   TOP LEAGUES DEFINITION
-========================= */
-
-const TOP_LEAGUES = [
-  { country: "england", league: "premier league" },
-  { country: "italy", league: "serie a" },
-  { country: "spain", league: "la liga" },
-  { country: "germany", league: "bundesliga" },
-  { country: "france", league: "ligue 1" },
-  { country: "saudi arabia", league: "professional league" }
-];
-
-function isTopLeague(f) {
-  if (!f || !f.league) return false;
-
-  const country = (f.league.country || "").toLowerCase();
-  const league = (f.league.name || "").toLowerCase();
-
-  return TOP_LEAGUES.some(
-    l => country === l.country && league.includes(l.league)
-  );
-}
-
-/* =========================
-   FRONTEND COMPETITION SCOPE (SINGLE SOURCE OF TRUTH)
-========================= */
-
-// Nazioni ammesse (Divisione 1 + 2)
-const ALLOWED_COUNTRIES = [
-  // Europe
-  "england","italy","spain","germany","france","portugal",
-  "netherlands","belgium","turkey","scotland","austria",
-  "switzerland","greece",
-
-  // Americas
-  "brazil","argentina","usa","mexico","colombia","chile","uruguay",
-
-  // Asia
-  "saudi arabia","japan","south korea","qatar","australia","china",
-
-  // Africa (top)
-  "morocco","egypt","tunisia","algeria","south africa"
-];
-
-// Coppe club internazionali sempre ammesse
-const INTERNATIONAL_CLUB_COMPETITIONS = [
-  "champions league",
-  "europa league",
-  "conference league",
-  "libertadores",
-  "sudamericana",
-  "club world cup",
-  "super cup"
-];
-
-function isFrontendCompetitionAllowed(f) {
-  if (!f || !f.league) return false;
-
-  const leagueName = (f.league.name || "").toLowerCase();
-  const country = (f.league.country || "").toLowerCase();
-  const type = f.league.type;
-
-  // ❌ esclusioni hard
-  if (EXCLUDED_KEYWORDS.some(k => leagueName.includes(k))) {
-    return false;
-  }
-
-  /* =========================
-     NAZIONALI SENIOR (AFCON, EURO, WC, COPA)
-  ========================= */
-  if (
-    type === "Cup" &&
-    (
-      country === "world" ||
-      country === "africa" ||
-      country === "europe" ||
-      country === "south america" ||
-      leagueName.includes("nations") ||
-      leagueName.includes("world cup") ||
-      leagueName.includes("euro") ||
-      leagueName.includes("copa")
-    )
-  ) {
-    return true;
-  }
-
-  /* =========================
-     COPPE INTERNAZIONALI CLUB
-  ========================= */
-  if (
-    INTERNATIONAL_CLUB_COMPETITIONS.some(c =>
-      leagueName.includes(c)
-    )
-  ) {
-    return true;
-  }
-
-  /* =========================
-     CLUB FOOTBALL (TOP + 2ND DIVISION)
-  ========================= */
-  if (ALLOWED_COUNTRIES.includes(country)) {
-    return true;
-  }
-
-  return false;
 }
 
 /* =========================
@@ -402,9 +195,6 @@ function isNationalCompetition(f) {
 /* =========================
    LOAD TODAY MATCHES
 ========================= */
-/* =========================
-   LOAD TODAY MATCHES (FRONTEND FILTERED)
-========================= */
 async function loadTodayMatches() {
   const container = document.getElementById("matches");
   const noMatches = document.getElementById("no-matches");
@@ -424,17 +214,9 @@ async function loadTodayMatches() {
       return;
     }
 
-    // 🔹 filtro frontend (stesso concetto dei match visibili)
-    const filtered = fixtures.filter(isCompetitionAllowed);
-
-    if (!filtered.length) {
-      noMatches.style.display = "block";
-      return;
-    }
-
     noMatches.style.display = "none";
 
-    filtered
+    fixtures
       .sort((a, b) => {
         const pA = getMatchPriorityIndex(a);
         const pB = getMatchPriorityIndex(b);
@@ -452,7 +234,7 @@ async function loadTodayMatches() {
       .forEach(f => container.appendChild(renderMatchCard(f)));
 
   } catch (err) {
-    console.error("loadTodayMatches error:", err);
+    console.error(err);
   }
 }
 
@@ -597,9 +379,7 @@ function renderPredictions(fixtures) {
 
   box.innerHTML = "";
 
- fixtures
-  .filter(isFrontendCompetitionAllowed)
-  .forEach(match => {
+  fixtures.forEach(match => {
     const wrapper = document.createElement("div");
     wrapper.className = "prediction-match-group";
 
