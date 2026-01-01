@@ -136,7 +136,7 @@ async function loadMatches() {
       renderGlobalStatus(data.status);
     }
 
-    renderPredictions(fixtures);
+    renderPredictions(sortFixturesByPriority(fixtures));
 
   } catch (err) {
     console.error("loadMatches error:", err);
@@ -217,21 +217,8 @@ async function loadTodayMatches() {
     noMatches.style.display = "none";
 
     fixtures
-      .sort((a, b) => {
-        const pA = getMatchPriorityIndex(a);
-        const pB = getMatchPriorityIndex(b);
-        if (pA !== pB) return pA - pB;
-
-        const nA = isNationalCompetition(a);
-        const nB = isNationalCompetition(b);
-        if (nA !== nB) return nA ? 1 : -1;
-
-        const cA = (a.league.country || "").localeCompare(b.league.country || "");
-        if (cA !== 0) return cA;
-
-        return new Date(a.fixture.date) - new Date(b.fixture.date);
-      })
-      .forEach(f => container.appendChild(renderMatchCard(f)));
+      sortFixturesByPriority(fixtures)
+  .forEach(f => container.appendChild(renderMatchCard(f)));
 
   } catch (err) {
     console.error(err);
