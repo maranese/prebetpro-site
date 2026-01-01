@@ -732,6 +732,12 @@ function renderMatchDetails(f) {
   `;
 }
 
+const countryFilter = document.getElementById("filter-country");
+const leagueFilter = document.getElementById("filter-league");
+const marketFilter = document.getElementById("filter-market");
+
+// STEP 1: UI only – filtering logic will be added next
+
 /* =========================
    BACK TO TOP
 ========================= */
