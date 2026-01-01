@@ -998,7 +998,7 @@ body.dark .filter-select {
 
 body.dark .filter-select-wrapper::after {
   color: var(--accent-soft);
-
+}
 /* =========================
    BACK TO TOP
 ========================= */
