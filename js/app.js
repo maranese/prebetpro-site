@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadTopPicks();
-  loadTodayMatches();
   loadMatches();
   initBackToTop();
   loadReport();
@@ -131,13 +130,17 @@ async function loadMatches() {
    const fixtures = data.fixtures || [];
 ALL_FIXTURES = fixtures;
 
-    renderStatistics(fixtures);
+renderStatistics(fixtures);
 
-    if (data.status && data.status !== "ok") {
-      renderGlobalStatus(data.status);
-    }
-    populatePredictionFilters(ALL_FIXTURES);
-    renderPredictions(sortFixturesByPriority(fixtures));
+// 👇 QUESTA È LA CHIAVE DELLO STEP 3
+renderTodayMatches(fixtures);
+
+if (data.status && data.status !== "ok") {
+  renderGlobalStatus(data.status);
+}
+
+populatePredictionFilters(ALL_FIXTURES);
+renderPredictions(sortFixturesByPriority(fixtures));
 
   } catch (err) {
     console.error("loadMatches error:", err);
@@ -221,34 +224,22 @@ function sortFixturesByPriority(fixtures) {
 /* =========================
    LOAD TODAY MATCHES
 ========================= */
-async function loadTodayMatches() {
+function renderTodayMatches(fixtures) {
   const container = document.getElementById("matches");
   const noMatches = document.getElementById("no-matches");
   if (!container) return;
 
   container.innerHTML = "";
 
-  try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
-    if (!res.ok) return;
-
-    const data = await res.json();
-    const fixtures = data.fixtures || [];
-
-    if (!fixtures.length) {
-      noMatches.style.display = "block";
-      return;
-    }
-
-    noMatches.style.display = "none";
-
-    sortFixturesByPriority(fixtures)
-  .forEach(f => container.appendChild(renderMatchCard(f)))
-  ;
-
-  } catch (err) {
-    console.error(err);
+  if (!fixtures || !fixtures.length) {
+    noMatches.style.display = "block";
+    return;
   }
+
+  noMatches.style.display = "none";
+
+  sortFixturesByPriority(fixtures)
+    .forEach(f => container.appendChild(renderMatchCard(f)));
 }
 
 /* =========================
