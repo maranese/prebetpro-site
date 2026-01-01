@@ -989,6 +989,17 @@ body.dark .filter-select {
 body.dark .filter-select-wrapper::after {
   color: var(--accent-soft);
 }
+
+.prediction-inline-meta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted-light);
+}
+
+body.dark .prediction-inline-meta {
+  color: var(--text-muted-dark);
+}
+
 /* =========================
    BACK TO TOP
 ========================= */
