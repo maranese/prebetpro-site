@@ -14,7 +14,7 @@ const STATUS_MESSAGES = {
   api_unavailable: `Data temporarily unavailable.`,
   api_limited: `Data update temporarily limited.`
 };
-
+let ALL_FIXTURES = [];
 /* =========================
    LOAD TOP PICKS (FINAL)
 ========================= */
@@ -128,7 +128,8 @@ async function loadMatches() {
     }
 
     const data = await res.json();
-    const fixtures = data.fixtures || [];
+   const fixtures = data.fixtures || [];
+ALL_FIXTURES = fixtures;
 
     renderStatistics(fixtures);
 
@@ -143,6 +144,41 @@ async function loadMatches() {
     renderGlobalStatus("api_unavailable");
   }
 }
+populatePredictionFilters(ALL_FIXTURES);
+
+function applyPredictionFilters() {
+  const country = document.getElementById("filter-country")?.value;
+  const league = document.getElementById("filter-league")?.value;
+  const market = document.getElementById("filter-market")?.value;
+
+  let filtered = ALL_FIXTURES;
+
+  if (country) {
+    filtered = filtered.filter(f => f.league.country === country);
+  }
+
+  if (league) {
+    filtered = filtered.filter(f => f.league.name === league);
+  }
+
+  if (market) {
+    filtered = filtered.filter(f =>
+      PREDICTION_GROUPS.some(g =>
+        g.title === market &&
+        g.items.some(i =>
+          f.predictions && getValueByPath(f.predictions, i.path) != null
+        )
+      )
+    );
+  }
+
+  renderPredictions(sortFixturesByPriority(filtered));
+}
+
+["filter-country", "filter-league", "filter-market"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("change", applyPredictionFilters);
+});
 
 /* =========================
    MATCH SORTING LOGIC (SAFE)
@@ -628,7 +664,51 @@ document.addEventListener("DOMContentLoaded", () => {
 function getValueByPath(obj, path) {
   return path.split(".").reduce((o, k) => (o ? o[k] : null), obj);
 }
+function populatePredictionFilters(fixtures) {
+  const countrySelect = document.getElementById("filter-country");
+  const leagueSelect = document.getElementById("filter-league");
 
+  if (!countrySelect || !leagueSelect) return;
+
+  const countries = new Set();
+  const leaguesByCountry = {};
+
+  fixtures.forEach(f => {
+    const country = f.league.country;
+    const league = f.league.name;
+
+    countries.add(country);
+
+    if (!leaguesByCountry[country]) {
+      leaguesByCountry[country] = new Set();
+    }
+    leaguesByCountry[country].add(league);
+  });
+
+  // Countries
+  countrySelect.innerHTML =
+    `<option value="">All Countries</option>` +
+    [...countries].sort().map(c =>
+      `<option value="${c}">${c}</option>`
+    ).join("");
+
+  // On country change → update leagues
+  countrySelect.onchange = () => {
+    const selected = countrySelect.value;
+    leagueSelect.innerHTML = `<option value="">All Leagues</option>`;
+
+    if (!selected) return;
+
+    [...leaguesByCountry[selected]]
+      .sort()
+      .forEach(l =>
+        leagueSelect.insertAdjacentHTML(
+          "beforeend",
+          `<option value="${l}">${l}</option>`
+        )
+      );
+  };
+}
 /* =========================
    STATISTICS
 ========================= */
