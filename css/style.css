@@ -591,15 +591,6 @@ body.dark footer {
 }
 
 /* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 900px) {
-  .match-card.dashboard {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================
    GLOBAL MOBILE FIX
 ========================= */
 html {
@@ -999,7 +990,29 @@ body.dark .filter-select-wrapper::after {
 body.dark .prediction-inline-meta {
   color: var(--text-muted-dark);
 }
+/* =========================
+   MATCH CARD – MOBILE LAYOUT FIX
+========================= */
+@media (max-width: 900px) {
 
+  .match-card.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* blocchi match a tutta larghezza */
+  .match-card.dashboard .match-day,
+  .match-card.dashboard .match-league,
+  .match-card.dashboard .match-main {
+    grid-column: 1 / -1;
+  }
+
+  /* prediction cards inline */
+  .match-card.dashboard .prediction-card {
+    margin-bottom: 0;
+  }
+}
 /* =========================
    BACK TO TOP
 ========================= */
@@ -1017,11 +1030,3 @@ body.dark .prediction-inline-meta {
   cursor: pointer;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 900px) {
-  .match-card.dashboard {
-    grid-template-columns: 1fr;
-  }
-}
