@@ -400,8 +400,15 @@ function renderPredictions(fixtures) {
     });
 
     wrapper.innerHTML = `
-      <h3>${match.teams.home.name} vs ${match.teams.away.name}</h3>
-      <div class="prediction-meta">${match.league.name} · ${time}</div>
+  <h3>
+    ${match.teams.home.name} vs ${match.teams.away.name}
+    <span class="prediction-inline-meta">
+      · ${match.league.country} · ${time}
+    </span>
+  </h3>
+  <div class="prediction-meta">
+    ${match.league.name}
+  </div>
 
       <div class="prediction-groups-row">
         ${PREDICTION_GROUPS.map(group => `
