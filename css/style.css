@@ -930,6 +930,33 @@ body.dark .prediction-card.compact {
   background: rgba(95, 216, 157, 0.18);
 }
 
+.predictions-filters {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0 24px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+.filter-select:hover {
+  border-color: var(--accent-color);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
 /* =========================
    BACK TO TOP
 ========================= */
