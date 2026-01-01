@@ -63,27 +63,47 @@
       No matches available today for monitored leagues.
     </div>
   </section>
-<div class="predictions-filters">
-  <select id="filter-country" class="filter-select">
-    <option value="">All Countries</option>
-  </select>
 
-  <select id="filter-league" class="filter-select">
-    <option value="">All Leagues</option>
-  </select>
-
-  <select id="filter-market" class="filter-select">
-    <option value="">All Markets</option>
-    <option value="1X2">1X2</option>
-    <option value="Double Chance">Double Chance</option>
-    <option value="Goals">Under / Over</option>
-    <option value="Both Teams To Score">Goal / No Goal</option>
-  </select>
-</div>
   <!-- ================= PREDICTIONS ================= -->
   <section id="predictions">
     <h2>Predictions</h2>
 
+<!-- ================= PREDICTIONS FILTER BAR ================= -->
+<div class="report-filter-bar predictions-filter-bar">
+
+  <label class="report-filter-label">
+    Filter
+  </label>
+
+  <!-- COUNTRY -->
+  <div class="report-select-wrapper">
+    <select id="filter-country" class="report-select">
+      <option value="">All Countries</option>
+    </select>
+    <span class="select-arrow">▾</span>
+  </div>
+
+  <!-- LEAGUE -->
+  <div class="report-select-wrapper">
+    <select id="filter-league" class="report-select">
+      <option value="">All Leagues</option>
+    </select>
+    <span class="select-arrow">▾</span>
+  </div>
+
+  <!-- MARKET TYPE -->
+  <div class="report-select-wrapper">
+    <select id="filter-market" class="report-select">
+      <option value="">All Markets</option>
+      <option value="1X2">1X2</option>
+      <option value="Double Chance">Double Chance</option>
+      <option value="Goals">Under / Over</option>
+      <option value="Both Teams To Score">Goal / No Goal</option>
+    </select>
+    <span class="select-arrow">▾</span>
+  </div>
+
+</div>
     <div id="predictions-list"></div>
 
     <div id="predictions-empty" class="no-data" style="display:none;">
@@ -91,7 +111,7 @@
     </div>
   </section>
 
-<!-- ================= REPORTS ================= -->
+  
 <!-- ================= REPORTS ================= -->
 <section id="reports">
   <h2>Daily Report</h2>
