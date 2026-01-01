@@ -132,15 +132,22 @@ ALL_FIXTURES = fixtures;
 
 renderStatistics(fixtures);
 
-// 👇 QUESTA È LA CHIAVE DELLO STEP 3
+// 👇 MATCH (TODAY)
 renderTodayMatches(fixtures);
 
+// 👇 STATUS
 if (data.status && data.status !== "ok") {
   renderGlobalStatus(data.status);
 }
 
-populatePredictionFilters(ALL_FIXTURES);
+// 👇 FILTRI
+populateMatchFilters(fixtures);
+populatePredictionFilters(fixtures);
+
+// 👇 PREDICTIONS
 renderPredictions(sortFixturesByPriority(fixtures));
+
+
 
   } catch (err) {
     console.error("loadMatches error:", err);
@@ -675,14 +682,12 @@ function populatePredictionFilters(fixtures) {
     leaguesByCountry[country].add(league);
   });
 
-  // Countries
   countrySelect.innerHTML =
     `<option value="">All Countries</option>` +
     [...countries].sort().map(c =>
       `<option value="${c}">${c}</option>`
     ).join("");
 
-  // On country change → update leagues
   countrySelect.onchange = () => {
     const selected = countrySelect.value;
     leagueSelect.innerHTML = `<option value="">All Leagues</option>`;
@@ -698,6 +703,72 @@ function populatePredictionFilters(fixtures) {
         )
       );
   };
+}
+function populateMatchFilters(fixtures) {
+  const countrySelect = document.getElementById("match-filter-country");
+  const leagueSelect = document.getElementById("match-filter-league");
+
+  if (!countrySelect || !leagueSelect) return;
+
+  const countries = new Set();
+  const leaguesByCountry = {};
+
+  fixtures.forEach(f => {
+    const country = f.league.country;
+    const league = f.league.name;
+
+    countries.add(country);
+
+    if (!leaguesByCountry[country]) {
+      leaguesByCountry[country] = new Set();
+    }
+    leaguesByCountry[country].add(league);
+  });
+
+  countrySelect.innerHTML =
+    `<option value="">All Countries</option>` +
+    [...countries].sort().map(c =>
+      `<option value="${c}">${c}</option>`
+    ).join("");
+
+  countrySelect.onchange = () => {
+    const selected = countrySelect.value;
+    leagueSelect.innerHTML = `<option value="">All Leagues</option>`;
+
+    if (!selected) {
+      applyMatchFilters();
+      return;
+    }
+
+    [...leaguesByCountry[selected]]
+      .sort()
+      .forEach(l =>
+        leagueSelect.insertAdjacentHTML(
+          "beforeend",
+          `<option value="${l}">${l}</option>`
+        )
+      );
+
+    applyMatchFilters();
+  };
+
+  leagueSelect.onchange = applyMatchFilters;
+}
+function applyMatchFilters() {
+  const country = document.getElementById("match-filter-country")?.value;
+  const league = document.getElementById("match-filter-league")?.value;
+
+  let filtered = ALL_FIXTURES;
+
+  if (country) {
+    filtered = filtered.filter(f => f.league.country === country);
+  }
+
+  if (league) {
+    filtered = filtered.filter(f => f.league.name === league);
+  }
+
+  renderTodayMatches(filtered);
 }
 /* =========================
    STATISTICS
