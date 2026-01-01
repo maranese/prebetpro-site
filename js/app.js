@@ -136,7 +136,7 @@ ALL_FIXTURES = fixtures;
     if (data.status && data.status !== "ok") {
       renderGlobalStatus(data.status);
     }
-
+    populatePredictionFilters(ALL_FIXTURES);
     renderPredictions(sortFixturesByPriority(fixtures));
 
   } catch (err) {
@@ -144,7 +144,6 @@ ALL_FIXTURES = fixtures;
     renderGlobalStatus("api_unavailable");
   }
 }
-populatePredictionFilters(ALL_FIXTURES);
 
 function applyPredictionFilters() {
   const country = document.getElementById("filter-country")?.value;
@@ -811,12 +810,6 @@ function renderMatchDetails(f) {
     </div>
   `;
 }
-
-const countryFilter = document.getElementById("filter-country");
-const leagueFilter = document.getElementById("filter-league");
-const marketFilter = document.getElementById("filter-market");
-
-// STEP 1: UI only – filtering logic will be added next
 
 /* =========================
    BACK TO TOP
