@@ -148,50 +148,41 @@ async function loadMatches() {
    MATCH SORTING LOGIC (SAFE)
 ========================= */
 
-// ordine globale per PRIORITÀ
-const MATCH_PRIORITY = [
-  // Top 5 Europe
-  { country: "England", league: "Premier League" },
-  { country: "Italy", league: "Serie A" },
-  { country: "Spain", league: "La Liga" },
-  { country: "Germany", league: "Bundesliga" },
-  { country: "France", league: "Ligue 1" },
-
-  // Extra rilevanti
-  { country: "Saudi Arabia", league: "Professional League" }
+const TOP_LEAGUE_ORDER = [
+  "England:Premier League",
+  "Spain:La Liga",
+  "Italy:Serie A",
+  "Germany:Bundesliga",
+  "France:Ligue 1",
+  "Portugal:Primeira Liga",
+  "Netherlands:Eredivisie",
+  "Belgium:Pro League",
+  "Turkey:Süper Lig",
+  "Scotland:Premiership",
+  "Saudi Arabia:Professional League"
 ];
 
-function getMatchPriorityIndex(f) {
-  if (!f?.league) return 999;
+function sortFixturesByPriority(fixtures) {
+  return [...fixtures].sort((a, b) => {
+    const keyA = `${a.league.country}:${a.league.name}`;
+    const keyB = `${b.league.country}:${b.league.name}`;
 
-  const country = f.league.country;
-  const league = f.league.name;
+    const idxA = TOP_LEAGUE_ORDER.indexOf(keyA);
+    const idxB = TOP_LEAGUE_ORDER.indexOf(keyB);
 
-  const idx = MATCH_PRIORITY.findIndex(
-    p => p.country === country && league.includes(p.league)
-  );
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
 
-  return idx !== -1 ? idx : 999;
+    const countryCompare = a.league.country.localeCompare(b.league.country);
+    if (countryCompare !== 0) return countryCompare;
+
+    const leagueCompare = a.league.name.localeCompare(b.league.name);
+    if (leagueCompare !== 0) return leagueCompare;
+
+    return new Date(a.fixture.date) - new Date(b.fixture.date);
+  });
 }
-
-function isNationalCompetition(f) {
-  if (!f?.league) return false;
-
-  const name = f.league.name.toLowerCase();
-  const country = (f.league.country || "").toLowerCase();
-
-  return (
-    f.league.type === "Cup" &&
-    (
-      country === "world" ||
-      name.includes("nations") ||
-      name.includes("world") ||
-      name.includes("euro") ||
-      name.includes("copa")
-    )
-  );
-}
-
 /* =========================
    LOAD TODAY MATCHES
 ========================= */
