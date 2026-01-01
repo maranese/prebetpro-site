@@ -216,9 +216,9 @@ async function loadTodayMatches() {
 
     noMatches.style.display = "none";
 
-    fixtures
-      sortFixturesByPriority(fixtures)
-  .forEach(f => container.appendChild(renderMatchCard(f)));
+    sortFixturesByPriority(fixtures)
+  .forEach(f => container.appendChild(renderMatchCard(f)))
+  ;
 
   } catch (err) {
     console.error(err);
