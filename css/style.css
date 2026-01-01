@@ -614,33 +614,28 @@ body {
    HEADER / NAV – RESPONSIVE (UNICO)
 ========================= */
 
-/* Desktop default */
-.nav-toggle {
-  display: none;
-}
-
-/* Mobile */
 @media (max-width: 768px) {
 
   .hero-inner {
     flex-wrap: wrap;
   }
 
-  /* hamburger */
+  /* HAMBURGER – VISIBILE E LEGGIBILE */
   .nav-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
-    border: 2px solid #ffffff;
-    color: #ffffff;
-    padding: 6px 14px;
+    background: #ffffff;
+    color: #0f1115;
+    border: none;
+    padding: 8px 14px;
     border-radius: 999px;
-    font-weight: 800;
+    font-weight: 900;
+    font-size: 0.8rem;
     cursor: pointer;
   }
 
-  /* menu chiuso */
+  /* MENU CHIUSO */
   .main-nav {
     display: none;
     width: 100%;
@@ -649,7 +644,7 @@ body {
     gap: 12px;
   }
 
-  /* menu aperto */
+  /* MENU APERTO */
   .main-nav.open {
     display: flex;
   }
@@ -657,8 +652,10 @@ body {
   .main-nav a {
     padding: 10px 0;
     font-size: 1rem;
+    color: #ffffff;
   }
 }
+
 /* =========================
    REPORT – SUMMARY
 ========================= */
