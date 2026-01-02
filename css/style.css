@@ -992,31 +992,21 @@ body.dark .prediction-inline-meta {
 }
 
 /* =========================
-   MOBILE – MATCH INLINE CARDS (FORCE 1 ROW)
-   NON TOCCA DESKTOP
+   MOBILE FIX – MATCH INLINE (OVERRIDE CONTENTS)
 ========================= */
 @media (max-width: 768px) {
-
-  /* wrapper delle 3 card */
   .match-inline-predictions {
     display: flex !important;
-    flex-direction: row !important;
-    gap: 10px;
-    margin-top: 8px;
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .match-card.dashboard {
+    grid-template-columns: 1fr;
   }
 
-  /* singola card – override totale */
-  .match-inline-predictions .prediction-card {
-    flex: 1 1 0 !important;
-    max-width: none !important;
-
-    height: 64px;
-    padding: 8px 6px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  .match-inline-predictions {
+    grid-column: 1 / -1;
   }
 }
 /* =========================
