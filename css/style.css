@@ -992,32 +992,25 @@ body.dark .prediction-inline-meta {
 }
 
 /* =========================
-   MOBILE – MATCH INLINE FIX (DEFINITIVO)
+   MOBILE – MATCH INLINE FINAL FIX
+   (3 card su UNA riga sotto il match)
 ========================= */
 @media (max-width: 768px) {
 
-  /* forza il wrapper a tornare reale */
   .match-inline-predictions {
     display: flex !important;
-    flex-direction: row;
+    flex-direction: row !important;
+    justify-content: space-between;
     gap: 10px;
     width: 100%;
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
-  /* il match diventa mono-colonna */
-  .match-card.dashboard {
-    grid-template-columns: 1fr;
-  }
-
-  /* le card stanno SOTTO al match */
-  .match-inline-predictions {
-    grid-column: 1 / -1;
-  }
-
-  /* card uguali, allineate, leggibili */
   .match-inline-predictions .prediction-card {
-    flex: 1 1 0;
+    flex: 1 1 0 !important;
+    max-width: none !important;
+    width: 100%;
+
     height: 64px;
     padding: 8px 6px;
 
@@ -1027,7 +1020,6 @@ body.dark .prediction-inline-meta {
     align-items: center;
   }
 }
-
 /* =========================
    BACK TO TOP
 ========================= */
