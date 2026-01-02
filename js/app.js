@@ -814,13 +814,29 @@ function renderGlobalStatus(status) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.querySelector(".nav-toggle");
-  const links = document.querySelector(".nav-links");
+  const nav = document.querySelector(".main-nav");
 
-  if (toggle && links) {
-    toggle.addEventListener("click", () => {
-      links.classList.toggle("open");
-    });
-  }
+  if (!toggle || !nav) return;
+
+  // toggle menu
+  toggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    nav.classList.toggle("open");
+  });
+
+  // chiudi cliccando un link
+  nav.addEventListener("click", (e) => {
+    if (e.target.tagName === "A") {
+      nav.classList.remove("open");
+    }
+  });
+
+  // chiudi cliccando fuori
+  document.addEventListener("click", (e) => {
+    if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+      nav.classList.remove("open");
+    }
+  });
 });
 
 /*========================
