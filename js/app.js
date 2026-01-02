@@ -333,22 +333,33 @@ ${(htScore || ftScore) ? `
    INLINE PREDICTIONS (TODAY)
 ========================= */
 function renderInlinePredictions(bestMarkets) {
-  if (!bestMarkets) {
-    return `
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-      <div class="prediction-card"><div class="prediction-market">No data</div><div class="prediction-value">—</div></div>
-    `;
-  }
-
-  return bestMarkets
-    .map(m => `
+  const cards = !bestMarkets
+    ? `
+      <div class="prediction-card">
+        <div class="prediction-market">No data</div>
+        <div class="prediction-value">—</div>
+      </div>
+      <div class="prediction-card">
+        <div class="prediction-market">No data</div>
+        <div class="prediction-value">—</div>
+      </div>
+      <div class="prediction-card">
+        <div class="prediction-market">No data</div>
+        <div class="prediction-value">—</div>
+      </div>
+    `
+    : bestMarkets.map(m => `
       <div class="prediction-card ${m.strong ? "highlight" : ""}">
         <div class="prediction-market">${m.label}</div>
         <div class="prediction-value">${m.value}%</div>
       </div>
-    `)
-    .join("");
+    `).join("");
+
+  return `
+    <div class="match-inline-predictions">
+      ${cards}
+    </div>
+  `;
 }
 
 /* =========================
