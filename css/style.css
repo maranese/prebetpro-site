@@ -990,29 +990,56 @@ body.dark .filter-select-wrapper::after {
 body.dark .prediction-inline-meta {
   color: var(--text-muted-dark);
 }
+
+
 /* =========================
-   MATCH CARD – MOBILE LAYOUT FIX
+   MOBILE – MATCH INLINE PREDICTIONS (FINAL FIX)
 ========================= */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
 
-  .match-card.dashboard {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+  /* contenitore delle prediction sotto il match */
+  .match-card.dashboard .match-inline-predictions {
+    display: flex;
     gap: 10px;
+    margin-top: 8px;
   }
 
-  /* blocchi match a tutta larghezza */
-  .match-card.dashboard .match-day,
-  .match-card.dashboard .match-league,
-  .match-card.dashboard .match-main {
-    grid-column: 1 / -1;
-  }
-
-  /* prediction cards inline */
+  /* singola card */
   .match-card.dashboard .prediction-card {
-    margin-bottom: 0;
+    flex: 1;
+    min-height: 64px;
+    padding: 8px 6px;
+    border-radius: 12px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(47, 191, 113, 0.12);
+  }
+
+  body.dark .match-card.dashboard .prediction-card {
+    background: rgba(95, 216, 157, 0.18);
+  }
+
+  /* market (1 / X / 2 / Over ecc) */
+  .match-card.dashboard .prediction-market {
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  /* valore / no data */
+  .match-card.dashboard .prediction-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.9;
   }
 }
+
+
 /* =========================
    BACK TO TOP
 ========================= */
