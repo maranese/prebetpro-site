@@ -992,23 +992,42 @@ body.dark .prediction-inline-meta {
 }
 
 /* =========================
-   MOBILE FIX – MATCH INLINE (OVERRIDE CONTENTS)
+   MOBILE – MATCH INLINE FIX (DEFINITIVO)
 ========================= */
 @media (max-width: 768px) {
+
+  /* forza il wrapper a tornare reale */
   .match-inline-predictions {
     display: flex !important;
+    flex-direction: row;
+    gap: 10px;
     width: 100%;
+    margin-top: 12px;
   }
-}
-@media (max-width: 768px) {
+
+  /* il match diventa mono-colonna */
   .match-card.dashboard {
     grid-template-columns: 1fr;
   }
 
+  /* le card stanno SOTTO al match */
   .match-inline-predictions {
     grid-column: 1 / -1;
   }
+
+  /* card uguali, allineate, leggibili */
+  .match-inline-predictions .prediction-card {
+    flex: 1 1 0;
+    height: 64px;
+    padding: 8px 6px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 }
+
 /* =========================
    BACK TO TOP
 ========================= */
