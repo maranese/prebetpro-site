@@ -991,51 +991,54 @@ body.dark .prediction-inline-meta {
   color: var(--text-muted-dark);
 }
 
-
 /* =========================
-   MOBILE – MATCH INLINE PREDICTIONS (FINAL FIX)
+   MOBILE – MATCH PREDICTIONS UNDER MATCH (FINAL)
 ========================= */
 @media (max-width: 768px) {
 
-  /* contenitore delle prediction sotto il match */
-  .match-card.dashboard .match-inline-predictions {
+  /* forza layout verticale del match */
+  .match-card.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* wrapper delle 3 card */
+  .match-inline-predictions {
     display: flex;
     gap: 10px;
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
   /* singola card */
-  .match-card.dashboard .prediction-card {
+  .match-inline-predictions .prediction-card {
     flex: 1;
-    min-height: 64px;
+    height: 64px;
     padding: 8px 6px;
-    border-radius: 12px;
+    border-radius: 14px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    background: rgba(47, 191, 113, 0.12);
+    background: rgba(47, 191, 113, 0.14);
   }
 
-  body.dark .match-card.dashboard .prediction-card {
+  body.dark .match-inline-predictions .prediction-card {
     background: rgba(95, 216, 157, 0.18);
   }
 
-  /* market (1 / X / 2 / Over ecc) */
-  .match-card.dashboard .prediction-market {
+  .match-inline-predictions .prediction-market {
     font-size: 0.7rem;
     font-weight: 800;
-    line-height: 1;
     margin-bottom: 4px;
   }
 
-  /* valore / no data */
-  .match-card.dashboard .prediction-value {
+  .match-inline-predictions .prediction-value {
     font-size: 0.75rem;
     font-weight: 700;
-    opacity: 0.9;
+    opacity: 0.85;
   }
 }
 
