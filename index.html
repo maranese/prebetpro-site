@@ -97,105 +97,122 @@
 
 </section>
 
-  <!-- ================= PREDICTIONS ================= -->
-  <section id="predictions">
-    <h2>Predictions</h2>
+<!-- ================= PREDICTIONS ================= -->
+<section id="predictions" class="collapsible-section">
 
-<!-- ================= PREDICTIONS FILTER BAR ================= -->
-<div class="report-filter-bar predictions-filter-bar">
+  <h2 class="collapsible-header">
+    Predictions
+    <span class="collapsible-toggle">⌄</span>
+  </h2>
 
-  <label class="report-filter-label">
-    Filter
-  </label>
+  <div class="collapsible-content">
 
-  <!-- COUNTRY -->
-  <div class="report-select-wrapper">
-    <select id="filter-country" class="report-select">
-      <option value="">All Countries</option>
-    </select>
-    <span class="select-arrow">▾</span>
-  </div>
+    <!-- ================= PREDICTIONS FILTER BAR ================= -->
+    <div class="report-filter-bar predictions-filter-bar">
 
-  <!-- LEAGUE -->
-  <div class="report-select-wrapper">
-    <select id="filter-league" class="report-select">
-      <option value="">All Leagues</option>
-    </select>
-    <span class="select-arrow">▾</span>
-  </div>
+      <label class="report-filter-label">
+        Filter
+      </label>
 
-  <!-- MARKET TYPE -->
-  <div class="report-select-wrapper">
-    <select id="filter-market" class="report-select">
-      <option value="">All Markets</option>
-      <option value="1X2">1X2</option>
-      <option value="Double Chance">Double Chance</option>
-      <option value="Goals">Under / Over</option>
-      <option value="Both Teams To Score">Goal / No Goal</option>
-    </select>
-    <span class="select-arrow">▾</span>
-  </div>
+      <!-- COUNTRY -->
+      <div class="report-select-wrapper">
+        <select id="filter-country" class="report-select">
+          <option value="">All Countries</option>
+        </select>
+        <span class="select-arrow">▾</span>
+      </div>
 
-</div>
+      <!-- LEAGUE -->
+      <div class="report-select-wrapper">
+        <select id="filter-league" class="report-select">
+          <option value="">All Leagues</option>
+        </select>
+        <span class="select-arrow">▾</span>
+      </div>
+
+      <!-- MARKET TYPE -->
+      <div class="report-select-wrapper">
+        <select id="filter-market" class="report-select">
+          <option value="">All Markets</option>
+          <option value="1X2">1X2</option>
+          <option value="Double Chance">Double Chance</option>
+          <option value="Goals">Under / Over</option>
+          <option value="Both Teams To Score">Goal / No Goal</option>
+        </select>
+        <span class="select-arrow">▾</span>
+      </div>
+
+    </div>
+
     <div id="predictions-list"></div>
 
     <div id="predictions-empty" class="no-data" style="display:none;">
       Predictions will be available when matches are loaded.
     </div>
-  </section>
 
+  </div>
+</section>
   
 <!-- ================= REPORTS ================= -->
-<section id="reports">
-  <h2>Daily Report</h2>
+<section id="reports" class="collapsible-section">
 
-  <!-- SUMMARY -->
-  <div id="report-summary" class="stats-grid"></div>
+  <h2 class="collapsible-header">
+    Daily Report
+    <span class="collapsible-toggle">⌄</span>
+  </h2>
 
-  <!-- HISTORICAL LABEL -->
- <div class="report-historical-info">
-  <h3>📈 Historical Performance</h3>
-  <p>
-    Aggregated results based on <strong>Top Picks only</strong>.
-    Select a time range to analyze performance.
-  </p>
+  <div class="collapsible-content">
 
-<div class="report-filter-bar">
-  <label for="report-range" class="report-filter-label">
-    Period
-  </label>
+    <!-- SUMMARY -->
+    <div id="report-summary" class="stats-grid"></div>
 
-  <div class="report-select-wrapper">
-    <select id="report-range" class="report-select">
-      <option value="today">Today</option>
-      <option value="7d" selected>Last 7 days</option>
-      <option value="30d">Last 30 days</option>
-      <option value="custom" disabled>Custom range (soon)</option>
-    </select>
-    <span class="select-arrow">▾</span>
-  </div>
-</div>
+    <!-- HISTORICAL LABEL -->
+    <div class="report-historical-info">
+      <h3>📈 Historical Performance</h3>
+      <p>
+        Aggregated results based on <strong>Top Picks only</strong>.
+        Select a time range to analyze performance.
+      </p>
 
-  <!-- CHARTS -->
-  <div class="report-charts">
-    <div class="chart-card">
-      <h3>Accuracy Trend</h3>
-      <canvas id="accuracy-chart"></canvas>
+      <div class="report-filter-bar">
+        <label for="report-range" class="report-filter-label">
+          Period
+        </label>
+
+        <div class="report-select-wrapper">
+          <select id="report-range" class="report-select">
+            <option value="today">Today</option>
+            <option value="7d" selected>Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="custom" disabled>Custom range (soon)</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
     </div>
 
-    <div class="chart-card">
-      <h3>Win / Loss</h3>
-      <canvas id="wl-chart"></canvas>
+    <!-- CHARTS -->
+    <div class="report-charts">
+      <div class="chart-card">
+        <h3>Accuracy Trend</h3>
+        <canvas id="accuracy-chart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h3>Win / Loss</h3>
+        <canvas id="wl-chart"></canvas>
+      </div>
     </div>
-  </div>
 
-  <!-- PICKS -->
-  <div id="report-list"></div>
+    <!-- PICKS -->
+    <div id="report-list"></div>
 
-  <!-- EMPTY -->
-  <div id="report-empty" class="no-data" style="display:none;">
-    No report available yet.<br />
-    Top Picks are evaluated only after full time.
+    <!-- EMPTY -->
+    <div id="report-empty" class="no-data" style="display:none;">
+      No report available yet.<br />
+      Top Picks are evaluated only after full time.
+    </div>
+
   </div>
 </section>
 
