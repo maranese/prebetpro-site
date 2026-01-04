@@ -1088,20 +1088,25 @@ body.dark .market-performance-table .header {
   justify-content: space-between;
   cursor: pointer;
 }
-
+.collapsible-header:hover {
+  opacity: 0.85;
+}
 .collapsible-toggle {
   font-weight: 900;
   color: var(--accent);
   transition: transform 0.25s ease;
 }
-
+/* stato aperto (esplicito) */
+.collapsible-section.is-open .collapsible-toggle {
+  transform: rotate(0deg);
+}
 /* chiuso */
-.collapsible-section:not(.open) .collapsible-content {
+.collapsible-section:not(.is-open) .collapsible-content {
   display: none;
 }
 
 /* freccia ruotata */
-.collapsible-section:not(.open) .collapsible-toggle {
+.collapsible-section:not(.is-open) .collapsible-toggle {
   transform: rotate(-90deg);
 }
 /* =========================
