@@ -983,6 +983,19 @@ function renderMatchDetails(f) {
 }
 
 /* =========================
+   COLLAPSIBLE SECTIONS
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".collapsible-toggle").forEach(header => {
+    header.addEventListener("click", () => {
+      const section = header.closest(".collapsible-section");
+      if (!section) return;
+
+      section.classList.toggle("open");
+    });
+  });
+});
+/* =========================
    BACK TO TOP
 ========================= */
 function initBackToTop() {
