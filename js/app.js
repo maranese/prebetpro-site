@@ -986,7 +986,7 @@ function renderMatchDetails(f) {
    COLLAPSIBLE SECTIONS
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".collapsible-toggle").forEach(header => {
+  document.querySelectorAll(".collapsible-header").forEach(header => {
     header.addEventListener("click", () => {
       const section = header.closest(".collapsible-section");
       if (!section) return;
