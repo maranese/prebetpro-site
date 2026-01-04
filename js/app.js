@@ -514,10 +514,64 @@ async function loadReport() {
       `;
       listBox.appendChild(div);
     });
+// rimuove eventuale blocco precedente
+const old = document.querySelector(".market-performance");
+if (old) old.remove();
 
+// inserisce nuovo
+summaryBox.insertAdjacentHTML(
+  "afterend",
+  renderMarketPerformance(data.picks)
+);
   } catch {
     emptyBox.style.display = "block";
   }
+}
+
+function renderMarketPerformance(picks) {
+  if (!picks || !picks.length) return "";
+
+  const markets = {};
+
+  picks.forEach(p => {
+    if (!markets[p.market]) {
+      markets[p.market] = { won: 0, lost: 0 };
+    }
+    p.result ? markets[p.market].won++ : markets[p.market].lost++;
+  });
+
+  const rows = Object.entries(markets)
+    .map(([market, stats]) => {
+      const total = stats.won + stats.lost;
+      const accuracy = total
+        ? Math.round((stats.won / total) * 100)
+        : 0;
+
+      return `
+        <div class="market-performance-row">
+          <div class="market-name">${market}</div>
+          <div class="market-win">${stats.won}</div>
+          <div class="market-loss">${stats.lost}</div>
+          <div class="market-accuracy">${accuracy}%</div>
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+    <div class="market-performance">
+      <h3>Performance by Market</h3>
+
+      <div class="market-performance-table">
+        <div class="header">Market</div>
+        <div class="header">Won</div>
+        <div class="header">Lost</div>
+        <div class="header">Accuracy</div>
+
+        ${rows}
+      </div>
+    </div>
+  `;
 }
 
 /* =========================
