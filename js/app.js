@@ -991,7 +991,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const section = header.closest(".collapsible-section");
       if (!section) return;
 
-      section.classList.toggle("open");
+      section.classList.toggle("is-open");
     });
   });
 });
