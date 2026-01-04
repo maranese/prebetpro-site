@@ -1023,6 +1023,60 @@ body.dark .prediction-inline-meta {
     align-items: center;
   }
 }
+
+/* =========================
+   REPORT – PERFORMANCE BY MARKET
+========================= */
+.market-performance {
+  margin: 24px 0;
+}
+
+.market-performance h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.market-performance-table {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 10px 14px;
+  font-size: 0.8rem;
+}
+
+.market-performance-table .header {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  color: var(--text-muted-light);
+}
+
+body.dark .market-performance-table .header {
+  color: var(--text-muted-dark);
+}
+
+.market-performance-row {
+  display: contents;
+}
+
+.market-name {
+  font-weight: 700;
+}
+
+.market-win {
+  color: #22c55e;
+  font-weight: 800;
+}
+
+.market-loss {
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.market-accuracy {
+  font-weight: 800;
+}
 /* =========================
    BACK TO TOP
 ========================= */
