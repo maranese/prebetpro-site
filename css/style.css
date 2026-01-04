@@ -1081,7 +1081,12 @@ body.dark .market-performance-table .header {
 /* =========================
    COLLAPSIBLE SECTIONS
 ========================= */
-
+.collapsible-section {
+  margin-bottom: 32px; /* unico spazio tra sezioni */
+}
+.collapsible-header h2 {
+  margin: 0;
+}
 .collapsible-header {
   display: flex;
   align-items: center;
@@ -1092,9 +1097,9 @@ body.dark .market-performance-table .header {
   opacity: 0.85;
 }
 .collapsible-toggle {
-  font-weight: 900;
-  color: var(--accent);
-  transition: transform 0.25s ease;
+  font-size: 1.2rem;   /* ← forza dimensione uguale ovunque */
+  line-height: 1;
+  display: inline-block;
 }
 /* stato aperto (esplicito) */
 .collapsible-section.is-open .collapsible-toggle {
