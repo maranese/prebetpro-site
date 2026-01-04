@@ -1082,28 +1082,26 @@ body.dark .market-performance-table .header {
    COLLAPSIBLE SECTIONS
 ========================= */
 
-.collapsible-section .section-header {
+.collapsible-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
 }
 
-.section-toggle-btn {
-  background: none;
-  border: none;
-  font-size: 1rem;
+.collapsible-toggle {
   font-weight: 900;
   color: var(--accent);
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease;
 }
 
-.collapsible-section:not(.open) .section-content {
+/* chiuso */
+.collapsible-section:not(.open) .collapsible-content {
   display: none;
 }
 
-.collapsible-section:not(.open) .section-toggle-btn {
+/* freccia ruotata */
+.collapsible-section:not(.open) .collapsible-toggle {
   transform: rotate(-90deg);
 }
 /* =========================
