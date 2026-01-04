@@ -1077,6 +1077,35 @@ body.dark .market-performance-table .header {
 .market-accuracy {
   font-weight: 800;
 }
+
+/* =========================
+   COLLAPSIBLE SECTIONS
+========================= */
+
+.collapsible-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.section-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.collapsible-section:not(.open) .section-content {
+  display: none;
+}
+
+.collapsible-section:not(.open) .section-toggle-btn {
+  transform: rotate(-90deg);
+}
 /* =========================
    BACK TO TOP
 ========================= */
