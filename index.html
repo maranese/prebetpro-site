@@ -78,16 +78,24 @@
 </div>
   
   <!-- ================= MATCHES ================= -->
-  <section id="today">
-    <h2>Matches</h2>
+  <section id="today" class="collapsible-section open">
 
-    <!-- app.js injects EVERYTHING here -->
+  <div class="section-header collapsible-toggle">
+    <h2>Matches</h2>
+    <button class="section-toggle-btn" aria-label="Toggle section">
+      ⌄
+    </button>
+  </div>
+
+  <div class="section-content">
     <div id="matches"></div>
 
     <div id="no-matches" class="no-data" style="display:none;">
       No matches available today for monitored leagues.
     </div>
-  </section>
+  </div>
+
+</section>
 
   <!-- ================= PREDICTIONS ================= -->
   <section id="predictions">
