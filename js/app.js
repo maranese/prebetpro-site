@@ -194,32 +194,16 @@ function applyPredictionFilters() {
 ========================= */
 
 const TOP_LEAGUE_ORDER = [
-  // 🌍 GLOBAL / FIFA
-  "World:FIFA Club World Cup",
-  "World:World Cup",
-  "World:World Cup - Qualification",
-
-  // 🏆 UEFA
-  "Europe:UEFA Champions League",
-  "Europe:UEFA Europa League",
-  "Europe:UEFA Europa Conference League",
-  "Europe:UEFA Super Cup",
-
-  // 🇪🇺 TOP LEAGUES
   "England:Premier League",
   "Spain:La Liga",
   "Italy:Serie A",
   "Germany:Bundesliga",
   "France:Ligue 1",
-
-  // 🇪🇺 ALTRE
   "Portugal:Primeira Liga",
   "Netherlands:Eredivisie",
   "Belgium:Pro League",
   "Turkey:Süper Lig",
   "Scotland:Premiership",
-
-  // 🌍 ALTRE
   "Saudi Arabia:Professional League"
 ];
 
