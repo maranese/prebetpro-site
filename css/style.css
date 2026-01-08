@@ -591,6 +591,19 @@ body.dark footer {
 }
 
 /* =========================
+   NAVIGATION – DESKTOP BASE
+========================= */
+
+.nav-toggle {
+  display: none; /* ⛔ hamburger SEMPRE nascosto su desktop */
+}
+
+.main-nav {
+  display: flex; /* ✅ menu orizzontale visibile */
+}
+
+
+/* =========================
    GLOBAL MOBILE FIX
 ========================= */
 html {
@@ -601,6 +614,7 @@ html {
 body {
   max-width: 100%;
 }
+
 /* =========================
    HEADER / NAV – RESPONSIVE (UNICO)
 ========================= */
