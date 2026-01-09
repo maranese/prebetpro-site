@@ -1128,6 +1128,20 @@ body.dark .market-performance-table .header {
 .collapsible-section:not(.is-open) .collapsible-toggle {
   transform: rotate(-90deg);
 }
+
+/* =========================
+   DAILY NAV (COERENTE)
+========================= */
+
+.daily-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 24px 0 30px;
+  flex-wrap: wrap;
+}
+
+
 /* =========================
    BACK TO TOP
 ========================= */
