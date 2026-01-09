@@ -128,7 +128,11 @@ const PREDICTION_GROUPS = [
 ========================= */
 async function loadMatches() {
   try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
+   const date = getPageDate();
+const res = await fetch(
+  `https://prebetpro-api.vincenzodiguida.workers.dev?date=${date}`
+);
+
 
     if (!res.ok) {
       renderGlobalStatus("api_unavailable");
@@ -752,6 +756,47 @@ document.addEventListener("DOMContentLoaded", () => {
     loadReportSummary(e.target.value);
   });
 });
+
+/* =========================
+   DAILY PAGE DATE LOGIC
+========================= */
+
+function getPageDate() {
+  const main = document.getElementById("daily-page");
+  if (!main) return "today";
+
+  const d = main.dataset.date;
+  if (!d || d === "today") return getToday();
+
+  return d;
+}
+
+function getToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function formatDateLabel(dateStr) {
+  const today = getToday();
+  if (dateStr === today) return "Today";
+
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "2-digit",
+    month: "short"
+  });
+}
+/* =========================
+   DAILY NAV UI
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const label = document.getElementById("current-date-label");
+  if (!label) return;
+
+  const date = getPageDate();
+  label.textContent = formatDateLabel(date);
+});
+
 /* =========================
    UTILS
 ========================= */
@@ -1036,6 +1081,38 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     main.dataset.date = "today";
   }
+});
+/* =========================
+   DAILY NAV (PREV / NEXT DAY)
+========================= */
+
+function addDays(dateStr, delta) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + delta);
+  return d.toISOString().slice(0, 10);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const prev = document.getElementById("prev-day");
+  const next = document.getElementById("next-day");
+  const main = document.getElementById("daily-page");
+
+  if (!prev || !next || !main) return;
+
+  const current =
+    main.dataset.date === "today"
+      ? new Date().toISOString().slice(0, 10)
+      : main.dataset.date;
+
+  prev.onclick = () => {
+    const d = addDays(current, -1);
+    window.location.href = `/${d}`;
+  };
+
+  next.onclick = () => {
+    const d = addDays(current, 1);
+    window.location.href = `/${d}`;
+  };
 });
 
 
