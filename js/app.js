@@ -14,8 +14,9 @@ const STATUS_MESSAGES = {
   api_limited: `Data update temporarily limited.`
 };
 let ALL_FIXTURES = [];
+
 /* =========================
-   LOAD TOP PICKS (FINAL)
+   LOAD TOP PICKS (DATE-AWARE)
 ========================= */
 async function loadTopPicks() {
   const container = document.getElementById("top-picks-container");
@@ -23,8 +24,17 @@ async function loadTopPicks() {
 
   container.innerHTML = "";
 
+  // 📅 leggi data dalla pagina
+  const main = document.getElementById("daily-page");
+  const date = main?.dataset.date;
+
+  const url =
+    date && date !== "today"
+      ? `https://prebetpro-api.vincenzodiguida.workers.dev/top-picks?date=${date}`
+      : "https://prebetpro-api.vincenzodiguida.workers.dev/top-picks";
+
   try {
-    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/top-picks");
+    const res = await fetch(url);
     if (!res.ok) {
       container.innerHTML = renderTopPickPlaceholder();
       return;
@@ -47,7 +57,6 @@ async function loadTopPicks() {
     container.innerHTML = renderTopPickPlaceholder();
   }
 }
-
 
 /* =========================
    TOP PICK CARD
