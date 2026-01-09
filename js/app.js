@@ -1011,6 +1011,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+/* =========================
+   DAILY DATE FROM URL
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const main = document.getElementById("daily-page");
+  if (!main) return;
+
+  const path = window.location.pathname.replace("/", "");
+
+  // se l'URL è una data valida YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(path)) {
+    main.dataset.date = path;
+  } else {
+    main.dataset.date = "today";
+  }
+});
+
+
 /* =========================
    BACK TO TOP
 ========================= */
