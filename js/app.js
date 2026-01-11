@@ -14,9 +14,8 @@ const STATUS_MESSAGES = {
   api_limited: `Data update temporarily limited.`
 };
 let ALL_FIXTURES = [];
-
 /* =========================
-   LOAD TOP PICKS (DATE-AWARE)
+   LOAD TOP PICKS (FINAL)
 ========================= */
 async function loadTopPicks() {
   const container = document.getElementById("top-picks-container");
@@ -24,24 +23,8 @@ async function loadTopPicks() {
 
   container.innerHTML = "";
 
-  // 📅 leggi data dalla pagina
-  const main = document.getElementById("daily-page");
-  const date = main?.dataset.date;
-
-  const url =
-    date && date !== "today"
-      ? `https://prebetpro-api.vincenzodiguida.workers.dev/top-picks?date=${date}`
-      : "https://prebetpro-api.vincenzodiguida.workers.dev/top-picks";
-
   try {
-const date = getPageDate();
-
-const endpoint =
-  date === "today"
-    ? "https://prebetpro-api.vincenzodiguida.workers.dev"
-    : `https://prebetpro-api.vincenzodiguida.workers.dev?date=${date}`;
-
-const res = await fetch(endpoint);
+    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev/top-picks");
     if (!res.ok) {
       container.innerHTML = renderTopPickPlaceholder();
       return;
@@ -64,6 +47,7 @@ const res = await fetch(endpoint);
     container.innerHTML = renderTopPickPlaceholder();
   }
 }
+
 
 /* =========================
    TOP PICK CARD
@@ -135,14 +119,7 @@ const PREDICTION_GROUPS = [
 ========================= */
 async function loadMatches() {
   try {
-    const date = getPageDate();
-    const today = getToday();
-
-    // 🔒 per ora il worker serve SOLO today
-    const isToday = date === today;
-
-    const url = "https://prebetpro-api.vincenzodiguida.workers.dev";
-    const res = await fetch(url);
+    const res = await fetch("https://prebetpro-api.vincenzodiguida.workers.dev");
 
     if (!res.ok) {
       renderGlobalStatus("api_unavailable");
@@ -150,29 +127,27 @@ async function loadMatches() {
     }
 
     const data = await res.json();
+   const fixtures = data.fixtures || [];
+ALL_FIXTURES = fixtures;
 
-    // 👉 se non è today, NON usiamo fixtures
-    if (!isToday) {
-      ALL_FIXTURES = [];
-      renderTodayMatches([]);
-      renderPredictions([]);
-      renderGlobalStatus("no_data");
-      return;
-    }
+renderStatistics(fixtures);
 
-    const fixtures = data.fixtures || [];
-    ALL_FIXTURES = fixtures;
+// 👇 MATCH (TODAY)
+renderTodayMatches(fixtures);
 
-    renderStatistics(fixtures);
-    renderTodayMatches(fixtures);
+// 👇 STATUS
+if (data.status && data.status !== "ok") {
+  renderGlobalStatus(data.status);
+}
 
-    if (data.status && data.status !== "ok") {
-      renderGlobalStatus(data.status);
-    }
+// 👇 FILTRI
+populateMatchFilters(fixtures);
+populatePredictionFilters(fixtures);
 
-    populateMatchFilters(fixtures);
-    populatePredictionFilters(fixtures);
-    renderPredictions(sortFixturesByPriority(fixtures));
+// 👇 PREDICTIONS
+renderPredictions(sortFixturesByPriority(fixtures));
+
+
 
   } catch (err) {
     console.error("loadMatches error:", err);
@@ -768,60 +743,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadReportSummary(e.target.value);
   });
 });
-
-/* =========================
-   DAILY PAGE DATE LOGIC
-========================= */
-
-function getPageDate() {
-  const main = document.getElementById("daily-page");
-  if (!main) {
-    // fallback estremo → oggi
-    return getToday();
-  }
-
-  const raw = main.dataset.date;
-
-  // UX: "today" → data reale
-  if (!raw || raw === "today") {
-    return getToday();
-  }
-
-  // sicurezza: accetta solo YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-    return raw;
-  }
-
-  // qualsiasi altra cosa → oggi
-  return getToday();
-}
-
-function getToday() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function formatDateLabel(dateStr) {
-  const today = getToday();
-  if (dateStr === today) return "Today";
-
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "2-digit",
-    month: "short"
-  });
-}
-/* =========================
-   DAILY NAV UI
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  const label = document.getElementById("current-date-label");
-  if (!label) return;
-
-  const date = getPageDate();
-  label.textContent = formatDateLabel(date);
-});
-
 /* =========================
    UTILS
 ========================= */
@@ -1090,57 +1011,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
-
-/* =========================
-   DAILY DATE FROM URL
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  const main = document.getElementById("daily-page");
-  if (!main) return;
-
-  const path = window.location.pathname.replace("/", "");
-
-  // se l'URL è una data valida YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(path)) {
-    main.dataset.date = path;
-  } else {
-    main.dataset.date = "today";
-  }
-});
-/* =========================
-   DAILY NAV (PREV / NEXT DAY)
-========================= */
-
-function addDays(dateStr, delta) {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + delta);
-  return d.toISOString().slice(0, 10);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const prev = document.getElementById("prev-day");
-  const next = document.getElementById("next-day");
-  const main = document.getElementById("daily-page");
-
-  if (!prev || !next || !main) return;
-
-  const current =
-    main.dataset.date === "today"
-      ? new Date().toISOString().slice(0, 10)
-      : main.dataset.date;
-
-  prev.onclick = () => {
-    const d = addDays(current, -1);
-    window.location.href = `/${d}`;
-  };
-
-  next.onclick = () => {
-    const d = addDays(current, 1);
-    window.location.href = `/${d}`;
-  };
-});
-
-
 /* =========================
    BACK TO TOP
 ========================= */
