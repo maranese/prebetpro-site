@@ -128,7 +128,15 @@ const PREDICTION_GROUPS = [
 ========================= */
 async function loadMatches() {
   try {
-  const res = await fetch(url);
+    const date = getPageDate();
+    const today = getToday();
+
+    const url =
+      date === today
+        ? "https://prebetpro-api.vincenzodiguida.workers.dev"
+        : `https://prebetpro-api.vincenzodiguida.workers.dev?date=${date}`;
+
+    const res = await fetch(url);
 
     if (!res.ok) {
       renderGlobalStatus("api_unavailable");
