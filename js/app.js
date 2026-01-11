@@ -34,7 +34,14 @@ async function loadTopPicks() {
       : "https://prebetpro-api.vincenzodiguida.workers.dev/top-picks";
 
   try {
-    const res = await fetch(url);
+const date = getPageDate();
+
+const endpoint =
+  date === "today"
+    ? "https://prebetpro-api.vincenzodiguida.workers.dev"
+    : `https://prebetpro-api.vincenzodiguida.workers.dev?date=${date}`;
+
+const res = await fetch(endpoint);
     if (!res.ok) {
       container.innerHTML = renderTopPickPlaceholder();
       return;
@@ -131,11 +138,10 @@ async function loadMatches() {
     const date = getPageDate();
     const today = getToday();
 
-    const url =
-      date === today
-        ? "https://prebetpro-api.vincenzodiguida.workers.dev"
-        : `https://prebetpro-api.vincenzodiguida.workers.dev?date=${date}`;
+    // 🔒 per ora il worker serve SOLO today
+    const isToday = date === today;
 
+    const url = "https://prebetpro-api.vincenzodiguida.workers.dev";
     const res = await fetch(url);
 
     if (!res.ok) {
@@ -144,27 +150,29 @@ async function loadMatches() {
     }
 
     const data = await res.json();
-   const fixtures = data.fixtures || [];
-ALL_FIXTURES = fixtures;
 
-renderStatistics(fixtures);
+    // 👉 se non è today, NON usiamo fixtures
+    if (!isToday) {
+      ALL_FIXTURES = [];
+      renderTodayMatches([]);
+      renderPredictions([]);
+      renderGlobalStatus("no_data");
+      return;
+    }
 
-// 👇 MATCH (TODAY)
-renderTodayMatches(fixtures);
+    const fixtures = data.fixtures || [];
+    ALL_FIXTURES = fixtures;
 
-// 👇 STATUS
-if (data.status && data.status !== "ok") {
-  renderGlobalStatus(data.status);
-}
+    renderStatistics(fixtures);
+    renderTodayMatches(fixtures);
 
-// 👇 FILTRI
-populateMatchFilters(fixtures);
-populatePredictionFilters(fixtures);
+    if (data.status && data.status !== "ok") {
+      renderGlobalStatus(data.status);
+    }
 
-// 👇 PREDICTIONS
-renderPredictions(sortFixturesByPriority(fixtures));
-
-
+    populateMatchFilters(fixtures);
+    populatePredictionFilters(fixtures);
+    renderPredictions(sortFixturesByPriority(fixtures));
 
   } catch (err) {
     console.error("loadMatches error:", err);
@@ -767,12 +775,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function getPageDate() {
   const main = document.getElementById("daily-page");
-  if (!main) return "today";
+  if (!main) {
+    // fallback estremo → oggi
+    return getToday();
+  }
 
-  const d = main.dataset.date;
-  if (!d || d === "today") return getToday();
+  const raw = main.dataset.date;
 
-  return d;
+  // UX: "today" → data reale
+  if (!raw || raw === "today") {
+    return getToday();
+  }
+
+  // sicurezza: accetta solo YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return raw;
+  }
+
+  // qualsiasi altra cosa → oggi
+  return getToday();
 }
 
 function getToday() {
