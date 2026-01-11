@@ -1128,43 +1128,6 @@ body.dark .market-performance-table .header {
 .collapsible-section:not(.is-open) .collapsible-toggle {
   transform: rotate(-90deg);
 }
-
-/* =========================
-   DAILY NAV
-========================= */
-.daily-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  margin: 12px 0 28px;
-}
-
-.daily-nav-center {
-  text-align: center;
-  min-width: 180px;
-}
-
-.daily-nav-label {
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted-light);
-}
-
-body.dark .daily-nav-label {
-  color: var(--text-muted-dark);
-}
-
-.daily-nav-date {
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: var(--accent);
-  margin-top: 2px;
-}
-
-
 /* =========================
    BACK TO TOP
 ========================= */
@@ -1181,4 +1144,3 @@ body.dark .daily-nav-label {
   display: none;
   cursor: pointer;
 }
-
