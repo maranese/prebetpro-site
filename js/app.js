@@ -1025,3 +1025,57 @@ function initBackToTop() {
   btn.onclick = () =>
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+
+
+/* =========================
+   TENNIS PICKS
+========================= */
+document.addEventListener("DOMContentLoaded", loadTennis);
+async function loadTennis() {
+  const list = document.getElementById("tennis-list");
+  const empty = document.getElementById("tennis-empty");
+  const summary = document.getElementById("tennis-summary");
+  if (!list) return;
+  try {
+    const [res, rep] = await Promise.all([
+      fetch("https://prebetpro-api.vincenzodiguida.workers.dev/tennis"),
+      fetch("https://prebetpro-api.vincenzodiguida.workers.dev/tennis/report")
+    ]);
+    const data = res.ok ? await res.json() : { picks: [] };
+    const report = rep.ok ? await rep.json() : null;
+    const picks = data.picks || [];
+
+    if (summary && report && report.summary && report.summary.total > 0) {
+      const s = report.summary;
+      summary.innerHTML = `
+        <div class="stat-card"><h3>${s.total}</h3><p>Graded (30d)</p></div>
+        <div class="stat-card"><h3>${s.won}</h3><p>Won</p></div>
+        <div class="stat-card"><h3>${s.lost}</h3><p>Lost</p></div>
+        <div class="stat-card"><h3>${s.accuracy}%</h3><p>Hit rate</p></div>`;
+    }
+
+    if (!picks.length) { empty.style.display = "block"; list.innerHTML = ""; return; }
+    empty.style.display = "none";
+    list.innerHTML = picks.map(renderTennisCard).join("");
+  } catch (err) {
+    console.error("Tennis error:", err);
+    if (empty) empty.style.display = "block";
+  }
+}
+
+function renderTennisCard(p) {
+  const badge = p.result === true ? '<span class="tennis-badge win">WIN</span>'
+    : p.result === false ? '<span class="tennis-badge loss">LOSS</span>'
+    : p.result === "void" ? '<span class="tennis-badge void">VOID</span>' : "";
+  return `
+    <div class="prediction-card tennis-card ${p.probability >= 75 ? "highlight" : ""}">
+      <div class="tennis-meta">${p.day || ""} ${p.time || ""} · ${p.tournament || ""}</div>
+      <div class="tennis-match">${p.match}</div>
+      <div class="prediction-market">${p.pick} to win</div>
+      <div class="prediction-value">${p.probability}%</div>
+      <div class="tennis-odds">Fair ${Number(p.fair_odds).toFixed(2)} · Min ${Number(p.min_odds).toFixed(2)}</div>
+      ${p.score ? `<div class="tennis-score">${p.score}</div>` : ""}
+      ${badge}
+    </div>`;
+}
