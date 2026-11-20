@@ -1,5 +1,5 @@
 """
-PreBetPro Engine — eseguito da GitHub Actions ogni 30 minuti.
+PreBetPro Engine — eseguito da GitHub Actions ogni 30 minuti. ATTIVO: solo tennis (calcio disattivato).
 
 Calcio:  probabilità dal consenso di mercato (quote Pinnacle senza margine, metodo "power"),
          adattate a una griglia Dixon-Coles (1X2 + linea gol più vicina a 2.5),
@@ -262,8 +262,8 @@ def worker_post(path, body):
 def main():
     if not TOKEN:
         sys.exit("ADMIN_TOKEN mancante")
-    # calcio
-    days = football()
+    # calcio: lo calcola il motore originale del sito (Worker). Qui solo se abilitato esplicitamente.
+    days = football() if os.environ.get("ENABLE_FOOTBALL") == "1" else {}
     for d, fx in sorted(days.items()):
         worker_post("/admin/pin", {"date": d, "fixtures": fx})
     # tennis: unisce con quanto già pubblicato, congela ciò che è iniziato, valuta gli esiti
