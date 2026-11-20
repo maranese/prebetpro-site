@@ -1144,3 +1144,19 @@ body.dark .market-performance-table .header {
   display: none;
   cursor: pointer;
 }
+
+
+
+/* ================= TENNIS ================= */
+.tennis-intro, .tennis-disclaimer { opacity: .8; font-size: .9rem; margin: .5rem 0 1rem; }
+.tennis-disclaimer { font-size: .8rem; margin-top: 1rem; }
+.tennis-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.tennis-card { position: relative; text-align: left; }
+.tennis-meta { font-size: .75rem; opacity: .7; margin-bottom: 4px; }
+.tennis-match { font-weight: 600; margin-bottom: 6px; }
+.tennis-odds { font-size: .8rem; opacity: .85; margin-top: 4px; }
+.tennis-score { font-size: .8rem; margin-top: 4px; }
+.tennis-badge { position: absolute; top: 8px; right: 8px; font-size: .7rem; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
+.tennis-badge.win { background: #2fbf71; color: #fff; }
+.tennis-badge.loss { background: #e5484d; color: #fff; }
+.tennis-badge.void { background: #888; color: #fff; }
