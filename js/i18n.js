@@ -278,3 +278,33 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+
+(function (I) {
+  var add = {
+    it: { r_3m: "Ultimi 3 mesi", r_6m: "Ultimi 6 mesi", r_1y: "Ultimo anno", r_all: "Da sempre", r_custom: "Personalizzato", r_from: "Dal", r_to: "Al", r_avail: "dati disponibili dal {d}",
+      r_comb_trend: "Precisione nel tempo: calcio, tennis e totale", r_total_s: "Totale", r_unit_d: "(per giorno)", r_unit_w: "(per settimana)", r_unit_m: "(per mese)",
+      r_by_cat: "Rendimento per categoria di torneo", r_by_band: "Rendimento per fascia di probabilità", r_avgp: "Prob. media", r_other: "Altro",
+      r_calib: "Probabilità media dei pick: {a} · precisione reale: {b}. Se i due valori sono vicini, le probabilità stimate sono affidabili.",
+      r_show_all: "Mostra tutti ({n})", r_less: "Mostra meno", r_page: "Pagina {p} di {n}", k_pending: "In attesa", k_pending_s: "in attesa",
+      tn_hist_link: "Storico completo dei risultati nel Report →", a_legend: "Archivio dal {d}. Sono cliccabili solo i giorni con dati. Verde = più pick vinti che persi, rosso = più persi, giallo = pari; il numero è vinti/persi (calcio + tennis).", a_no_matches: "Nessuna partita registrata per questo giorno.", ev_na: "gol senza dettaglio marcatore" },
+    en: { r_3m: "Last 3 months", r_6m: "Last 6 months", r_1y: "Last year", r_all: "All time", r_custom: "Custom", r_from: "From", r_to: "To", r_avail: "data available since {d}",
+      r_comb_trend: "Accuracy over time: football, tennis and total", r_total_s: "Total", r_unit_d: "(per day)", r_unit_w: "(per week)", r_unit_m: "(per month)",
+      r_by_cat: "Performance by tournament category", r_by_band: "Performance by probability band", r_avgp: "Avg. prob.", r_other: "Other",
+      r_calib: "Average pick probability: {a} · actual accuracy: {b}. When the two are close, the estimated probabilities are reliable.",
+      r_show_all: "Show all ({n})", r_less: "Show less", r_page: "Page {p} of {n}", k_pending: "Pending", k_pending_s: "pending",
+      tn_hist_link: "Full results history in the Report →", a_legend: "Archive since {d}. Only days with data can be selected. Green = more picks won than lost, red = more lost, yellow = even; the number is won/lost (football + tennis).", a_no_matches: "No matches recorded for this day.", ev_na: "goals without scorer details" },
+    es: { r_3m: "Últimos 3 meses", r_6m: "Últimos 6 meses", r_1y: "Último año", r_all: "Desde siempre", r_custom: "Personalizado", r_from: "Desde", r_to: "Hasta", r_avail: "datos disponibles desde el {d}",
+      r_comb_trend: "Acierto en el tiempo: fútbol, tenis y total", r_total_s: "Total", r_unit_d: "(por día)", r_unit_w: "(por semana)", r_unit_m: "(por mes)",
+      r_by_cat: "Rendimiento por categoría de torneo", r_by_band: "Rendimiento por franja de probabilidad", r_avgp: "Prob. media", r_other: "Otros",
+      r_calib: "Probabilidad media de los picks: {a} · acierto real: {b}. Si ambos valores están cerca, las probabilidades estimadas son fiables.",
+      r_show_all: "Ver todos ({n})", r_less: "Ver menos", r_page: "Página {p} de {n}", k_pending: "Pendientes", k_pending_s: "pendientes",
+      tn_hist_link: "Historial completo de resultados en el Informe →", a_legend: "Archivo desde el {d}. Solo se pueden elegir los días con datos. Verde = más picks ganados que perdidos, rojo = más perdidos, amarillo = empate; el número es ganados/perdidos (fútbol + tenis).", a_no_matches: "No hay partidos registrados este día.", ev_na: "goles sin detalle del goleador" },
+    pt: { r_3m: "Últimos 3 meses", r_6m: "Últimos 6 meses", r_1y: "Último ano", r_all: "Desde sempre", r_custom: "Personalizado", r_from: "De", r_to: "Até", r_avail: "dados disponíveis desde {d}",
+      r_comb_trend: "Acerto ao longo do tempo: futebol, tênis e total", r_total_s: "Total", r_unit_d: "(por dia)", r_unit_w: "(por semana)", r_unit_m: "(por mês)",
+      r_by_cat: "Desempenho por categoria de torneio", r_by_band: "Desempenho por faixa de probabilidade", r_avgp: "Prob. média", r_other: "Outros",
+      r_calib: "Probabilidade média dos palpites: {a} · acerto real: {b}. Quando os dois valores estão próximos, as probabilidades estimadas são confiáveis.",
+      r_show_all: "Ver todos ({n})", r_less: "Ver menos", r_page: "Página {p} de {n}", k_pending: "Pendentes", k_pending_s: "pendentes",
+      tn_hist_link: "Histórico completo de resultados no Relatório →", a_legend: "Arquivo desde {d}. Só os dias com dados podem ser escolhidos. Verde = mais palpites ganhos que perdidos, vermelho = mais perdidos, amarelo = empate; o número é ganhos/perdidos (futebol + tênis).", a_no_matches: "Nenhum jogo registrado neste dia.", ev_na: "gols sem detalhe do autor" }
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

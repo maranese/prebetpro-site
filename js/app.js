@@ -318,7 +318,7 @@
       return '<span class="evx" title="' + esc(e[3] || "") + '"><i class="ei">⚽</i>' + nm + " " + min + (e[6] === "Penalty" ? " " + T("ev_pen") : e[6] === "Own Goal" ? " " + T("ev_own") : "") + tm + "</span>";
     });
     var tot = (f.goals && f.goals.home || 0) + (f.goals && f.goals.away || 0);
-    if (stateOf(f) !== "ns" && tot > goals) items.push('<span class="evx pend"><i class="ei">⚽</i>+' + (tot - goals) + " " + T("ev_pending") + "</span>");
+    if (stateOf(f) !== "ns" && tot > goals) items.push('<span class="evx pend"><i class="ei">⚽</i>+' + (tot - goals) + " " + T(String(f.fixture.date || "").slice(0, 10) < romeDate(-1) ? "ev_na" : "ev_pending") + "</span>");
     return '<div class="mrow-ev">' + items.join("") + "</div>";
   }
   function loadDetails(day) {
@@ -522,12 +522,12 @@
     daySeg($("tennis-day"), [-1, 0, 1], TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loadTennis(); });
     chipBar($("tn-chips"), ["all", "live", "atpwta", "chall", "itf", "tnft"], TN, renderTennis);
     var list = $("tennis-list"), ml = $("tn-matches"); loading(list); loading(ml); var day = TN.day;
-    Promise.all([get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/tennis/report", 300000).catch(function () { return null; }), get("/tennis/matches?date=" + day, 60000).catch(function () { return {}; })]).then(function (r) {
+    Promise.all([get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), Promise.resolve(null), get("/tennis/matches?date=" + day, 60000).catch(function () { return {}; })]).then(function (r) {
       if (day !== TN.day) return;
       var picks = (r[0] && r[0].date === day && r[0].picks) || [], s = r[1] && r[1].summary;
       TN.picks = picks; TN.matches = (r[2] && r[2].matches) || []; TN.updated = r[2] && r[2].updated;
-      $("tennis-kpis").innerHTML = kpi(picks.length, T("k_picks") + " · " + dayLabel(day).toLowerCase()) + kpi(s ? s.total : 0, T("k_graded30")) +
-        kpi(s ? s.won + " / " + s.lost : "—", T("k_wl")) + kpi(s && s.total ? s.accuracy + "%" : "—", T("k_hit30"), "accent");
+      var dw = picks.filter(function (p) { return p.result === true; }).length, dl = picks.filter(function (p) { return p.result === false; }).length;
+      $("tennis-kpis").innerHTML = kpi(picks.length, T("k_picks") + " · " + dayLabel(day).toLowerCase()) + kpi(dw, T("r_won"), "win") + kpi(dl, T("r_lost"), "loss") + kpi(picks.length - dw - dl, T("k_pending"));
       list.innerHTML = picks.length ? picks.slice().sort(function (a, b) { return String(a.start || a.time).localeCompare(String(b.start || b.time)); }).map(tennisCard).join("") : empty(T("tn_none_picks"));
       list.setAttribute("data-loaded", "1");
       renderTennis();
@@ -567,84 +567,187 @@
   }
 
   /* ================= REPORT ================= */
-  function loadReport() {
-    var n = +$("report-range").value || 7;
-    Promise.all([get("/report/summary?range=" + n, 120000), get("/report?range=" + n, 120000), get("/tennis/report?range=" + n, 300000).catch(function () { return null; })]).then(function (r) {
-      var sum = r[0] || {}, rep = r[1] || {}, ten = r[2], s = sum.summary || {};
-      var from = romeDate(-(n - 1));
-      var picks = (rep.picks || []).filter(function (p) { return String(p.kickoff || "").slice(0, 10) >= from; });
-      var tp = ((ten && ten.picks) || []).filter(function (p) { return String(p.date || "") >= from && (p.result === true || p.result === false); });
-      var tw = tp.filter(function (p) { return p.result === true; }).length, tl = tp.length - tw;
-      var fw = s.won || 0, fl = s.lost || 0;
-      function pct(w, l) { return w + l ? Math.round(w / (w + l) * 100) + "%" : "—"; }
-      function orow(lbl, w, l, cls) { return "<tr" + (cls ? ' class="' + cls + '"' : "") + "><td>" + lbl + "</td><td>" + (w + l) + '</td><td class="c-win">' + w + '</td><td class="c-loss">' + l + "</td><td><b>" + pct(w, l) + "</b></td></tr>"; }
-      $("report-overview").innerHTML = '<table class="tbl rep-ov"><thead><tr><th></th><th>' + T("r_total") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th></tr></thead><tbody>" +
-        orow("⚽ " + T("r_football"), fw, fl) + orow("🎾 " + T("r_tennis_s"), tw, tl) + orow(T("r_combined"), fw + tw, fl + tl, "tot") + "</tbody></table>";
-      $("report-summary").innerHTML = kpi(fw + fl, T("r_total")) + kpi(fw, T("r_won"), "win") + kpi(fl, T("r_lost"), "loss") + kpi(pct(fw, fl), T("r_acc"), "accent");
-      var mk = {}; picks.forEach(function (p) { var m = mk[p.market] = mk[p.market] || { w: 0, l: 0 }; p.result ? m.w++ : m.l++; });
-      var keys = Object.keys(mk).sort(function (a, b) { return (mk[b].w + mk[b].l) - (mk[a].w + mk[a].l); });
-      $("report-markets").innerHTML = keys.length ? '<table class="tbl"><thead><tr><th>' + T("r_market") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th></tr></thead><tbody>" + keys.map(function (k) {
-        var m = mk[k], t = m.w + m.l; return "<tr><td>" + esc(mkName(k)) + '</td><td class="c-win">' + m.w + '</td><td class="c-loss">' + m.l + "</td><td><b>" + Math.round(m.w / t * 100) + "%</b></td></tr>";
-      }).join("") + "</tbody></table>" : empty(T("r_empty"));
-      var days = (sum.by_day || []).filter(function (d) { return d.total; });
-      $("chart-acc").innerHTML = days.length ? lineChart(days) : '<div class="muted small">—</div>';
-      $("chart-wl").innerHTML = wlChart(fw, fl);
-      $("report-list").innerHTML = picks.length ? '<div class="list">' + picks.map(function (p) {
-        return '<div class="lrow ' + (p.result ? "win" : "loss") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(mkName(p.market)) + " · " + esc(p.probability) + "% · " + fmtDay(p.kickoff) + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.result) + "</div></div>";
-      }).join("") + "</div>" : empty(T("r_empty"));
-      $("report-tennis-kpis").innerHTML = kpi(tw + tl, T("r_total")) + kpi(tw, T("r_won"), "win") + kpi(tl, T("r_lost"), "loss") + kpi(pct(tw, tl), T("r_acc"), "accent");
-      $("report-tennis-list").innerHTML = tp.length ? '<div class="list">' + tp.slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; }).map(function (p) {
-        return '<div class="lrow ' + (p.result ? "win" : "loss") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(p.pick) + " " + T("to_win") + " · " + esc(p.probability) + "% · " + fmtDay(p.date + "T12:00:00") + (p.tournament ? " · " + esc(p.tournament) : "") + (p.score ? " · " + esc(p.score) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.result) + "</div></div>";
-      }).join("") + "</div>" : empty(T("r_empty"));
-    }).catch(function (e) { fail($("report-list"), e); });
+  /* ================= REPORT (calcio e tennis con la stessa logica) ================= */
+  var RP = { data: null, lists: {} };
+  function tnCat(tr) { tr = String(tr || ""); return /challenger/i.test(tr) ? "Challenger" : /^wta/i.test(tr) ? "WTA" : /itf/i.test(tr) ? "ITF" : /^atp|finals/i.test(tr) ? "ATP" : T("r_other"); }
+  var BANDS = [[0, 65, "< 65%"], [65, 70, "65–69%"], [70, 75, "70–74%"], [75, 80, "75–79%"], [80, 101, "≥ 80%"]];
+  function pctS(w, n) { return n ? Math.round(w / n * 100) + "%" : "—"; }
+  function repRange() {
+    var d = RP.data, v = $("report-range").value, today = d.today, first = d.first, from, to = today;
+    if (v === "all") from = first;
+    else if (v === "custom") { from = $("report-from").value || first; to = $("report-to").value || today; if (from > to) { var x = from; from = to; to = x; } }
+    else from = shiftDate(today, -(+v - 1));
+    if (from < first) from = first; if (to > today) to = today;
+    return { from: from, to: to };
   }
-  function lineChart(days) {
-    var W = 320, H = 150, pad = 24, n = days.length;
-    var pts = days.map(function (d, i) { var x = n === 1 ? W / 2 : pad + i * (W - 2 * pad) / (n - 1); var y = H - pad - (d.won / d.total) * (H - 2 * pad); return [x, y, d]; });
-    var path = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
-    return '<svg viewBox="0 0 ' + W + " " + H + '" class="svg-chart" role="img"><line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '" class="ax"/><line x1="' + pad + '" y1="' + pad + '" x2="' + (W - pad) + '" y2="' + pad + '" class="grid"/>' +
-      '<text x="2" y="' + (pad + 4) + '" class="lbl">100%</text><text x="8" y="' + (H - pad + 4) + '" class="lbl">0%</text>' +
-      (n > 1 ? '<path d="' + path + '" class="ln"/>' : "") + pts.map(function (p) {
-        return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5" class="pt"><title>' + p[2].date + ": " + p[2].won + "/" + p[2].total + '</title></circle><text x="' + p[0].toFixed(1) + '" y="' + (H - 6) + '" class="lbl" text-anchor="middle">' + p[2].date.slice(8) + "/" + p[2].date.slice(5, 7) + "</text>";
-      }).join("") + "</svg>";
+  function daysBetween(a, b) { return Math.round((new Date(b + "T12:00:00Z") - new Date(a + "T12:00:00Z")) / 864e5) + 1; }
+  function bucketOf(d, unit) {
+    if (unit === "d") return d;
+    if (unit === "m") return d.slice(0, 7);
+    var t = new Date(d + "T12:00:00Z"), wd = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - wd); return t.toISOString().slice(0, 10);
+  }
+  function bucketLabel(b, unit) {
+    if (unit === "m") { try { return new Date(b + "-15T12:00:00Z").toLocaleDateString(loc(), { month: "short", year: "2-digit" }); } catch (e) { return b; } }
+    return b.slice(8, 10) + "/" + b.slice(5, 7);
+  }
+  function buckets(from, to, unit) { var out = [], seen = {}; dayList(from, to).forEach(function (d) { var b = bucketOf(d, unit); if (!seen[b]) { seen[b] = 1; out.push(b); } }); return out; }
+  function dayList(a, b) { var out = []; for (var d = a; d <= b; d = shiftDate(d, 1)) out.push(d); return out; }
+  function series(rows, bks, unit) {
+    var m = {}; rows.forEach(function (r) { var b = bucketOf(r.d, unit), x = m[b] = m[b] || { w: 0, n: 0 }; x.n++; if (r.r) x.w++; });
+    return bks.map(function (b) { var x = m[b]; return x ? { w: x.w, n: x.n, v: x.w / x.n } : null; });
+  }
+  function multiChart(bks, unit, sers, wide) {
+    var W = wide ? 760 : 340, H = wide ? 190 : 160, pl = 30, pr = 10, pt = 12, pb = 24, n = bks.length;
+    var X = function (i) { return n === 1 ? (pl + W - pr) / 2 : pl + i * (W - pl - pr) / (n - 1); }, Y = function (v) { return H - pb - v * (H - pt - pb); };
+    var g = '<line x1="' + pl + '" y1="' + Y(0) + '" x2="' + (W - pr) + '" y2="' + Y(0) + '" class="ax"/>' + [0.5, 1].map(function (v) { return '<line x1="' + pl + '" y1="' + Y(v) + '" x2="' + (W - pr) + '" y2="' + Y(v) + '" class="grid"/><text x="2" y="' + (Y(v) + 3) + '" class="lbl">' + v * 100 + "%</text>"; }).join("") + '<text x="8" y="' + (Y(0) + 3) + '" class="lbl">0%</text>';
+    var step = Math.max(1, Math.ceil(n / 8));
+    g += bks.map(function (b, i) { return i % step === 0 || i === n - 1 ? '<text x="' + X(i).toFixed(1) + '" y="' + (H - 6) + '" class="lbl" text-anchor="middle">' + bucketLabel(b, unit) + "</text>" : ""; }).join("");
+    sers.forEach(function (s) {
+      var segs = [], cur = "";
+      s.vals.forEach(function (p, i) { if (!p) return; cur += (cur ? "L" : "M") + X(i).toFixed(1) + " " + Y(p.v).toFixed(1); });
+      if (cur && s.vals.filter(Boolean).length > 1) g += '<path d="' + cur + '" class="ln ' + s.cls + '"/>';
+      g += s.vals.map(function (p, i) { return p ? '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(p.v).toFixed(1) + '" r="3.2" class="pt ' + s.cls + '"><title>' + esc(s.name) + " · " + bucketLabel(bks[i], unit) + ": " + p.w + "/" + p.n + " (" + Math.round(p.v * 100) + "%)</title></circle>" : ""; }).join("");
+    });
+    var leg = sers.length > 1 ? '<div class="ch-leg">' + sers.map(function (s) { return '<span class="' + s.cls + '"><i></i>' + esc(s.name) + "</span>"; }).join("") + "</div>" : "";
+    return '<svg viewBox="0 0 ' + W + " " + H + '" class="svg-chart" role="img">' + g + "</svg>" + leg;
+  }
+  function brkTable(title, rows, keyFn, order) {
+    var m = {}; rows.forEach(function (r) { var k = keyFn(r), x = m[k] = m[k] || { w: 0, n: 0, p: 0 }; x.n++; x.p += +r.p || 0; if (r.r) x.w++; });
+    var keys = order ? order.filter(function (k) { return m[k]; }) : Object.keys(m).sort(function (a, b) { return m[b].n - m[a].n; });
+    return '<div class="panel"><h3>' + title + "</h3>" + (keys.length ? '<table class="tbl rep-ov"><thead><tr><th></th><th>' + T("r_total") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th><th>" + T("r_avgp") + "</th></tr></thead><tbody>" + keys.map(function (k) {
+      var x = m[k]; return "<tr><td>" + esc(k) + "</td><td>" + x.n + '</td><td class="c-win">' + x.w + '</td><td class="c-loss">' + (x.n - x.w) + "</td><td><b>" + pctS(x.w, x.n) + "</b></td><td>" + Math.round(x.p / x.n) + "%</td></tr>";
+    }).join("") + "</tbody></table>" : empty(T("r_empty"))) + "</div>";
+  }
+  function pagedList(id, rows, rowFn) {
+    var st = RP.lists[id] = RP.lists[id] || { open: false, page: 0 }, N = rows.length, PG = 20, pages = Math.max(1, Math.ceil(N / PG));
+    if (st.page >= pages) st.page = pages - 1;
+    var show = st.open ? rows.slice(st.page * PG, st.page * PG + PG) : rows.slice(0, 5), nav = "";
+    if (N > 5) {
+      if (!st.open) nav = '<button type="button" class="btn" data-pl="open">' + T("r_show_all", { n: N }) + "</button>";
+      else nav = (pages > 1 ? '<button type="button" class="btn" data-pl="prev"' + (st.page ? "" : " disabled") + ">‹</button><span class=\"muted small\">" + T("r_page", { p: st.page + 1, n: pages }) + '</span><button type="button" class="btn" data-pl="next"' + (st.page < pages - 1 ? "" : " disabled") + ">›</button>" : "") + '<button type="button" class="btn" data-pl="close">' + T("r_less") + "</button>";
+    }
+    return '<div class="panel"><h3>' + T("r_picks") + ' <em class="muted small">(' + N + ")</em></h3>" + (N ? '<div class="list">' + show.map(rowFn).join("") + "</div>" : empty(T("r_empty"))) + (nav ? '<div class="pager" data-plist="' + id + '">' + nav + "</div>" : "") + "</div>";
+  }
+  function sportBlock(id, rows, R, unit, bks, kind) {
+    var w = rows.filter(function (r) { return r.r; }).length, n = rows.length, avg = n ? Math.round(rows.reduce(function (a, r) { return a + (+r.p || 0); }, 0) / n) : 0;
+    var sorted = rows.slice().sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : String(b.ko || "").localeCompare(String(a.ko || "")); });
+    var rowFn = kind === "fb" ? function (p) {
+      return '<div class="lrow ' + (p.r ? "win" : "loss") + '"><div><b>' + esc(p.m) + '</b><div class="muted small">' + esc(mkName(p.k)) + " · " + esc(p.p) + "% · " + fmtDay(p.d) + (p.lg ? " · " + esc(trLeague(p.lg)) : "") + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r">' + resultBadge(!!p.r) + "</div></div>";
+    } : function (p) {
+      return '<div class="lrow ' + (p.r ? "win" : "loss") + '"><div><b>' + esc(p.m) + '</b><div class="muted small">' + esc(p.k) + " " + T("to_win") + " · " + esc(p.p) + "% · " + fmtDay(p.d) + (p.tr ? " · " + esc(p.tr) : "") + (p.sc ? " · " + esc(p.sc) : "") + '</div></div><div class="lrow-r">' + resultBadge(!!p.r) + "</div></div>";
+    };
+    return '<div class="kpis">' + kpi(n, T("r_total")) + kpi(w, T("r_won"), "win") + kpi(n - w, T("r_lost"), "loss") + kpi(pctS(w, n), T("r_acc"), "accent") + "</div>" +
+      (n ? '<p class="muted small rep-cal">' + T("r_calib", { a: avg + "%", b: pctS(w, n) }) + "</p>" : "") +
+      '<div class="charts"><div class="chart-card"><h4>' + T("r_trend") + ' <em class="muted">' + T("r_unit_" + unit) + "</em></h4>" + (n ? multiChart(bks, unit, [{ name: T(kind === "fb" ? "r_football" : "r_tennis_s"), cls: kind, vals: series(rows, bks, unit) }]) : '<div class="muted small">—</div>') + "</div>" +
+      '<div class="chart-card"><h4>' + T("r_wl") + "</h4>" + wlChart(w, n - w) + "</div></div>" +
+      '<div class="rep-brk">' + (kind === "fb" ? brkTable(T("r_by_market"), rows, function (r) { return mkName(r.k); }) : brkTable(T("r_by_cat"), rows, function (r) { return tnCat(r.tr); }, ["ATP", "WTA", "Challenger", "ITF", T("r_other")])) +
+      brkTable(T("r_by_band"), rows, function (r) { var p = +r.p || 0; for (var i = 0; i < BANDS.length; i++) if (p >= BANDS[i][0] && p < BANDS[i][1]) return BANDS[i][2]; return "?"; }, BANDS.map(function (b) { return b[2]; })) + "</div>" +
+      pagedList(id, sorted, rowFn);
+  }
+  function renderReport() {
+    var d = RP.data; if (!d) return;
+    var v = $("report-range").value; $("report-custom").hidden = v !== "custom";
+    ["report-from", "report-to"].forEach(function (k) { $(k).min = d.first; $(k).max = d.today; });
+    if (v === "custom") { if (!$("report-from").value) $("report-from").value = shiftDate(d.today, -29) < d.first ? d.first : shiftDate(d.today, -29); if (!$("report-to").value) $("report-to").value = d.today; }
+    var R = repRange(), span = daysBetween(R.from, R.to), unit = span <= 31 ? "d" : span <= 186 ? "w" : "m", bks = buckets(R.from, R.to, unit);
+    $("report-span").textContent = fmtDay(R.from) + " → " + fmtDay(R.to) + " · " + T("r_avail", { d: fmtDay(d.first) });
+    var inR = function (r) { return r.d >= R.from && r.d <= R.to; }, fb = d.fb.filter(inR), tn = d.tn.filter(inR);
+    var fw = fb.filter(function (r) { return r.r; }).length, tw = tn.filter(function (r) { return r.r; }).length;
+    function orow(lbl, w, n, cls) { return "<tr" + (cls ? ' class="' + cls + '"' : "") + "><td>" + lbl + "</td><td>" + n + '</td><td class="c-win">' + w + '</td><td class="c-loss">' + (n - w) + "</td><td><b>" + pctS(w, n) + "</b></td></tr>"; }
+    $("report-overview").innerHTML = '<table class="tbl rep-ov"><thead><tr><th></th><th>' + T("r_total") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th></tr></thead><tbody>" +
+      orow("⚽ " + T("r_football"), fw, fb.length) + orow("🎾 " + T("r_tennis_s"), tw, tn.length) + orow(T("r_combined"), fw + tw, fb.length + tn.length, "tot") + "</tbody></table>";
+    $("report-comb-unit").textContent = T("r_unit_" + unit);
+    $("chart-comb").innerHTML = fb.length + tn.length ? multiChart(bks, unit, [{ name: T("r_football"), cls: "fb", vals: series(fb, bks, unit) }, { name: T("r_tennis_s"), cls: "tn", vals: series(tn, bks, unit) }, { name: T("r_total_s"), cls: "tot", vals: series(fb.concat(tn), bks, unit) }], wide.matches) : '<div class="muted small">' + T("r_empty") + "</div>";
+    $("rep-fb").innerHTML = sportBlock("fb", fb, R, unit, bks, "fb");
+    $("rep-tn").innerHTML = sportBlock("tn", tn, R, unit, bks, "tn");
+  }
+  function loadReport() {
+    var box = $("rep-fb"); loading(box);
+    get("/report/data", 300000).then(function (d) { RP.data = d; RP.lists = {}; renderReport(); }).catch(function (e) { fail(box, e); });
+  }
+  function bindReport() {
+    $("report-range").addEventListener("change", function () { RP.lists = {}; renderReport(); });
+    $("report-from").addEventListener("change", function () { RP.lists = {}; renderReport(); });
+    $("report-to").addEventListener("change", function () { RP.lists = {}; renderReport(); });
+    $("view-report").addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-pl]") : null; if (!b) return;
+      var id = b.parentNode.getAttribute("data-plist"), st = RP.lists[id] = RP.lists[id] || { open: false, page: 0 }, a = b.getAttribute("data-pl");
+      if (a === "open") { st.open = true; st.page = 0; } else if (a === "close") st.open = false; else if (a === "prev") st.page = Math.max(0, st.page - 1); else if (a === "next") st.page++;
+      var top = b.closest(".panel"); renderReport(); if (a === "close" || a === "prev" || a === "next") { var el = $(id === "fb" ? "rep-fb" : "rep-tn").querySelector(".panel:last-child"); if (el) el.scrollIntoView({ block: "nearest" }); }
+    });
   }
   function wlChart(w, l) {
     var m = Math.max(w, l, 1);
     return '<div class="wl"><div class="wl-col"><div class="wl-bar"><i class="w" style="height:' + (w / m * 100) + '%"></i></div><b>' + w + "</b><span>" + T("r_won") + '</span></div><div class="wl-col"><div class="wl-bar"><i class="l" style="height:' + (l / m * 100) + '%"></i></div><b>' + l + "</b><span>" + T("r_lost") + "</span></div></div>";
   }
 
-  /* ================= ARCHIVIO ================= */
-  var A = { day: romeDate(-1), open: {}, inj: {} };
+  /* ================= ARCHIVIO (calendario: solo giorni con dati, mai giorni futuri) ================= */
+  var A = { day: null, month: null, open: {}, inj: {}, days: [], sum: {}, first: null };
+  function arcSum(d) { var x = A.sum[d]; return x || { fw: 0, fl: 0, tw: 0, tl: 0 }; }
   function loadArchive() {
-    var inp = $("archive-date"); inp.max = romeDate(1); inp.value = A.day;
-    inp.onchange = function () { if (inp.value) { A.day = inp.value; renderArchive(); } };
-    $("archive-prev").onclick = function () { A.day = shiftDate(A.day, -1); inp.value = A.day; renderArchive(); };
-    $("archive-next").onclick = function () { if (A.day < romeDate(1)) { A.day = shiftDate(A.day, 1); inp.value = A.day; renderArchive(); } };
-    get("/history", 300000).then(function (h) {
-      var box = $("archive-days");
-      box.innerHTML = (h.days || []).slice(0, 45).map(function (d) { return '<button type="button" class="chip' + (d === A.day ? " on" : "") + '" data-d="' + d + '">' + fmtDay(d) + "</button>"; }).join("");
-      box.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-d]") : null; if (!b) return; A.day = b.getAttribute("data-d"); inp.value = A.day; renderArchive(); };
-    }).catch(function () {});
-    renderArchive();
+    var cal = $("archive-cal"); loading(cal);
+    Promise.all([get("/history", 300000), get("/report/data", 300000).catch(function () { return null; })]).then(function (r) {
+      var today = romeDate(0), days = ((r[0] && r[0].days) || []).filter(function (d) { return d <= today; }).sort(), rd = r[1] || { fb: [], tn: [] };
+      A.days = days; A.sum = {}; A.first = days[0] || (rd.first || today);
+      rd.fb.forEach(function (x) { var s = A.sum[x.d] = A.sum[x.d] || { fw: 0, fl: 0, tw: 0, tl: 0 }; x.r ? s.fw++ : s.fl++; });
+      rd.tn.forEach(function (x) { var s = A.sum[x.d] = A.sum[x.d] || { fw: 0, fl: 0, tw: 0, tl: 0 }; x.r ? s.tw++ : s.tl++; });
+      if (!A.day || A.days.indexOf(A.day) < 0) A.day = A.days.indexOf(romeDate(-1)) >= 0 ? romeDate(-1) : (A.days[A.days.length - 1] || today);
+      A.month = A.day.slice(0, 7);
+      var inp = $("archive-date"); inp.min = A.first; inp.max = today; inp.value = A.day;
+      inp.onchange = function () { if (inp.value) arcGo(nearestDay(inp.value)); };
+      $("archive-prev").onclick = function () { var i = A.days.indexOf(A.day); if (i > 0) arcGo(A.days[i - 1]); };
+      $("archive-next").onclick = function () { var i = A.days.indexOf(A.day); if (i >= 0 && i < A.days.length - 1) arcGo(A.days[i + 1]); };
+      $("cal-prev").onclick = function () { A.month = shiftMonth(A.month, -1); renderCal(); };
+      $("cal-next").onclick = function () { A.month = shiftMonth(A.month, 1); renderCal(); };
+      cal.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-d]") : null; if (b && !b.disabled) arcGo(b.getAttribute("data-d")); };
+      $("archive-legend").textContent = T("a_legend", { d: fmtDay(A.first) });
+      renderCal(); renderArchive();
+    }).catch(function (e) { fail(cal, e); });
+  }
+  function nearestDay(d) { if (A.days.indexOf(d) >= 0) return d; var best = A.days[0]; A.days.forEach(function (x) { if (x <= d) best = x; }); return best || d; }
+  function shiftMonth(m, n) { var t = new Date(m + "-15T12:00:00Z"); t.setUTCMonth(t.getUTCMonth() + n); return t.toISOString().slice(0, 7); }
+  function arcGo(d) { if (!d) return; A.day = d; A.month = d.slice(0, 7); $("archive-date").value = d; renderCal(); renderArchive(); }
+  function renderCal() {
+    var m = A.month, first = A.first.slice(0, 7), last = romeDate(0).slice(0, 7);
+    if (m < first) m = A.month = first; if (m > last) m = A.month = last;
+    $("cal-prev").disabled = m <= first; $("cal-next").disabled = m >= last;
+    var t0 = new Date(m + "-01T12:00:00Z"), title = "";
+    try { title = t0.toLocaleDateString(loc(), { month: "long", year: "numeric" }); } catch (e) { title = m; }
+    $("cal-title").textContent = title.charAt(0).toUpperCase() + title.slice(1);
+    var lead = (t0.getUTCDay() + 6) % 7, dim = new Date(Date.UTC(t0.getUTCFullYear(), t0.getUTCMonth() + 1, 0)).getUTCDate(), html = "";
+    var wd = []; for (var k = 0; k < 7; k++) { var dd = new Date(Date.UTC(2024, 0, 1 + k)); try { wd.push(dd.toLocaleDateString(loc(), { weekday: "narrow", timeZone: "UTC" })); } catch (e) { wd.push(""); } }
+    html += wd.map(function (w) { return '<span class="cw">' + w + "</span>"; }).join("");
+    for (k = 0; k < lead; k++) html += "<span></span>";
+    for (var dn = 1; dn <= dim; dn++) {
+      var d = m + "-" + (dn < 10 ? "0" : "") + dn, has = A.days.indexOf(d) >= 0, s = arcSum(d), w = s.fw + s.tw, l = s.fl + s.tl;
+      var cls = "cd" + (d === A.day ? " on" : "") + (w + l ? (w > l ? " pw" : w < l ? " pl" : " pe") : "") + (d === romeDate(0) ? " today" : "");
+      html += '<button type="button" class="' + cls + '" data-d="' + d + '"' + (has ? "" : " disabled") + ' title="' + esc(fmtDay(d)) + (w + l ? " · " + w + "/" + l : "") + '"><b>' + dn + "</b>" + (w + l ? "<i>" + w + "/" + l + "</i>" : "") + "</button>";
+    }
+    $("archive-cal").innerHTML = html;
   }
   function renderArchive() {
-    var chips = document.querySelectorAll("#archive-days .chip");
-    for (var i = 0; i < chips.length; i++) chips[i].classList.toggle("on", chips[i].getAttribute("data-d") === A.day);
     var pb = $("archive-picks"), mb = $("archive-matches"); pb.removeAttribute("data-loaded"); mb.removeAttribute("data-loaded"); loading(pb); loading(mb);
-    var day = A.day;
+    var day = A.day, i = A.days.indexOf(day);
+    $("archive-prev").disabled = i <= 0; $("archive-next").disabled = i < 0 || i >= A.days.length - 1;
+    $("archive-title").textContent = (day === romeDate(0) ? T("today") + " · " : day === romeDate(-1) ? T("yesterday") + " · " : "") + fmtDay(day, true);
     Promise.all([get("/history?date=" + day), get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/details?date=" + day, 300000).catch(function () { return {}; }), get("/injuries?date=" + day, 600000).catch(function () { return {}; })]).then(function (r) {
-      A.inj = r[3] || {};
       if (day !== A.day) return;
+      A.inj = r[3] || {};
       var h = r[0] || {}, t = r[1] || {}, det = r[2] || {};
-      var fx = sortFx(h.fixtures || []), picks = h.picks || [], tp = (t.date === day && t.picks) || [];
-      var won = picks.filter(function (p) { return p.result === true; }).length, lost = picks.filter(function (p) { return p.result === false; }).length;
-      $("archive-kpis").innerHTML = kpi(fx.length, T("k_matches")) + kpi(picks.length, T("top_pick")) + kpi(picks.length ? won + " / " + lost : "—", T("k_wl")) + kpi(tp.length, "🎾 " + T("k_picks"));
-      var html = picks.length ? '<div class="list">' + picks.sort(function (a, b) { return new Date(a.kickoff) - new Date(b.kickoff); }).map(function (p) {
-        return '<div class="lrow"><div><b>' + esc(mkName(p.market)) + '</b> <span class="muted">· ' + esc(p.match) + '</span><div class="muted small">' + fmtTime(p.kickoff) +  " · " + esc(trLeague(p.league)) + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r"><span class="prob-s">' + esc(p.probability) + "%</span>" + resultBadge(p.void ? "void" : p.result) + "</div></div>";
-      }).join("") + "</div>" : "";
-      if (tp.length) html += '<div class="cards" style="margin-top:12px">' + tp.map(tennisCard).join("") + "</div>";
+      var fx = sortFx(h.fixtures || []), picks = (h.picks || []).slice().sort(function (a, b) { return new Date(a.kickoff) - new Date(b.kickoff); }), tp = (t.date === day && t.picks) || [];
+      function wl(arr) { var w = arr.filter(function (p) { return p.result === true; }).length, l = arr.filter(function (p) { return p.result === false; }).length; return { w: w, l: l, o: arr.length - w - l }; }
+      var a = wl(picks), b = wl(tp);
+      function k2(x, n) { return n ? x.w + " / " + x.l + (x.o ? ' <small class="muted">+' + x.o + " " + T("k_pending_s") + "</small>" : "") : "—"; }
+      $("archive-kpis").innerHTML = kpi(fx.length, T("k_matches")) + kpi(picks.length, "⚽ " + T("k_picks")) + kpi(k2(a, picks.length), "⚽ " + T("k_wl")) + kpi(tp.length, "🎾 " + T("k_picks")) + kpi(k2(b, tp.length), "🎾 " + T("k_wl"));
+      var html = "";
+      if (picks.length) html += '<h3 class="arc-sub">⚽ ' + T("r_football") + '</h3><div class="panel"><div class="list">' + picks.map(function (p) {
+        return '<div class="lrow ' + (p.result === true ? "win" : p.result === false ? "loss" : "") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(mkName(p.market)) + " · " + esc(p.probability) + "% · " + fmtTime(p.kickoff) + " · " + esc(trLeague(p.league)) + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.void ? "void" : p.result) + "</div></div>";
+      }).join("") + "</div></div>";
+      if (tp.length) html += '<h3 class="arc-sub">🎾 ' + T("r_tennis_s") + '</h3><div class="panel"><div class="list">' + tp.map(function (p) {
+        return '<div class="lrow ' + (p.result === true ? "win" : p.result === false ? "loss" : "") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(p.pick) + " " + T("to_win") + " · " + esc(p.probability) + "% · " + esc(p.tournament || "") + (p.score ? " · " + esc(p.score) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.result) + "</div></div>";
+      }).join("") + "</div></div>";
       pb.innerHTML = html || empty(T("no_picks_day"));
-      mb.innerHTML = fx.length ? groupByLeague(fx, function (f) { return liveRow(f, !!A.open[f.fixture.id], det[f.fixture.id] || null, "adet-"); }, countBy(fx)) : empty(T("no_data"));
+      mb.innerHTML = fx.length ? groupByLeague(fx, function (f) { return liveRow(f, !!A.open[f.fixture.id], det[f.fixture.id] || null, "adet-"); }, countBy(fx)) : empty(T("a_no_matches"));
       mb.onclick = function (e) {
         var row = e.target.closest ? e.target.closest(".mrow") : null; if (!row) return;
         var id = row.getAttribute("data-fid"); A.open[id] = !A.open[id]; row.classList.toggle("open", A.open[id]);
@@ -686,7 +789,7 @@
     $("m-search").addEventListener("input", function () { M.limit = PAGE; renderLive(); });
     $("p-search").addEventListener("input", function () { P.limit = PAGE; renderPred(); });
     $("tn-search").addEventListener("input", function () { TN.limit = PAGE; renderTennis(); });
-    $("report-range").addEventListener("change", loadReport);
+    bindReport();
     $("cta-live").addEventListener("click", function (e) { e.preventDefault(); $("live").scrollIntoView({ behavior: "smooth" }); });
     if (wide.addEventListener) wide.addEventListener("change", function () { if (current === "predictions") renderPred(); });
     var top = $("back-to-top");
