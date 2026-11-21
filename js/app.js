@@ -462,7 +462,7 @@
   function lastName(n) { return String(n || "").toLowerCase().split(/\s+/).pop(); }
   function tnSide(x, i) {
     var p = x.p[i], s = x.s, st = tnState(x), win = x.w === i + 1;
-    var sets = s && s.g && s.g[i] ? s.g[i].map(function (g, k) { var other = s.g[1 - i] ? s.g[1 - i][k] : null, wonSet = other != null && g > other; return '<span class="tset' + (wonSet ? " w" : "") + '">' + g + (s.tb && s.tb[k] && (g === 7 || g === 6) && other != null && Math.abs(g - other) === 1 ? "<sup>" + (s.tb[k]["p" + (i + 1)] != null ? s.tb[k]["p" + (i + 1)] : "") + "</sup>" : "") + "</span>"; }).join("") : "";
+    var sets = st !== "ns" && st !== "void" && s && s.g && s.g[i] ? s.g[i].map(function (g, k) { var other = s.g[1 - i] ? s.g[1 - i][k] : null, wonSet = other != null && g > other; return '<span class="tset' + (wonSet ? " w" : "") + '">' + g + (s.tb && s.tb[k] && (g === 7 || g === 6) && other != null && Math.abs(g - other) === 1 ? "<sup>" + (s.tb[k]["p" + (i + 1)] != null ? s.tb[k]["p" + (i + 1)] : "") + "</sup>" : "") + "</span>"; }).join("") : "";
     return '<div class="tteam' + (win ? " win" : "") + '"><span class="tname">' + (st === "live" && s && s.sv === i + 1 ? '<i class="srv" title="' + esc(T("tn_serve")) + '"></i>' : "") + esc(p.n) + (p.c ? ' <em class="cc">' + esc(String(p.c).toUpperCase()) + "</em>" : "") + (p.rk ? ' <em class="rk">#' + p.rk + "</em>" : "") + "</span>" +
       '<span class="tsets">' + sets + (st === "live" && s && s.pt && s.pt[i] != null ? '<span class="tpt">' + esc(s.pt[i]) + "</span>" : "") + "</span></div>";
   }
