@@ -260,3 +260,21 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+
+(function (I) {
+  var add = {
+    it: { report_sub: "Risultati dei pronostici pubblicati (Top Picks) di calcio e tennis, valutati automaticamente a fine partita.", r_overview: "Riepilogo del periodo", r_football: "Calcio", r_tennis_s: "Tennis", r_combined: "Totale calcio + tennis",
+      r_note: "Calcio e tennis sono conteggiati separatamente; il totale li somma. Ogni pronostico pubblicato conta come una giocata: una partita di calcio può avere fino a 2 pronostici, una di tennis 1. Sono contati solo i pronostici conclusi: quelli in attesa e le partite annullate sono esclusi.",
+      r_fb_title: "⚽ Calcio – Top Picks", r_tn_title: "🎾 Tennis – Top Picks", r_tennis: "🎾 Tennis – Top Picks" },
+    en: { report_sub: "Results of the published football and tennis predictions (Top Picks), graded automatically after the match.", r_overview: "Period summary", r_football: "Football", r_tennis_s: "Tennis", r_combined: "Total football + tennis",
+      r_note: "Football and tennis are counted separately; the total adds them up. Each published prediction counts as one pick: a football match can have up to 2 predictions, a tennis match 1. Only settled picks are counted: pending picks and cancelled matches are excluded.",
+      r_fb_title: "⚽ Football – Top Picks", r_tn_title: "🎾 Tennis – Top Picks", r_tennis: "🎾 Tennis – Top Picks" },
+    es: { report_sub: "Resultados de los pronósticos publicados (Top Picks) de fútbol y tenis, evaluados automáticamente al final del partido.", r_overview: "Resumen del periodo", r_football: "Fútbol", r_tennis_s: "Tenis", r_combined: "Total fútbol + tenis",
+      r_note: "Fútbol y tenis se cuentan por separado; el total los suma. Cada pronóstico publicado cuenta como una jugada: un partido de fútbol puede tener hasta 2 pronósticos, uno de tenis 1. Solo se cuentan los pronósticos resueltos: los pendientes y los partidos cancelados quedan excluidos.",
+      r_fb_title: "⚽ Fútbol – Top Picks", r_tn_title: "🎾 Tenis – Top Picks", r_tennis: "🎾 Tenis – Top Picks" },
+    pt: { report_sub: "Resultados dos palpites publicados (Top Picks) de futebol e tênis, avaliados automaticamente no fim do jogo.", r_overview: "Resumo do período", r_football: "Futebol", r_tennis_s: "Tênis", r_combined: "Total futebol + tênis",
+      r_note: "Futebol e tênis são contados separadamente; o total soma os dois. Cada palpite publicado conta como uma aposta: um jogo de futebol pode ter até 2 palpites, um de tênis 1. Só entram os palpites resolvidos: os pendentes e os jogos cancelados ficam de fora.",
+      r_fb_title: "⚽ Futebol – Top Picks", r_tn_title: "🎾 Tênis – Top Picks", r_tennis: "🎾 Tênis – Top Picks" }
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

@@ -569,11 +569,18 @@
   /* ================= REPORT ================= */
   function loadReport() {
     var n = +$("report-range").value || 7;
-    Promise.all([get("/report/summary?range=" + n, 120000), get("/report?range=" + n, 120000), get("/tennis/report", 300000).catch(function () { return null; })]).then(function (r) {
+    Promise.all([get("/report/summary?range=" + n, 120000), get("/report?range=" + n, 120000), get("/tennis/report?range=" + n, 300000).catch(function () { return null; })]).then(function (r) {
       var sum = r[0] || {}, rep = r[1] || {}, ten = r[2], s = sum.summary || {};
       var from = romeDate(-(n - 1));
       var picks = (rep.picks || []).filter(function (p) { return String(p.kickoff || "").slice(0, 10) >= from; });
-      $("report-summary").innerHTML = kpi(s.total || 0, T("r_total")) + kpi(s.won || 0, T("r_won"), "win") + kpi(s.lost || 0, T("r_lost"), "loss") + kpi(s.total ? s.accuracy + "%" : "—", T("r_acc"), "accent");
+      var tp = ((ten && ten.picks) || []).filter(function (p) { return String(p.date || "") >= from && (p.result === true || p.result === false); });
+      var tw = tp.filter(function (p) { return p.result === true; }).length, tl = tp.length - tw;
+      var fw = s.won || 0, fl = s.lost || 0;
+      function pct(w, l) { return w + l ? Math.round(w / (w + l) * 100) + "%" : "—"; }
+      function orow(lbl, w, l, cls) { return "<tr" + (cls ? ' class="' + cls + '"' : "") + "><td>" + lbl + "</td><td>" + (w + l) + '</td><td class="c-win">' + w + '</td><td class="c-loss">' + l + "</td><td><b>" + pct(w, l) + "</b></td></tr>"; }
+      $("report-overview").innerHTML = '<table class="tbl rep-ov"><thead><tr><th></th><th>' + T("r_total") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th></tr></thead><tbody>" +
+        orow("⚽ " + T("r_football"), fw, fl) + orow("🎾 " + T("r_tennis_s"), tw, tl) + orow(T("r_combined"), fw + tw, fl + tl, "tot") + "</tbody></table>";
+      $("report-summary").innerHTML = kpi(fw + fl, T("r_total")) + kpi(fw, T("r_won"), "win") + kpi(fl, T("r_lost"), "loss") + kpi(pct(fw, fl), T("r_acc"), "accent");
       var mk = {}; picks.forEach(function (p) { var m = mk[p.market] = mk[p.market] || { w: 0, l: 0 }; p.result ? m.w++ : m.l++; });
       var keys = Object.keys(mk).sort(function (a, b) { return (mk[b].w + mk[b].l) - (mk[a].w + mk[a].l); });
       $("report-markets").innerHTML = keys.length ? '<table class="tbl"><thead><tr><th>' + T("r_market") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th></tr></thead><tbody>" + keys.map(function (k) {
@@ -581,15 +588,14 @@
       }).join("") + "</tbody></table>" : empty(T("r_empty"));
       var days = (sum.by_day || []).filter(function (d) { return d.total; });
       $("chart-acc").innerHTML = days.length ? lineChart(days) : '<div class="muted small">—</div>';
-      $("chart-wl").innerHTML = wlChart(s.won || 0, s.lost || 0);
+      $("chart-wl").innerHTML = wlChart(fw, fl);
       $("report-list").innerHTML = picks.length ? '<div class="list">' + picks.map(function (p) {
         return '<div class="lrow ' + (p.result ? "win" : "loss") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(mkName(p.market)) + " · " + esc(p.probability) + "% · " + fmtDay(p.kickoff) + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.result) + "</div></div>";
       }).join("") + "</div>" : empty(T("r_empty"));
-      var ts = ten && ten.summary, tp = (ten && ten.picks) || [];
-      $("report-tennis-kpis").innerHTML = kpi(ts ? ts.total : 0, T("r_total")) + kpi(ts ? ts.won : 0, T("r_won"), "win") + kpi(ts ? ts.lost : 0, T("r_lost"), "loss") + kpi(ts && ts.total ? ts.accuracy + "%" : "—", T("r_acc"), "accent");
-      $("report-tennis-list").innerHTML = tp.length ? '<div class="list">' + tp.slice().reverse().map(function (p) {
-        return '<div class="lrow"><div><b>' + esc(p.pick) + '</b> <span class="muted">· ' + esc(p.match) + '</span><div class="muted small">' + esc(p.date) + " · " + esc(p.tournament || "") + '</div></div><div class="lrow-r"><span class="prob-s">' + esc(p.probability) + "%</span>" + resultBadge(p.result) + "</div></div>";
-      }).join("") + "</div>" : "";
+      $("report-tennis-kpis").innerHTML = kpi(tw + tl, T("r_total")) + kpi(tw, T("r_won"), "win") + kpi(tl, T("r_lost"), "loss") + kpi(pct(tw, tl), T("r_acc"), "accent");
+      $("report-tennis-list").innerHTML = tp.length ? '<div class="list">' + tp.slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; }).map(function (p) {
+        return '<div class="lrow ' + (p.result ? "win" : "loss") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(p.pick) + " " + T("to_win") + " · " + esc(p.probability) + "% · " + fmtDay(p.date + "T12:00:00") + (p.tournament ? " · " + esc(p.tournament) : "") + (p.score ? " · " + esc(p.score) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.result) + "</div></div>";
+      }).join("") + "</div>" : empty(T("r_empty"));
     }).catch(function (e) { fail($("report-list"), e); });
   }
   function lineChart(days) {
