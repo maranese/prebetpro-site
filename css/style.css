@@ -390,3 +390,34 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin
 .pcard-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pcard-foot .tag { margin: 0; }
 .pcard-teams b { font-size: 15px; }
+
+/* ===================== v9 ===================== */
+.trow .mrow-teams { gap: 3px; }
+.tteam { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.tteam .tname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.tteam.win .tname { color: var(--text); font-weight: 700; }
+.trow:not(.is-live) .tteam:not(.win) .tname { color: var(--text); }
+.tteam .cc, .tpl .cc { font-style: normal; font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 3px; }
+.tteam .rk { font-style: normal; font-size: 11px; color: var(--muted); }
+.tsets { display: inline-flex; gap: 4px; font-variant-numeric: tabular-nums; flex: none; }
+.tset { min-width: 16px; text-align: center; color: var(--muted); }
+.tset.w { color: var(--text); font-weight: 800; }
+.tset sup { font-size: 9px; margin-left: 1px; }
+.tpt { min-width: 24px; text-align: center; background: var(--accent-soft); color: var(--accent); border-radius: 5px; font-weight: 700; font-size: 12px; }
+.srv { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--live); margin-right: 5px; vertical-align: middle; }
+.trow.is-pick { box-shadow: inset 3px 0 0 var(--accent); }
+.tour-tag { font-size: 10.5px; font-weight: 800; letter-spacing: .4px; padding: 2px 6px; border-radius: 5px; background: hsl(var(--lh, 140) 65% 50% / .2); color: hsl(var(--lh, 140) 70% 45%); }
+.tpl { padding: 6px 0; border-top: 1px solid var(--line); } .tpl:first-of-type { border-top: 0; }
+.tscore { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.tscore th, .tscore td { padding: 5px 6px; text-align: center; border-top: 1px solid var(--line); font-size: 13.5px; }
+.tscore td:first-child { text-align: left; } .tscore th { color: var(--muted); font-size: 12px; border-top: 0; }
+.tscore tr.win td { font-weight: 700; }
+.rate { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 800; padding: 1px 5px; border-radius: 5px; background: var(--card2); font-style: normal; }
+.rate.hi { background: var(--accent-soft); color: var(--accent); } .rate.lo { color: var(--loss); }
+.cap { font-size: 10px; border: 1px solid var(--line); border-radius: 4px; padding: 0 3px; }
+.mvp { background: var(--accent-soft); border-radius: 10px; padding: 7px 10px; margin-bottom: 10px; font-size: 14px; }
+.inj-team { min-width: 0; } .inj-team > b { display: block; margin-bottom: 4px; }
+.inj { font-size: 13.5px; padding: 3px 0; } .inj-ico { margin-right: 5px; }
+@media (max-width: 640px) { .trow .mrow-mk:empty { display: none; } .tteam .rk { display: none; } }
+.league-head .tour-tag { flex: 0 0 auto; }
+@media (max-width: 640px) { .trow .mrow-mk .pill:not(.strong) { display: none; } .trow .mrow-mk:not(:has(.strong)) { display: none; } }
