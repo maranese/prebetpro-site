@@ -82,7 +82,7 @@
   function statusBadge(f) {
     var st = stateOf(f), s = f.fixture.status;
     if (st === "live") return '<span class="badge live"><i class="dot"></i>' + (s.short === "HT" ? "HT" : s.elapsed != null ? s.elapsed + "'" : "LIVE") + "</span>";
-    if (st === "ft") return '<span class="badge ft">' + esc(s.short) + "</span>";
+    if (st === "ft") return '<span class="badge ft">' + (s.short === "AET" ? T("aet_short") : s.short === "PEN" ? T("pen_short") : esc(s.short)) + "</span>";
     if (st === "void") return '<span class="badge void" title="' + esc(stLabel(s.short)) + '">' + esc(s.short) + "</span>";
     return '<span class="badge ns">' + fmtTime(f.fixture.date) + "</span>";
   }
@@ -260,7 +260,8 @@
   }
 
   /* ---------- partite (livescore) ---------- */
-  var M = { day: romeDate(0), fixtures: [], open: {}, det: {}, chip: "all", league: null, limit: PAGE };
+  var M = { day: romeDate(0), fixtures: [], open: {}, det: {}, inj: {}, chip: "all", league: null, limit: PAGE };
+  function injFor(I, id) { return (I && I[id]) || null; }
   function loadLive(silent) {
     daySeg($("live-day"), [-1, 0, 1], M.day, function (d) { M.day = d; M.open = {}; M.limit = PAGE; $("live-list").removeAttribute("data-loaded"); loadLive(); });
     chipBar($("live-chips"), ["all", "live", "next3", "ft", "top", "strong"], M, renderLive);
@@ -297,24 +298,27 @@
       '<div class="mrow-status">' + statusBadge(f) + "</div>" +
       '<div class="mrow-teams"><div class="team">' + logo(f.teams.home.logo, "tlogo") + "<span>" + esc(f.teams.home.name) + "</span><b>" + (st !== "ns" && f.goals.home != null ? f.goals.home : "") + "</b></div>" +
       '<div class="team">' + logo(f.teams.away.logo, "tlogo") + "<span>" + esc(f.teams.away.name) + "</span><b>" + (st !== "ns" && f.goals.away != null ? f.goals.away : "") + "</b></div>" +
-      (st !== "ns" && ht && ht.home != null ? '<div class="ht">HT ' + ht.home + "-" + ht.away + "</div>" : "") + "</div>" +
+      (st !== "ns" && ht && ht.home != null ? '<div class="ht">HT ' + ht.home + "-" + ht.away + (f.score.penalty && f.score.penalty.home != null ? " · " + T("pen_short") + " " + f.score.penalty.home + "-" + f.score.penalty.away : "") + "</div>" : "") + "</div>" +
       '<div class="mrow-mk">' + pills(f, 3) + "</div>" +
       '<div class="mrow-go" aria-hidden="true">⌄</div></div>' +
-      '<div class="mdet" id="' + (prefix || "det-") + id + '"' + (open ? "" : " hidden") + ">" + (open ? detailHtml(f, det !== undefined ? det : (M.det[M.day] && M.det[M.day][id])) : "") + "</div>";
+      '<div class="mdet" id="' + (prefix || "det-") + id + '"' + (open ? "" : " hidden") + ">" + (open ? detailHtml(f, det !== undefined ? det : (M.det[M.day] && M.det[M.day][id]), injFor(prefix === "adet-" ? A.inj : M.inj[M.day], id)) : "") + "</div>";
   }
   function loadDetails(day) {
-    get("/details?date=" + day, 60000).then(function (all) {
+    Promise.all([get("/details?date=" + day, 60000), get("/injuries?date=" + day, 600000).catch(function () { return {}; })]).then(function (r) {
+      var all = r[0]; M.inj[day] = r[1] || {};
       M.det[day] = all || {};
       Object.keys(M.open).forEach(function (id) {
         if (!M.open[id]) return; var box = $("det-" + id); if (!box) return;
         var f = M.fixtures.filter(function (x) { return String(x.fixture.id) === String(id); })[0];
-        if (f) box.innerHTML = detailHtml(f, M.det[day][id]);
+        if (f) box.innerHTML = detailHtml(f, M.det[day][id], injFor(M.inj[day], id));
       });
     }).catch(function () {
       Object.keys(M.open).forEach(function (id) { var box = $("det-" + id), f = M.fixtures.filter(function (x) { return String(x.fixture.id) === String(id); })[0]; if (box && f) box.innerHTML = detailHtml(f, null); });
     });
   }
-  function detailHtml(f, d) {
+  function rateTag(r) { if (r == null) return ""; return '<span class="rate ' + (r >= 7.5 ? "hi" : r < 6.3 ? "lo" : "") + '">' + Number(r).toFixed(1) + "</span>"; }
+  function luPl(p) { return "<li><span>" + (p[0] != null ? p[0] : "") + "</span>" + esc(p[1]) + (p[8] ? ' <b class="cap">C</b>' : "") + (p[6] ? " " + new Array(Math.min(p[6], 4) + 1).join("⚽") : "") + ' <em>' + esc(p[2]) + "</em>" + rateTag(p[4]) + "</li>"; }
+  function detailHtml(f, d, inj) {
     d = d || {};
     var st = stateOf(f), hid = f.teams.home.id, venue = d.venue || f.fixture.venue, ref = d.referee || f.fixture.referee;
     var out = '<div class="det-grid">';
@@ -322,10 +326,16 @@
       '<div class="kv"><span>' + T("kickoff") + "</span><b>" + fmtDay(f.fixture.date, true) + " · " + fmtTime(f.fixture.date) + "</b></div>" +
       (venue && venue.name ? '<div class="kv"><span>' + T("venue") + "</span><b>" + esc(venue.name) + (venue.city ? " (" + esc(venue.city) + ")" : "") + "</b></div>" : "") +
       (ref ? '<div class="kv"><span>' + T("referee") + "</span><b>" + esc(ref) + "</b></div>" : "") +
-      '<div class="kv"><span>' + esc(roundName(f.league.round)) + "</span><b>" + esc(stLabel(f.fixture.status.short)) + "</b></div></div>";
+      '<div class="kv"><span>' + esc(roundName(f.league.round)) + "</span><b>" + esc(stLabel(f.fixture.status.short)) + "</b></div>" +
+      (f.score && f.score.extratime && f.score.extratime.home != null ? '<div class="kv"><span>' + T("et") + "</span><b>" + f.score.extratime.home + "-" + f.score.extratime.away + "</b></div>" : "") +
+      (f.score && f.score.penalty && f.score.penalty.home != null ? '<div class="kv"><span>' + T("pens") + "</span><b>" + f.score.penalty.home + "-" + f.score.penalty.away + "</b></div>" : "") + "</div>";
     out += '<div class="det-box"><h4>' + T("model") + "</h4>" + (f.predictions ? '<div class="tags">' + confTag(f.confidence) +
       (f.lambda ? '<span class="tag">' + T("xg") + " " + f.lambda.home + " – " + f.lambda.away + "</span>" : "") +
       (f.sigma != null ? '<span class="tag">' + T("sigma") + " " + f.sigma + "</span>" : "") + "</div>" : "") + marketsGrid(f) + "</div>";
+    if (inj && inj.length) {
+      var side = function (tid) { var l = inj.filter(function (x) { return x[0] === tid; }); return l.length ? '<div class="inj-team"><b>' + esc(tid === hid ? f.teams.home.name : f.teams.away.name) + "</b>" + l.map(function (x) { var dbt = /question|doubt/i.test(x[2]); return '<div class="inj"><span class="inj-ico">' + (dbt ? "❔" : "🚑") + "</span>" + esc(x[1]) + ' <span class="muted small">' + (dbt ? T("inj_doubt") : T("inj_missing")) + (x[3] ? " · " + esc(x[3]) : "") + "</span></div>"; }).join("") + "</div>" : ""; };
+      out += '<div class="det-box wide"><h4>🚑 ' + T("inj_title") + '</h4><div class="lu">' + side(f.teams.home.id) + side(f.teams.away.id) + "</div></div>";
+    }
     var ev = d.events || [];
     if (ev.length) {
       out += '<div class="det-box wide"><h4>' + T("timeline") + '</h4><div class="tl">' + ev.map(function (e) {
@@ -335,23 +345,25 @@
         else if (type === "subst") { ico = "🔁"; txt = esc(e[3]) + (e[4] ? " ⇄ " + esc(e[4]) : ""); }
         else if (type === "Var") { ico = "📺"; txt = "VAR · " + esc(det) + (e[3] ? " – " + esc(e[3]) : ""); }
         var min = (e[0] != null ? e[0] : "") + (e[1] ? "+" + e[1] : "") + "'";
+        if (type === "Card" && e[7]) txt += ' <span class="muted small">· ' + esc(e[7]) + "</span>";
         return '<div class="tl-row ' + (home ? "h" : "a") + '"><span class="tl-min">' + min + '</span><span class="tl-ico">' + ico + '</span><span class="tl-txt">' + txt + "</span></div>";
       }).join("") + "</div></div>";
     }
     var lu = d.lineups || [];
     if (lu.length) {
-      out += '<div class="det-box wide"><h4>' + T("lineups") + '</h4><div class="lu">' + lu.map(function (l) {
+      var best = null; lu.forEach(function (l) { (l.xi || []).concat(l.subs || []).forEach(function (p) { if (p[4] != null && (!best || p[4] > best.p[4])) best = { p: p, t: l.team }; }); });
+      out += '<div class="det-box wide"><h4>' + T("lineups") + "</h4>" + (best ? '<div class="mvp">⭐ ' + T("mvp") + ": <b>" + esc(best.p[1]) + "</b> " + rateTag(best.p[4]) + ' <span class="muted small">' + esc(best.t === hid ? f.teams.home.name : f.teams.away.name) + "</span></div>" : "") + '<div class="lu">' + lu.map(function (l) {
         var name = l.team === hid ? f.teams.home.name : f.teams.away.name;
         return '<div class="lu-team"><div class="lu-head"><b>' + esc(name) + "</b>" + (l.formation ? ' <span class="tag">' + esc(l.formation) + "</span>" : "") + "</div>" +
           (l.coach ? '<div class="muted small">' + T("coach") + ": " + esc(l.coach) + "</div>" : "") +
-          '<ol class="lu-xi">' + (l.xi || []).map(function (p) { return "<li><span>" + (p[0] != null ? p[0] : "") + "</span>" + esc(p[1]) + ' <em>' + esc(p[2]) + "</em></li>"; }).join("") + "</ol>" +
-          ((l.subs || []).length ? '<details><summary>' + T("subs") + " (" + l.subs.length + ')</summary><ol class="lu-xi">' + l.subs.map(function (p) { return "<li><span>" + (p[0] != null ? p[0] : "") + "</span>" + esc(p[1]) + ' <em>' + esc(p[2]) + "</em></li>"; }).join("") + "</ol></details>" : "") + "</div>";
+          '<ol class="lu-xi">' + (l.xi || []).map(luPl).join("") + "</ol>" +
+          ((l.subs || []).length ? '<details><summary>' + T("subs") + " (" + l.subs.length + ')</summary><ol class="lu-xi">' + l.subs.map(luPl).join("") + "</ol></details>" : "") + "</div>";
       }).join("") + "</div></div>";
     }
     var sts = d.stats || [];
     if (sts.length === 2) {
       var sh = sts[0].team === hid ? sts[0].v : sts[1].v, sa = sts[0].team === hid ? sts[1].v : sts[0].v;
-      var rows = [["Ball Possession", "s_poss"], ["Total Shots", "s_shots"], ["Shots on Goal", "s_shots_on"], ["expected_goals", "s_xg"], ["Corner Kicks", "s_corners"], ["Fouls", "s_fouls"], ["Offsides", "s_off"], ["Yellow Cards", "s_yc"], ["Red Cards", "s_rc"], ["Goalkeeper Saves", "s_saves"]];
+      var rows = [["Ball Possession", "s_poss"], ["expected_goals", "s_xg"], ["Total Shots", "s_shots"], ["Shots on Goal", "s_shots_on"], ["Shots off Goal", "s_shots_off"], ["Blocked Shots", "s_blocked"], ["Shots insidebox", "s_in"], ["Shots outsidebox", "s_out"], ["Corner Kicks", "s_corners"], ["Total passes", "s_passes"], ["Passes accurate", "s_pacc"], ["Passes %", "s_ppct"], ["Fouls", "s_fouls"], ["Offsides", "s_off"], ["Yellow Cards", "s_yc"], ["Red Cards", "s_rc"], ["Goalkeeper Saves", "s_saves"]];
       out += '<div class="det-box wide"><h4>' + T("stats") + "</h4>" + rows.map(function (r) {
         var a = sh[r[0]], b = sa[r[0]]; if (a == null && b == null) return "";
         var na = parseFloat(a) || 0, nb = parseFloat(b) || 0, tot = na + nb || 1;
@@ -434,18 +446,100 @@
   }
 
   /* ================= TENNIS ================= */
-  var TN = { day: romeDate(0) };
+  var TN = { day: romeDate(0), matches: [], open: {}, chip: "all", limit: PAGE, picks: [] };
+  var TOURS = ["atp", "wta", "challenger", "itf"];
+  function tnState(x) { if (x.es && /cancel/i.test(x.es)) return "void"; if (x.st === "live") return "live"; if (x.st === "completed" || x.fin) return "ft"; if (x.st === "ended") return "end"; return "ns"; }
+  function tnBadge(x) {
+    var st = tnState(x);
+    if (st === "live") return '<span class="badge live"><i class="dot"></i>LIVE</span>';
+    if (st === "ft") return '<span class="badge ft">FT</span>';
+    if (st === "end") return '<span class="badge ft" title="' + esc(T("tn_last")) + '">' + T("tn_ended") + "*</span>";
+    if (st === "void") return '<span class="badge void" title="' + esc(T("tn_cancelled")) + '">' + T("tn_canc_s") + "</span>";
+    return '<span class="badge ns">' + fmtTime(x.ts) + "</span>";
+  }
+  function tnGroupKey(x) { var t = TOURS.indexOf(x.tour); return (t < 0 ? 9 : t) + "|" + x.tn; }
+  function tnIsPick(x) { return TN.picks.some(function (p) { var m = String(p.match || "").toLowerCase(); return m.indexOf(lastName(x.p[0].n)) >= 0 && m.indexOf(lastName(x.p[1].n)) >= 0; }); }
+  function lastName(n) { return String(n || "").toLowerCase().split(/\s+/).pop(); }
+  function tnSide(x, i) {
+    var p = x.p[i], s = x.s, st = tnState(x), win = x.w === i + 1;
+    var sets = s && s.g && s.g[i] ? s.g[i].map(function (g, k) { var other = s.g[1 - i] ? s.g[1 - i][k] : null, wonSet = other != null && g > other; return '<span class="tset' + (wonSet ? " w" : "") + '">' + g + (s.tb && s.tb[k] && (g === 7 || g === 6) && other != null && Math.abs(g - other) === 1 ? "<sup>" + (s.tb[k]["p" + (i + 1)] != null ? s.tb[k]["p" + (i + 1)] : "") + "</sup>" : "") + "</span>"; }).join("") : "";
+    return '<div class="tteam' + (win ? " win" : "") + '"><span class="tname">' + (st === "live" && s && s.sv === i + 1 ? '<i class="srv" title="' + esc(T("tn_serve")) + '"></i>' : "") + esc(p.n) + (p.c ? ' <em class="cc">' + esc(String(p.c).toUpperCase()) + "</em>" : "") + (p.rk ? ' <em class="rk">#' + p.rk + "</em>" : "") + "</span>" +
+      '<span class="tsets">' + sets + (st === "live" && s && s.pt && s.pt[i] != null ? '<span class="tpt">' + esc(s.pt[i]) + "</span>" : "") + "</span></div>";
+  }
+  function tnRow(x) {
+    var o = !!TN.open[x.id], pick = tnIsPick(x);
+    return '<div class="mrow trow' + (tnState(x) === "live" ? " is-live" : "") + (o ? " open" : "") + (pick ? " is-pick" : "") + '" data-tid="' + x.id + '" role="button" tabindex="0">' +
+      '<div class="mrow-status">' + tnBadge(x) + "</div>" +
+      '<div class="mrow-teams">' + tnSide(x, 0) + tnSide(x, 1) + "</div>" +
+      '<div class="mrow-mk">' + (pick ? '<span class="pill strong">🔥 Pick</span>' : "") + (x.db ? '<span class="pill">' + T("tn_doubles") + "</span>" : "") + "</div>" +
+      '<div class="mrow-go" aria-hidden="true">⌄</div></div>' +
+      '<div class="mdet" id="tdet-' + x.id + '"' + (o ? "" : " hidden") + ">" + (o ? tnDetail(x) : "") + "</div>";
+  }
+  function tnDetail(x) {
+    var kv = function (k, v) { return v ? '<div class="kv"><span>' + k + "</span><b>" + v + "</b></div>" : ""; };
+    var info = kv(T("tn_start"), fmtDay(x.ts, true) + " · " + fmtTime(x.ts)) + kv(T("tn_round"), esc(x.rd || "")) +
+      kv(T("tn_surface"), x.sf ? esc(T("sf_" + x.sf) !== "sf_" + x.sf ? T("sf_" + x.sf) : x.sf) + (x.in === true ? " · " + T("tn_indoor") : x.in === false ? " · " + T("tn_outdoor") : "") : "") +
+      kv(T("tn_court"), esc(x.ct || "")) + kv(T("tn_format"), x.fmt === "BO5" ? T("tn_bo5") : x.fmt === "BO3" ? T("tn_bo3") : esc(x.fmt || "")) +
+      (x.q ? kv("", T("tn_qual")) : "") + (x.w ? kv(T("tn_winner"), esc(x.p[x.w - 1].n)) : "") + (tnState(x) === "end" ? '<div class="muted small">* ' + T("tn_last") + "</div>" : "");
+    var pl = x.p.map(function (p) {
+      return '<div class="tpl"><b>' + esc(p.n) + "</b>" + (p.c ? ' <em class="cc">' + esc(String(p.c).toUpperCase()) + "</em>" : "") +
+        '<div class="muted small">' + [p.rk ? T("tn_rank") + " #" + p.rk + (p.mv === "up" ? " ▲" : p.mv === "down" ? " ▼" : "") : "", p.h ? T("tn_hand_" + p.h) : "", p.b ? T("tn_born") + " " + p.b : ""].filter(Boolean).join(" · ") + "</div></div>";
+    }).join("");
+    var sc = "";
+    if (x.s && x.s.g && x.s.g[0] && x.s.g[0].length) {
+      sc = '<table class="tscore"><thead><tr><th></th>' + x.s.g[0].map(function (_, k) { return "<th>" + (k + 1) + "</th>"; }).join("") + "<th>Set</th></tr></thead><tbody>" + [0, 1].map(function (i) {
+        return '<tr class="' + (x.w === i + 1 ? "win" : "") + '"><td>' + esc(x.p[i].n) + "</td>" + x.s.g[i].map(function (g, k) { var tb = x.s.tb && x.s.tb[k]; return "<td>" + g + (tb && tb["p" + (i + 1)] != null && (g === 6 || g === 7) && Math.abs(g - x.s.g[1 - i][k]) === 1 ? "<sup>" + tb["p" + (i + 1)] + "</sup>" : "") + "</td>"; }).join("") + "<td><b>" + (x.s.sets ? x.s.sets[i] : "") + "</b></td></tr>";
+      }).join("") + "</tbody></table>" + (tnState(x) === "live" && x.s.pt && x.s.pt[0] != null ? '<div class="muted small">' + T("tn_points") + ": " + esc(x.s.pt[0]) + " - " + esc(x.s.pt[1]) + "</div>" : "");
+    }
+    return '<div class="det-grid"><div class="det-box"><h4>' + T("tn_info") + "</h4>" + info + "</div>" +
+      '<div class="det-box"><h4>' + T("tn_players") + "</h4>" + pl + "</div>" + (sc ? '<div class="det-box wide"><h4>' + T("score") + "</h4>" + sc + "</div>" : "") + "</div>";
+  }
   function loadTennis() {
-    daySeg($("tennis-day"), [-2, -1, 0, 1], TN.day, function (d) { TN.day = d; loadTennis(); });
-    var list = $("tennis-list"); loading(list); var day = TN.day;
-    Promise.all([get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/tennis/report", 300000).catch(function () { return null; })]).then(function (r) {
+    daySeg($("tennis-day"), [-1, 0, 1], TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loadTennis(); });
+    chipBar($("tn-chips"), ["all", "live", "atpwta", "chall", "itf", "tnft"], TN, renderTennis);
+    var list = $("tennis-list"), ml = $("tn-matches"); loading(list); loading(ml); var day = TN.day;
+    Promise.all([get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/tennis/report", 300000).catch(function () { return null; }), get("/tennis/matches?date=" + day, 60000).catch(function () { return {}; })]).then(function (r) {
       if (day !== TN.day) return;
       var picks = (r[0] && r[0].date === day && r[0].picks) || [], s = r[1] && r[1].summary;
+      TN.picks = picks; TN.matches = (r[2] && r[2].matches) || []; TN.updated = r[2] && r[2].updated;
       $("tennis-kpis").innerHTML = kpi(picks.length, T("k_picks") + " · " + dayLabel(day).toLowerCase()) + kpi(s ? s.total : 0, T("k_graded30")) +
         kpi(s ? s.won + " / " + s.lost : "—", T("k_wl")) + kpi(s && s.total ? s.accuracy + "%" : "—", T("k_hit30"), "accent");
-      list.innerHTML = picks.length ? picks.slice().sort(function (a, b) { return String(a.start || a.time).localeCompare(String(b.start || b.time)); }).map(tennisCard).join("") : empty(day === romeDate(0) ? T("tennis_none_today") : T("tennis_none"));
+      list.innerHTML = picks.length ? picks.slice().sort(function (a, b) { return String(a.start || a.time).localeCompare(String(b.start || b.time)); }).map(tennisCard).join("") : empty(T("tn_none_picks"));
       list.setAttribute("data-loaded", "1");
+      renderTennis();
     }).catch(function (e) { fail(list, e); });
+  }
+  function renderTennis() {
+    var q = ($("tn-search").value || "").trim().toLowerCase();
+    var fx = TN.matches.filter(function (x) {
+      var st = tnState(x);
+      switch (TN.chip) {
+        case "live": if (st !== "live") return false; break;
+        case "atpwta": if (x.tour !== "atp" && x.tour !== "wta") return false; break;
+        case "chall": if (x.tour !== "challenger") return false; break;
+        case "itf": if (x.tour !== "itf") return false; break;
+        case "tnft": if (st !== "ft" && st !== "end") return false; break;
+      }
+      return !q || (x.p[0].n + " " + x.p[1].n + " " + x.tn).toLowerCase().indexOf(q) >= 0;
+    }).sort(function (a, b) { var ka = tnGroupKey(a), kb = tnGroupKey(b); if (ka !== kb) return ka < kb ? -1 : 1; var la = tnState(a) === "live" ? 0 : 1, lb = tnState(b) === "live" ? 0 : 1; return la - lb || String(a.ts).localeCompare(String(b.ts)); });
+    var shown = fx.slice(0, TN.limit), ml = $("tn-matches");
+    $("tn-updated").textContent = TN.updated ? T("tn_upd") + " " + fmtTime(TN.updated) : "";
+    var counts = {}; fx.forEach(function (x) { counts[x.tn] = (counts[x.tn] || 0) + 1; });
+    var out = "", cur = null;
+    shown.forEach(function (x) {
+      if (x.tn !== cur) { if (cur !== null) out += "</div></div>"; cur = x.tn; out += '<div class="league" style="--lh:' + ({ atp: 210, wta: 320, challenger: 35, itf: 150 }[x.tour] || 260) + '"><div class="league-head"><span class="tour-tag">' + esc((x.tour || "tennis").toUpperCase()) + "</span><span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + '</em></div><div class="league-body">'; }
+      out += tnRow(x);
+    });
+    if (cur !== null) out += "</div></div>";
+    ml.innerHTML = shown.length ? out : empty(TN.matches.length ? T("no_matches") : T("tn_no_matches"));
+    ml.setAttribute("data-loaded", "1");
+    moreBtn($("tn-more"), shown.length, fx.length, TN, renderTennis);
+    ml.onclick = function (e) {
+      var r = e.target.closest ? e.target.closest(".trow") : null; if (!r) return;
+      var id = r.getAttribute("data-tid"); TN.open[id] = !TN.open[id]; r.classList.toggle("open", TN.open[id]);
+      var box = $("tdet-" + id), x = TN.matches.filter(function (m) { return String(m.id) === id; })[0];
+      if (box) { box.hidden = !TN.open[id]; if (TN.open[id] && x) box.innerHTML = tnDetail(x); }
+    };
   }
 
   /* ================= REPORT ================= */
@@ -490,7 +584,7 @@
   }
 
   /* ================= ARCHIVIO ================= */
-  var A = { day: romeDate(-1), open: {} };
+  var A = { day: romeDate(-1), open: {}, inj: {} };
   function loadArchive() {
     var inp = $("archive-date"); inp.max = romeDate(1); inp.value = A.day;
     inp.onchange = function () { if (inp.value) { A.day = inp.value; renderArchive(); } };
@@ -508,7 +602,8 @@
     for (var i = 0; i < chips.length; i++) chips[i].classList.toggle("on", chips[i].getAttribute("data-d") === A.day);
     var pb = $("archive-picks"), mb = $("archive-matches"); pb.removeAttribute("data-loaded"); mb.removeAttribute("data-loaded"); loading(pb); loading(mb);
     var day = A.day;
-    Promise.all([get("/history?date=" + day), get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/details?date=" + day, 300000).catch(function () { return {}; })]).then(function (r) {
+    Promise.all([get("/history?date=" + day), get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/details?date=" + day, 300000).catch(function () { return {}; }), get("/injuries?date=" + day, 600000).catch(function () { return {}; })]).then(function (r) {
+      A.inj = r[3] || {};
       if (day !== A.day) return;
       var h = r[0] || {}, t = r[1] || {}, det = r[2] || {};
       var fx = sortFx(h.fixtures || []), picks = h.picks || [], tp = (t.date === day && t.picks) || [];
@@ -524,7 +619,7 @@
         var row = e.target.closest ? e.target.closest(".mrow") : null; if (!row) return;
         var id = row.getAttribute("data-fid"); A.open[id] = !A.open[id]; row.classList.toggle("open", A.open[id]);
         var box = $("adet-" + id), f = fx.filter(function (x) { return String(x.fixture.id) === id; })[0];
-        if (box) { box.hidden = !A.open[id]; if (A.open[id] && f) box.innerHTML = detailHtml(f, det[id]); }
+        if (box) { box.hidden = !A.open[id]; if (A.open[id] && f) box.innerHTML = detailHtml(f, det[id], injFor(A.inj, id)); }
       };
     }).catch(function (e) { fail(pb, e); mb.innerHTML = ""; });
   }
@@ -560,6 +655,7 @@
     $("lang").addEventListener("change", function () { try { localStorage.setItem("pbp-lang", this.value); } catch (e) {} setLang(this.value, true); });
     $("m-search").addEventListener("input", function () { M.limit = PAGE; renderLive(); });
     $("p-search").addEventListener("input", function () { P.limit = PAGE; renderPred(); });
+    $("tn-search").addEventListener("input", function () { TN.limit = PAGE; renderTennis(); });
     $("report-range").addEventListener("change", loadReport);
     $("cta-live").addEventListener("click", function (e) { e.preventDefault(); $("live").scrollIntoView({ behavior: "smooth" }); });
     if (wide.addEventListener) wide.addEventListener("change", function () { if (current === "predictions") renderPred(); });
@@ -574,8 +670,8 @@
     }).catch(function () {});
     // aggiornamento automatico della home (i dati cambiano al massimo ogni 15')
     setInterval(function () {
-      if (document.hidden || current !== "home") return;
-      cache = {}; loadHome();
+      if (document.hidden || (current !== "home" && current !== "tennis")) return;
+      cache = {}; if (current === "home") loadHome(); else loadTennis();
     }, 120000);
   }
   document.addEventListener("DOMContentLoaded", init);
