@@ -157,3 +157,72 @@ window.PBP_I18N = {
     status: { NS: "A jogar", TBD: "A definir", "1H": "1º tempo", HT: "Intervalo", "2H": "2º tempo", ET: "Prorrogação", BT: "Pausa", P: "Pênaltis", SUSP: "Suspenso", INT: "Interrompido", FT: "Encerrado", AET: "Após prorrogação", PEN: "Após pênaltis", PST: "Adiado", CANC: "Cancelado", ABD: "Abandonado", AWD: "W.O. técnico", WO: "W.O.", LIVE: "Ao vivo" }
   }
 };
+
+/* v8: home con hero, pagine separate, filtri rapidi, paesi tradotti */
+(function (I) {
+  var add = {
+    it: {
+      nav_home: "Home", nav_pred: "Pronostici",
+      hero_claim: "Solo le partite che contano", hero_sub: "Ogni giorno analizziamo tutto, pubblichiamo solo il meglio.",
+      hero_today: "Oggi abbiamo analizzato {n} partite: solo {k} superano i nostri filtri.",
+      hero_p1: "Dati reali", hero_p1t: "Risultati, calendari e quote aggiornati in automatico.",
+      hero_p2: "Modelli statistici", hero_p2t: "Probabilità calcolate per ogni mercato, senza sensazioni.",
+      hero_p3: "Risultati verificati", hero_p3t: "Ogni pick viene valutato e resta pubblico nel report.",
+      cta_pred: "Pronostici di oggi", cta_live: "Partite live",
+      picks_box: "Selezione ristretta: tra tutte le partite analizzate pubblichiamo solo quelle che superano i nostri criteri di affidabilità. Pochi pronostici, scelti per qualità.",
+      picks_count: "{k} su {n} partite", fb_title: "Calcio", tn_title: "Tennis", picks_today_title: "Top Picks di oggi",
+      chip_all: "Tutte", chip_live: "In corso", chip_next3: "Prossime 3 ore", chip_ft: "Terminate", chip_top: "Campionati top", chip_strong: "Pronostico forte", chip_high: "Confidenza alta",
+      show_more: "Mostra altre", shown_of: "{a} di {b}", col_time: "Ora", col_match: "Partita", col_conf: "Conf.", sort_hint: "Tocca un'intestazione per ordinare",
+      more_markets: "Tutti i mercati", less_markets: "Meno mercati", round: "Giornata", tennis_full_soon: "L'elenco completo delle partite di tennis con risultati in diretta è in preparazione.",
+      tn_none_picks: "Nessun pick tennis oggi.", fb_none_picks: "Nessuna partita di calcio supera i filtri in questo momento."
+    },
+    en: {
+      nav_home: "Home", nav_pred: "Predictions",
+      hero_claim: "Only the matches that matter", hero_sub: "Every day we analyse everything and publish only the best.",
+      hero_today: "Today we analysed {n} matches: only {k} pass our filters.",
+      hero_p1: "Real data", hero_p1t: "Results, fixtures and odds updated automatically.",
+      hero_p2: "Statistical models", hero_p2t: "Probabilities computed for every market, no gut feelings.",
+      hero_p3: "Verified results", hero_p3t: "Every pick is graded and stays public in the report.",
+      cta_pred: "Today's predictions", cta_live: "Live matches",
+      picks_box: "A short list: out of all the matches we analyse, we publish only those that pass our reliability criteria. Few picks, chosen for quality.",
+      picks_count: "{k} of {n} matches", fb_title: "Football", tn_title: "Tennis", picks_today_title: "Today's Top Picks",
+      chip_all: "All", chip_live: "Live", chip_next3: "Next 3 hours", chip_ft: "Finished", chip_top: "Top leagues", chip_strong: "Strong pick", chip_high: "High confidence",
+      show_more: "Show more", shown_of: "{a} of {b}", col_time: "Time", col_match: "Match", col_conf: "Conf.", sort_hint: "Tap a header to sort",
+      more_markets: "All markets", less_markets: "Fewer markets", round: "Round", tennis_full_soon: "The full list of tennis matches with live scores is coming soon.",
+      tn_none_picks: "No tennis picks today.", fb_none_picks: "No football match passes the filters right now."
+    },
+    es: {
+      nav_home: "Inicio", nav_pred: "Pronósticos",
+      hero_claim: "Solo los partidos que importan", hero_sub: "Cada día lo analizamos todo y publicamos solo lo mejor.",
+      hero_today: "Hoy hemos analizado {n} partidos: solo {k} superan nuestros filtros.",
+      hero_p1: "Datos reales", hero_p1t: "Resultados, calendarios y cuotas actualizados automáticamente.",
+      hero_p2: "Modelos estadísticos", hero_p2t: "Probabilidades calculadas para cada mercado, sin corazonadas.",
+      hero_p3: "Resultados verificados", hero_p3t: "Cada pick se evalúa y queda público en el informe.",
+      cta_pred: "Pronósticos de hoy", cta_live: "Partidos en directo",
+      picks_box: "Selección reducida: de todos los partidos analizados publicamos solo los que superan nuestros criterios de fiabilidad. Pocos pronósticos, elegidos por calidad.",
+      picks_count: "{k} de {n} partidos", fb_title: "Fútbol", tn_title: "Tenis", picks_today_title: "Top Picks de hoy",
+      chip_all: "Todos", chip_live: "En directo", chip_next3: "Próximas 3 horas", chip_ft: "Finalizados", chip_top: "Ligas top", chip_strong: "Pronóstico fuerte", chip_high: "Confianza alta",
+      show_more: "Mostrar más", shown_of: "{a} de {b}", col_time: "Hora", col_match: "Partido", col_conf: "Conf.", sort_hint: "Toca un encabezado para ordenar",
+      more_markets: "Todos los mercados", less_markets: "Menos mercados", round: "Jornada", tennis_full_soon: "La lista completa de partidos de tenis con resultados en directo llegará pronto.",
+      tn_none_picks: "Hoy no hay picks de tenis.", fb_none_picks: "Ningún partido de fútbol supera los filtros ahora mismo."
+    },
+    pt: {
+      nav_home: "Início", nav_pred: "Palpites",
+      hero_claim: "Só os jogos que importam", hero_sub: "Todo dia analisamos tudo e publicamos só o melhor.",
+      hero_today: "Hoje analisamos {n} jogos: só {k} passam nos nossos filtros.",
+      hero_p1: "Dados reais", hero_p1t: "Resultados, calendários e odds atualizados automaticamente.",
+      hero_p2: "Modelos estatísticos", hero_p2t: "Probabilidades calculadas para cada mercado, sem achismo.",
+      hero_p3: "Resultados verificados", hero_p3t: "Cada pick é avaliado e fica público no relatório.",
+      cta_pred: "Palpites de hoje", cta_live: "Jogos ao vivo",
+      picks_box: "Seleção restrita: de todos os jogos analisados publicamos só os que passam nos nossos critérios de confiabilidade. Poucos palpites, escolhidos pela qualidade.",
+      picks_count: "{k} de {n} jogos", fb_title: "Futebol", tn_title: "Tênis", picks_today_title: "Top Picks de hoje",
+      chip_all: "Todos", chip_live: "Ao vivo", chip_next3: "Próximas 3 horas", chip_ft: "Encerrados", chip_top: "Ligas top", chip_strong: "Palpite forte", chip_high: "Confiança alta",
+      show_more: "Mostrar mais", shown_of: "{a} de {b}", col_time: "Hora", col_match: "Jogo", col_conf: "Conf.", sort_hint: "Toque num cabeçalho para ordenar",
+      more_markets: "Todos os mercados", less_markets: "Menos mercados", round: "Rodada", tennis_full_soon: "A lista completa de jogos de tênis com placares ao vivo está chegando.",
+      tn_none_picks: "Nenhum pick de tênis hoje.", fb_none_picks: "Nenhum jogo de futebol passa nos filtros agora."
+    }
+  };
+  var CC = { it: { England: "Inghilterra", Scotland: "Scozia", World: "Mondo", Europe: "Europa" }, en: { World: "World", Europe: "Europe" },
+    es: { England: "Inglaterra", Scotland: "Escocia", World: "Mundo", Europe: "Europa" }, pt: { England: "Inglaterra", Scotland: "Escócia", World: "Mundo", Europe: "Europa" } };
+  for (var l in add) { for (var k in add[l]) I[l][k] = add[l][k]; I[l]._countries = CC[l]; }
+})(window.PBP_I18N);

@@ -1,4 +1,4 @@
-/* PreBetPro front-end v7 – home a sezioni (top picks, livescore, pronostici, tennis, report) + archivio + metodo; 4 lingue */
+/* PreBetPro front-end v8 – pagine separate (home, pronostici, tennis, report, archivio, metodo), 4 lingue */
 (function () {
   "use strict";
 
@@ -7,13 +7,29 @@
   var FINAL = ["FT", "AET", "PEN"];
   var LIVE = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE", "INT", "SUSP"];
   var VOIDS = ["PST", "CANC", "ABD", "AWD", "WO"];
+  var TOP = [2, 3, 848, 135, 39, 140, 78, 61];
   var LANGS = ["it", "en", "es", "pt"];
+  var PAGE = 20;
   var cache = {};
   var L = "it", D = {};
+  var wide = window.matchMedia ? window.matchMedia("(min-width: 900px)") : { matches: true };
 
   /* ---------- i18n ---------- */
-  function T(k) { return (D && D[k] != null) ? D[k] : ((window.PBP_I18N.en || {})[k] || k); }
+  function T(k, vars) {
+    var s = (D && D[k] != null) ? D[k] : ((window.PBP_I18N.en || {})[k] || k);
+    if (vars) for (var v in vars) s = s.replace("{" + v + "}", vars[v]);
+    return s;
+  }
   function stLabel(s) { return (D.status && D.status[s]) || s; }
+  var ISO = { Italy: "IT", Spain: "ES", Germany: "DE", France: "FR", Portugal: "PT", Netherlands: "NL", Belgium: "BE", Turkey: "TR", "Saudi-Arabia": "SA" };
+  function country(c) {
+    if (D._countries && D._countries[c]) return D._countries[c];
+    try { if (ISO[c] && Intl.DisplayNames) return new Intl.DisplayNames([loc()], { type: "region" }).of(ISO[c]); } catch (e) {}
+    return c;
+  }
+  function roundName(r) { var m = /^Regular Season - (\d+)$/.exec(r || ""); return m ? T("round") + " " + m[1] : (r || ""); }
+  function trLeague(s) { s = String(s || ""); var i = s.indexOf(" – "); return i > 0 ? country(s.slice(0, i)) + " · " + s.slice(i + 3) : s; }
+  function leagueLabel(lg) { return country(lg.country) + " · " + lg.name; }
   function pickLang(cb) {
     var saved = null; try { saved = localStorage.getItem("pbp-lang"); } catch (e) {}
     if (saved && LANGS.indexOf(saved) >= 0) return cb(saved);
@@ -34,8 +50,8 @@
     els = document.querySelectorAll("[data-i18n-ph]");
     for (i = 0; i < els.length; i++) els[i].setAttribute("placeholder", T(els[i].getAttribute("data-i18n-ph")));
     $("method-body").innerHTML = T("method_html");
-    document.title = "PreBetPro – " + T("tagline");
-    if (rerender) loadAll(true);
+    document.title = "PreBetPro – " + T("hero_claim");
+    if (rerender) { loaded = {}; route(true); }
   }
   function loc() { return D._locale || "en-GB"; }
 
@@ -82,6 +98,7 @@
   function logo(src, cls) { return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : ""; }
   function kpi(v, l, cls) { return '<div class="kpi ' + (cls || "") + '"><b>' + v + "</b><span>" + l + "</span></div>"; }
   function mkName(m) { return m === "Goal" ? T("m_goal") : m === "No Goal" ? T("m_nogoal") : m; }
+  function hue(s) { var h = 0; s = String(s || ""); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
 
   /* ---------- mercati ---------- */
   var GROUPS = [
@@ -90,15 +107,17 @@
     { t: "g_goals", items: [["O 1.5", "over_15", "over_15"], ["U 1.5", "under_15", null], ["O 2.5", "over_25", "over_25"], ["U 2.5", "under_25", "under_25"]] },
     { t: "g_btts", items: [["GG", "btts", "btts"], ["NG", "no_btts", "no_btts"]] }
   ];
+  var COLS = [["1", "home_win", "home_win"], ["X", "draw", "draw"], ["2", "away_win", "away_win"], ["1X", "double_chance.1x", "dc_1x"], ["X2", "double_chance.x2", "dc_x2"], ["12", "double_chance.12", "dc_12"],
+    ["O1.5", "over_15", "over_15"], ["O2.5", "over_25", "over_25"], ["U2.5", "under_25", "under_25"], ["GG", "btts", "btts"], ["NG", "no_btts", "no_btts"]];
   function val(p, path) { return path.split(".").reduce(function (o, k) { return o ? o[k] : null; }, p); }
   function hit(key, h, a) { return { home_win: h > a, draw: h === a, away_win: a > h, dc_1x: h >= a, dc_x2: a >= h, dc_12: h !== a, over_15: h + a > 1, under_15: h + a < 2, over_25: h + a > 2, under_25: h + a < 3, btts: h > 0 && a > 0, no_btts: !(h > 0 && a > 0) }[key]; }
   function confTag(c) { return c ? '<span class="tag conf-' + esc(c) + '">' + T("conf_" + c) + "</span>" : ""; }
-  function marketsGrid(f, only) {
+  function hasStrong(f) { var s = f.predictions && f.predictions.strength; return !!(s && Object.keys(s).some(function (k) { return s[k]; })); }
+  function marketsGrid(f) {
     var p = f.predictions;
     if (!p) return '<div class="muted small">' + T("min8") + "</div>";
     var st = stateOf(f), h = f.goals && f.goals.home, a = f.goals && f.goals.away;
-    return '<div class="mk-grid">' + GROUPS.map(function (g, gi) {
-      if (only !== "" && only != null && String(gi) !== String(only)) return "";
+    return '<div class="mk-grid">' + GROUPS.map(function (g) {
       return '<div class="mk-group"><div class="mk-title">' + T(g.t) + '</div><div class="mk-row">' + g.items.map(function (it) {
         var v = val(p, it[1]), strong = it[2] && p.strength && p.strength[it[2]], cls = "mk" + (strong ? " strong" : "");
         if (st === "ft" && h != null) cls += hit(it[2] || "under_15", h, a) ? " ok" : " ko";
@@ -106,14 +125,18 @@
       }).join("") + "</div></div>";
     }).join("") + "</div>";
   }
-  function topMarkets(f) {
+  function topMarkets(f, n) {
     var p = f.predictions; if (!p) return [];
     return [["1", p.home_win, "home_win"], ["X", p.draw, "draw"], ["2", p.away_win, "away_win"], ["O 2.5", p.over_25, "over_25"], ["U 2.5", p.under_25, "under_25"], ["GG", p.btts, "btts"]]
-      .filter(function (m) { return m[1] != null; }).sort(function (x, y) { return y[1] - x[1]; }).slice(0, 3)
+      .filter(function (m) { return m[1] != null; }).sort(function (x, y) { return y[1] - x[1]; }).slice(0, n || 3)
       .map(function (m) { return { l: m[0], v: m[1], s: p.strength && p.strength[m[2]] }; });
   }
+  function pills(f, n) {
+    var tm = topMarkets(f, n);
+    return tm.length ? tm.map(function (m) { return '<span class="pill' + (m.s ? " strong" : "") + '">' + m.l + " <b>" + m.v + "%</b></span>"; }).join("") : '<span class="muted small">' + T("no_prediction") + "</span>";
+  }
 
-  /* ---------- selettore giorno ---------- */
+  /* ---------- componenti comuni ---------- */
   function daySeg(el, offsets, current, onPick) {
     el.innerHTML = offsets.map(function (o) { var d = romeDate(o); return '<button type="button" data-d="' + d + '" class="' + (d === current ? "on" : "") + '">' + dayLabel(d) + "</button>"; }).join("");
     el.onclick = function (e) {
@@ -122,47 +145,91 @@
       onPick(b.getAttribute("data-d"));
     };
   }
-
-  /* ================= TOP PICKS ================= */
-  function loadPicks() {
-    var today = romeDate(0), fb = $("picks-football"), tn = $("picks-tennis");
-    loading(fb);
-    Promise.all([
-      get("/history?date=" + today).catch(function () { return {}; }),
-      get("/day?date=" + romeDate(1)).catch(function () { return {}; }),
-      get("/report/summary?range=30", 300000).catch(function () { return null; }),
-      get("/tennis?date=" + today).catch(function () { return {}; })
-    ]).then(function (r) {
-      var hist = r[0] || {}, tom = r[1] || {}, rep = r[2], ten = r[3] || {}, seen = {}, rows = [];
-      (hist.picks || []).forEach(function (p) {
-        seen[p.af_id + ":" + p.market] = 1;
-        rows.push({ match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.probability, result: p.void ? "void" : p.result, ft: p.ft, frozen: true, fid: p.af_id, day: today });
-      });
-      (hist.ranked_predictions || []).forEach(function (p) {
-        if (seen[p.fixture_id + ":" + p.market]) return; seen[p.fixture_id + ":" + p.market] = 1;
-        rows.push({ match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, fid: p.fixture_id, day: today });
-      });
-      var nToday = rows.length;
-      if (nToday < 5) (tom.ranked_predictions || []).forEach(function (p) { rows.push({ match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, fid: p.fixture_id, day: romeDate(1) }); });
-      rows.sort(function (a, b) { return new Date(a.kickoff) - new Date(b.kickoff) || b.value - a.value; });
-      var fx = hist.fixtures || [], s = rep && rep.summary;
-      $("picks-kpis").innerHTML = kpi(fx.length, T("k_matches")) + kpi(fx.filter(function (f) { return stateOf(f) === "live"; }).length, T("k_live"), "live") +
-        kpi(nToday, T("k_picks_today")) + kpi(s && s.total ? s.accuracy + "%" : "—", T("k_hit30") + (s && s.total ? " (" + s.won + "/" + s.total + ")" : ""), "accent");
-      fb.innerHTML = rows.length ? rows.map(pickCard).join("") : empty(T("picks_none"));
-      fb.setAttribute("data-loaded", "1");
-      fb.onclick = function (e) { var c = e.target.closest ? e.target.closest("[data-fid]") : null; if (c) goToMatch(c.getAttribute("data-day"), c.getAttribute("data-fid")); };
-      var tp = (ten.date === today && ten.picks) || [];
-      tn.innerHTML = tp.length ? tp.map(tennisCard).join("") : "";
-    }).catch(function (e) { fail(fb, e); });
+  function chipBar(el, keys, state, onChange) {
+    el.innerHTML = keys.map(function (k) { return '<button type="button" class="chip' + (state.chip === k ? " on" : "") + '" data-k="' + k + '">' + T("chip_" + k) + "</button>"; }).join("");
+    el.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-k]") : null; if (!b) return; state.chip = b.getAttribute("data-k"); state.limit = PAGE; chipBar(el, keys, state, onChange); onChange(); };
   }
-  function pickCard(p) {
-    var badge = p.frozen ? resultBadge(p.result) : '<span class="badge ns">' + (p.day === romeDate(0) ? "" : dayLabel(p.day) + " ") + fmtTime(p.kickoff) + "</span>";
-    return '<div class="card pick' + (p.result === true ? " is-win" : p.result === false ? " is-loss" : "") + '" data-fid="' + esc(p.fid) + '" data-day="' + esc(p.day) + '" role="button" tabindex="0">' +
-      '<div class="card-top"><span class="muted small ellipsis">' + esc(p.league || "") + "</span>" + badge + "</div>" +
-      '<div class="card-match">' + esc(p.match) + "</div>" +
-      '<div class="card-pick"><span class="market">' + esc(mkName(p.market)) + '</span><span class="prob">' + esc(p.value) + "%</span></div>" +
-      '<div class="meter"><i style="width:' + Math.max(0, Math.min(100, +p.value || 0)) + '%"></i></div>' +
-      '<div class="muted small">' + fmtDay(p.kickoff) + " · " + fmtTime(p.kickoff) + (p.ft ? " · FT " + esc(p.ft) : "") + "</div></div>";
+  function leagueBar(el, fx, state, onChange) {
+    var seen = {}, list = [];
+    fx.forEach(function (f) { if (!seen[f.league.id]) { seen[f.league.id] = 1; list.push(f.league); } });
+    if (state.league && !seen[state.league]) state.league = null;
+    el.innerHTML = list.length > 1 ? '<button type="button" class="lchip' + (!state.league ? " on" : "") + '" data-l="">' + T("chip_all") + "</button>" + list.map(function (lg) {
+      return '<button type="button" class="lchip' + (String(state.league) === String(lg.id) ? " on" : "") + '" data-l="' + lg.id + '" style="--lh:' + hue(lg.country) + '">' + logo(lg.logo, "llogo") + "<span>" + esc(lg.name) + "</span></button>";
+    }).join("") : "";
+    el.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-l]") : null; if (!b) return; state.league = b.getAttribute("data-l") || null; state.limit = PAGE; onChange(); };
+  }
+  function moreBtn(el, shown, total, state, onChange) {
+    el.innerHTML = shown < total ? '<button type="button" class="btn more">' + T("show_more") + ' <span class="muted">(' + T("shown_of", { a: shown, b: total }) + ")</span></button>" : "";
+    el.onclick = function (e) { if (e.target.closest && e.target.closest("button")) { state.limit += PAGE; onChange(); } };
+  }
+  function applyChip(fx, chip) {
+    var now = Date.now() / 1000;
+    return fx.filter(function (f) {
+      var st = stateOf(f);
+      switch (chip) {
+        case "live": return st === "live";
+        case "next3": return st === "ns" && f.fixture.timestamp - now <= 3 * 3600 && f.fixture.timestamp - now > -900;
+        case "ft": return st === "ft";
+        case "top": return TOP.indexOf(f.league.id) >= 0;
+        case "strong": return hasStrong(f);
+        case "high": return f.confidence === "high";
+        default: return true;
+      }
+    });
+  }
+  function applySearch(fx, q) { q = (q || "").trim().toLowerCase(); return q ? fx.filter(function (f) { return (f.teams.home.name + " " + f.teams.away.name).toLowerCase().indexOf(q) >= 0; }) : fx; }
+  var ORDER = ["World", "Europe", "Italy", "England", "Spain", "Germany", "France", "Portugal", "Netherlands", "Belgium", "Turkey", "Scotland", "Saudi-Arabia"];
+  function sortFx(fx) {
+    return fx.slice().sort(function (a, b) {
+      var ia = ORDER.indexOf(a.league.country), ib = ORDER.indexOf(b.league.country); ia = ia < 0 ? 99 : ia; ib = ib < 0 ? 99 : ib;
+      if (ia !== ib) return ia - ib; if (a.league.id !== b.league.id) return a.league.id - b.league.id;
+      return (a.fixture.timestamp || 0) - (b.fixture.timestamp || 0);
+    });
+  }
+  function leagueHead(lg, n) {
+    return '<div class="league-head">' + logo(lg.logo, "llogo") + "<span>" + esc(leagueLabel(lg)) + '</span><em class="lg-n">' + n + "</em></div>";
+  }
+  function groupByLeague(fx, render, counts) {
+    var out = "", cur = null;
+    fx.forEach(function (f) {
+      if (f.league.id !== cur) {
+        if (cur !== null) out += "</div></div>"; cur = f.league.id;
+        out += '<div class="league" style="--lh:' + hue(f.league.country) + '">' + leagueHead(f.league, counts[cur] || "") + '<div class="league-body">';
+      }
+      out += render(f);
+    });
+    return out + (cur !== null ? "</div></div>" : "");
+  }
+  function countBy(fx) { var c = {}; fx.forEach(function (f) { c[f.league.id] = (c[f.league.id] || 0) + 1; }); return c; }
+
+  /* ================= TOP PICKS (raggruppati per partita) ================= */
+  function picksFor(day) {
+    return Promise.all([get("/history?date=" + day).catch(function () { return {}; }), get("/day?date=" + shiftDate(day, 1)).catch(function () { return {}; })]).then(function (r) {
+      var hist = r[0] || {}, tom = r[1] || {}, seen = {}, rows = [];
+      (hist.picks || []).forEach(function (p) { seen[p.af_id + ":" + p.market] = 1; rows.push({ fid: p.af_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.probability, result: p.void ? "void" : p.result, ft: p.ft, frozen: true, day: day }); });
+      (hist.ranked_predictions || []).forEach(function (p) { if (seen[p.fixture_id + ":" + p.market]) return; seen[p.fixture_id + ":" + p.market] = 1; rows.push({ fid: p.fixture_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, day: day }); });
+      var nToday = rows.length;
+      if (nToday < 5) (tom.ranked_predictions || []).forEach(function (p) { rows.push({ fid: p.fixture_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, day: shiftDate(day, 1) }); });
+      var by = {}, cards = [];
+      rows.forEach(function (r) { var c = by[r.fid]; if (!c) { c = by[r.fid] = { fid: r.fid, match: r.match, league: r.league, kickoff: r.kickoff, day: r.day, ft: r.ft, picks: [] }; cards.push(c); } c.picks.push(r); if (r.ft) c.ft = r.ft; });
+      cards.forEach(function (c) { c.picks.sort(function (a, b) { return b.value - a.value; }); });
+      cards.sort(function (a, b) { return new Date(a.kickoff) - new Date(b.kickoff); });
+      return { cards: cards, fixtures: hist.fixtures || [], todayMatches: cards.filter(function (c) { return c.day === day; }).length };
+    });
+  }
+  function pickCard(c) {
+    var anyFrozen = c.picks.some(function (p) { return p.frozen; });
+    var res = c.picks.map(function (p) { return p.result; });
+    var cls = res.every(function (x) { return x === true; }) && res.length ? " is-win" : res.some(function (x) { return x === false; }) ? " is-loss" : "";
+    var badge = anyFrozen && res.some(function (x) { return x === true || x === false; }) ? "" : '<span class="badge ns">' + (c.day === romeDate(0) ? "" : dayLabel(c.day) + " ") + fmtTime(c.kickoff) + "</span>";
+    return '<div class="card pick' + cls + '" data-fid="' + esc(c.fid) + '" data-day="' + esc(c.day) + '" role="button" tabindex="0">' +
+      '<div class="card-top"><span class="muted small ellipsis">' + esc(trLeague(c.league)) + "</span>" + badge + "</div>" +
+      '<div class="card-match">' + esc(c.match) + (c.ft ? ' <span class="score">' + esc(c.ft) + "</span>" : "") + "</div>" +
+      c.picks.map(function (p) {
+        return '<div class="card-pick"><span class="market">' + esc(mkName(p.market)) + '</span><span class="prob">' + esc(p.value) + "%</span>" + (p.frozen && (p.result === true || p.result === false || p.result === "void") ? resultBadge(p.result) : "") + "</div>" +
+          '<div class="meter"><i style="width:' + Math.max(0, Math.min(100, +p.value || 0)) + '%"></i></div>';
+      }).join("") +
+      '<div class="muted small">' + fmtDay(c.kickoff) + " · " + fmtTime(c.kickoff) + "</div></div>";
   }
   function tennisCard(p) {
     var badge = p.result === true || p.result === false || p.result === "void" ? resultBadge(p.result) : '<span class="badge ns">' + esc(p.start ? fmtTime(p.start) : (p.time || "")) + "</span>";
@@ -174,53 +241,68 @@
       '<div class="odds"><span>' + T("fair") + " <b>" + Number(p.fair_odds).toFixed(2) + "</b></span><span>" + T("min_odds") + " <b>" + Number(p.min_odds).toFixed(2) + "</b></span></div>" +
       (p.score ? '<div class="muted small">' + T("score") + ": " + esc(p.score) + "</div>" : "") + "</div>";
   }
+  function bindPicks(el) { el.onclick = function (e) { var c = e.target.closest ? e.target.closest("[data-fid]") : null; if (c) goToMatch(c.getAttribute("data-day"), c.getAttribute("data-fid")); }; }
 
-  /* ================= PARTITE (LIVESCORE) ================= */
-  var M = { day: romeDate(0), fixtures: [], open: {}, det: {}, col: {} };
+  /* ================= HOME ================= */
+  function loadHome() {
+    var today = romeDate(0), fb = $("picks-football"), tn = $("picks-tennis");
+    loading(fb);
+    Promise.all([picksFor(today), get("/tennis?date=" + today).catch(function () { return {}; })]).then(function (r) {
+      var P0 = r[0], ten = r[1] || {}, tp = (ten.date === today && ten.picks) || [];
+      var n = P0.fixtures.length, k = P0.todayMatches;
+      $("hero-today").textContent = n ? T("hero_today", { n: n, k: k }) : "";
+      $("picks-count").textContent = n ? T("picks_count", { k: k, n: n }) : "";
+      fb.innerHTML = P0.cards.length ? P0.cards.map(pickCard).join("") : empty(T("fb_none_picks"));
+      fb.setAttribute("data-loaded", "1"); bindPicks(fb);
+      tn.innerHTML = tp.length ? tp.map(tennisCard).join("") : empty(T("tn_none_picks"));
+    }).catch(function (e) { fail(fb, e); });
+    loadLive();
+  }
+
+  /* ---------- partite (livescore) ---------- */
+  var M = { day: romeDate(0), fixtures: [], open: {}, det: {}, chip: "all", league: null, limit: PAGE };
   function loadLive(silent) {
+    daySeg($("live-day"), [-1, 0, 1], M.day, function (d) { M.day = d; M.open = {}; M.limit = PAGE; $("live-list").removeAttribute("data-loaded"); loadLive(); });
+    chipBar($("live-chips"), ["all", "live", "next3", "ft", "top", "strong"], M, renderLive);
     var list = $("live-list"); if (!silent) loading(list);
     var day = M.day;
     get("/day?date=" + day).then(function (d) {
       if (day !== M.day) return;
       M.fixtures = sortFx(d.fixtures || []); M.updated = d.updated;
-      fillFilters(M.fixtures, "m-country", "m-league", renderLive);
       renderLive();
-      var anyOpen = Object.keys(M.open).some(function (k) { return M.open[k]; });
-      if (anyOpen) loadDetails(day, true);
+      if (Object.keys(M.open).some(function (k) { return M.open[k]; })) loadDetails(day);
     }).catch(function (e) { fail(list, e); });
   }
   function renderLive() {
-    var fx = applyCL(M.fixtures, "m-country", "m-league"), st = $("m-status").value, q = $("m-search").value.trim().toLowerCase();
-    if (st) fx = fx.filter(function (f) { return stateOf(f) === st; });
-    if (q) fx = fx.filter(function (f) { return (f.teams.home.name + " " + f.teams.away.name).toLowerCase().indexOf(q) >= 0; });
-    var all = M.fixtures;
-    $("live-kpis").innerHTML = kpi(all.length, T("k_matches")) + kpi(all.filter(function (f) { return stateOf(f) === "live"; }).length, T("k_live"), "live") +
-      kpi(all.filter(function (f) { return stateOf(f) === "ft"; }).length, T("k_ft")) + kpi(all.filter(function (f) { return f.predictions; }).length, T("k_pred"));
+    var base = applySearch(applyChip(M.fixtures, M.chip), $("m-search").value);
+    leagueBar($("live-leagues"), base, M, renderLive);
+    var fx = M.league ? base.filter(function (f) { return String(f.league.id) === String(M.league); }) : base;
+    var shown = fx.slice(0, M.limit);
     $("live-updated").textContent = M.updated ? T("updated_at") + " " + fmtTime(M.updated) + " · " + T("next_update") : "";
     var lst = $("live-list");
-    lst.innerHTML = fx.length ? groupByLeague(fx, liveRow, M.col) : empty(all.length ? T("no_matches") : T("no_data"));
+    lst.innerHTML = shown.length ? groupByLeague(shown, liveRow, countBy(fx)) : empty(M.fixtures.length ? T("no_matches") : T("no_data"));
     lst.setAttribute("data-loaded", "1");
+    moreBtn($("live-more"), shown.length, fx.length, M, renderLive);
     lst.onclick = function (e) {
-      if (toggleLeague(e, M.col)) return;
       var r = e.target.closest ? e.target.closest(".mrow") : null; if (!r) return;
       var id = r.getAttribute("data-fid"); M.open[id] = !M.open[id];
       var box = $("det-" + id); r.classList.toggle("open", !!M.open[id]);
       if (box) { box.hidden = !M.open[id]; if (M.open[id]) { box.innerHTML = '<div class="loading"><span></span><span></span><span></span></div>'; loadDetails(M.day); } }
     };
   }
-  function liveRow(f) {
-    var tm = topMarkets(f), st = stateOf(f), id = f.fixture.id, open = !!M.open[id];
+  function liveRow(f, open, det, prefix) {
+    var st = stateOf(f), id = f.fixture.id; open = open == null ? !!M.open[id] : open;
     var ht = f.score && f.score.halftime;
     return '<div class="mrow' + (st === "live" ? " is-live" : "") + (open ? " open" : "") + '" data-fid="' + id + '" role="button" tabindex="0">' +
       '<div class="mrow-status">' + statusBadge(f) + "</div>" +
       '<div class="mrow-teams"><div class="team">' + logo(f.teams.home.logo, "tlogo") + "<span>" + esc(f.teams.home.name) + "</span><b>" + (st !== "ns" && f.goals.home != null ? f.goals.home : "") + "</b></div>" +
       '<div class="team">' + logo(f.teams.away.logo, "tlogo") + "<span>" + esc(f.teams.away.name) + "</span><b>" + (st !== "ns" && f.goals.away != null ? f.goals.away : "") + "</b></div>" +
       (st !== "ns" && ht && ht.home != null ? '<div class="ht">HT ' + ht.home + "-" + ht.away + "</div>" : "") + "</div>" +
-      '<div class="mrow-mk">' + (tm.length ? tm.map(function (m) { return '<span class="pill' + (m.s ? " strong" : "") + '">' + m.l + " <b>" + m.v + "%</b></span>"; }).join("") : '<span class="muted small">' + T("no_prediction") + "</span>") + "</div>" +
+      '<div class="mrow-mk">' + pills(f, 3) + "</div>" +
       '<div class="mrow-go" aria-hidden="true">⌄</div></div>' +
-      '<div class="mdet" id="det-' + id + '"' + (open ? "" : " hidden") + ">" + (open ? detailHtml(f, M.det[M.day] && M.det[M.day][id]) : "") + "</div>";
+      '<div class="mdet" id="' + (prefix || "det-") + id + '"' + (open ? "" : " hidden") + ">" + (open ? detailHtml(f, det !== undefined ? det : (M.det[M.day] && M.det[M.day][id])) : "") + "</div>";
   }
-  function loadDetails(day, quiet) {
+  function loadDetails(day) {
     get("/details?date=" + day, 60000).then(function (all) {
       M.det[day] = all || {};
       Object.keys(M.open).forEach(function (id) {
@@ -236,17 +318,14 @@
     d = d || {};
     var st = stateOf(f), hid = f.teams.home.id, venue = d.venue || f.fixture.venue, ref = d.referee || f.fixture.referee;
     var out = '<div class="det-grid">';
-    // info
     out += '<div class="det-box"><h4>' + T("match_info") + "</h4>" +
       '<div class="kv"><span>' + T("kickoff") + "</span><b>" + fmtDay(f.fixture.date, true) + " · " + fmtTime(f.fixture.date) + "</b></div>" +
       (venue && venue.name ? '<div class="kv"><span>' + T("venue") + "</span><b>" + esc(venue.name) + (venue.city ? " (" + esc(venue.city) + ")" : "") + "</b></div>" : "") +
       (ref ? '<div class="kv"><span>' + T("referee") + "</span><b>" + esc(ref) + "</b></div>" : "") +
-      '<div class="kv"><span>' + esc(f.league.round || "") + "</span><b>" + esc(stLabel(f.fixture.status.short)) + "</b></div>" + "</div>";
-    // modello
+      '<div class="kv"><span>' + esc(roundName(f.league.round)) + "</span><b>" + esc(stLabel(f.fixture.status.short)) + "</b></div></div>";
     out += '<div class="det-box"><h4>' + T("model") + "</h4>" + (f.predictions ? '<div class="tags">' + confTag(f.confidence) +
       (f.lambda ? '<span class="tag">' + T("xg") + " " + f.lambda.home + " – " + f.lambda.away + "</span>" : "") +
       (f.sigma != null ? '<span class="tag">' + T("sigma") + " " + f.sigma + "</span>" : "") + "</div>" : "") + marketsGrid(f) + "</div>";
-    // cronaca
     var ev = d.events || [];
     if (ev.length) {
       out += '<div class="det-box wide"><h4>' + T("timeline") + '</h4><div class="tl">' + ev.map(function (e) {
@@ -259,7 +338,6 @@
         return '<div class="tl-row ' + (home ? "h" : "a") + '"><span class="tl-min">' + min + '</span><span class="tl-ico">' + ico + '</span><span class="tl-txt">' + txt + "</span></div>";
       }).join("") + "</div></div>";
     }
-    // formazioni
     var lu = d.lineups || [];
     if (lu.length) {
       out += '<div class="det-box wide"><h4>' + T("lineups") + '</h4><div class="lu">' + lu.map(function (l) {
@@ -270,7 +348,6 @@
           ((l.subs || []).length ? '<details><summary>' + T("subs") + " (" + l.subs.length + ')</summary><ol class="lu-xi">' + l.subs.map(function (p) { return "<li><span>" + (p[0] != null ? p[0] : "") + "</span>" + esc(p[1]) + ' <em>' + esc(p[2]) + "</em></li>"; }).join("") + "</ol></details>" : "") + "</div>";
       }).join("") + "</div></div>";
     }
-    // statistiche
     var sts = d.stats || [];
     if (sts.length === 2) {
       var sh = sts[0].team === hid ? sts[0].v : sts[1].v, sa = sts[0].team === hid ? sts[1].v : sts[0].v;
@@ -285,42 +362,81 @@
     return out + "</div>";
   }
   function goToMatch(day, fid) {
-    if (day !== M.day) { M.day = day; daySeg($("live-day"), [-1, 0, 1], M.day, function (d) { M.day = d; M.open = {}; loadLive(); }); }
-    M.open[fid] = true; $("m-country").value = ""; $("m-league").value = ""; $("m-status").value = ""; $("m-search").value = "";
+    if (location.hash !== "#home" && location.hash !== "" && location.hash !== "#live") { pendingMatch = [day, fid]; location.hash = "#home"; return; }
+    M.day = day; M.chip = "all"; M.league = null; M.limit = 999; M.open = {}; M.open[fid] = true; $("m-search").value = "";
     loadLive(true);
-    setTimeout(function () { var r = document.querySelector('.mrow[data-fid="' + fid + '"]'); if (r) r.scrollIntoView({ block: "center" }); loadDetails(day); }, 500);
+    setTimeout(function () { var r = document.querySelector('.mrow[data-fid="' + fid + '"]'); if (r) r.scrollIntoView({ block: "center" }); loadDetails(day); }, 700);
   }
+  var pendingMatch = null;
 
   /* ================= PRONOSTICI ================= */
-  var P = { day: romeDate(0), fixtures: [], col: {}, mobile: window.innerWidth < 760 };
+  var P = { day: romeDate(0), fixtures: [], chip: "all", league: null, limit: PAGE, sort: null, dir: -1, open: {} };
   function loadPred() {
+    daySeg($("pred-day"), [0, 1], P.day, function (d) { P.day = d; P.limit = PAGE; $("pred-list").removeAttribute("data-loaded"); loadPred(); });
+    chipBar($("pred-chips"), ["all", "high", "strong", "top"], P, renderPred);
+    var pp = $("pred-picks"); loading(pp);
+    picksFor(romeDate(0)).then(function (r) { pp.innerHTML = r.cards.length ? r.cards.map(pickCard).join("") : empty(T("fb_none_picks")); pp.setAttribute("data-loaded", "1"); bindPicks(pp); }).catch(function (e) { fail(pp, e); });
     var list = $("pred-list"); loading(list); var day = P.day;
     get("/day?date=" + day).then(function (d) {
       if (day !== P.day) return;
-      P.fixtures = sortFx(d.fixtures || []);
-      if (P.mobile) P.fixtures.forEach(function (f) { if (P.col[f.league.id] == null) P.col[f.league.id] = true; });
-      fillFilters(P.fixtures, "p-country", "p-league", renderPred); renderPred();
+      P.fixtures = sortFx(d.fixtures || []); renderPred();
     }).catch(function (e) { fail(list, e); });
   }
   function renderPred() {
-    var fx = applyCL(P.fixtures, "p-country", "p-league").filter(function (f) { return f.predictions; });
-    var c = $("p-conf").value, strong = $("p-strong").checked, mk = $("p-market").value;
-    if (c === "high") fx = fx.filter(function (f) { return f.confidence === "high"; });
-    if (c === "medium") fx = fx.filter(function (f) { return f.confidence !== "low"; });
-    if (strong) fx = fx.filter(function (f) { var s = f.predictions.strength; return s && Object.keys(s).some(function (k) { return s[k]; }); });
+    var base = applySearch(applyChip(P.fixtures.filter(function (f) { return f.predictions; }), P.chip), $("p-search").value);
+    leagueBar($("pred-leagues"), base, P, renderPred);
+    var fx = P.league ? base.filter(function (f) { return String(f.league.id) === String(P.league); }) : base;
+    if (P.sort && wide.matches) {
+      var col = COLS.filter(function (c) { return c[0] === P.sort; })[0];
+      fx = fx.slice().sort(function (a, b) { return P.dir * ((val(a.predictions, col[1]) || 0) - (val(b.predictions, col[1]) || 0)); });
+    }
+    var shown = fx.slice(0, P.limit), lst = $("pred-list");
     var none = P.fixtures.filter(function (f) { return !f.predictions; }).length;
-    var lst = $("pred-list");
-    lst.innerHTML = (fx.length ? groupByLeague(fx, function (f) {
-      return '<div class="pcard"><div class="pcard-head"><div><b>' + esc(f.teams.home.name) + "</b> – <b>" + esc(f.teams.away.name) + "</b>" +
-        (stateOf(f) !== "ns" && f.goals.home != null ? ' <span class="score">' + f.goals.home + "-" + f.goals.away + "</span>" : "") + '</div><div class="pcard-meta">' + statusBadge(f) + confTag(f.confidence) + "</div></div>" + marketsGrid(f, mk) + "</div>";
-    }, P.col) : empty(T("no_pred"))) + (none ? '<p class="muted small center">' + none + " " + T("without_pred") + "</p>" : "");
+    $("pred-hint").textContent = wide.matches ? T("sort_hint") : "";
+    if (!shown.length) lst.innerHTML = empty(T("no_pred"));
+    else if (wide.matches) lst.innerHTML = predTable(shown, !P.sort, countBy(fx));
+    else lst.innerHTML = groupByLeague(shown, predCard, countBy(fx));
+    if (none) lst.innerHTML += '<p class="muted small center">' + none + " " + T("without_pred") + "</p>";
     lst.setAttribute("data-loaded", "1");
-    lst.onclick = function (e) { toggleLeague(e, P.col); };
+    moreBtn($("pred-more"), shown.length, fx.length, P, renderPred);
+    lst.onclick = function (e) {
+      var th = e.target.closest ? e.target.closest("th[data-c]") : null;
+      if (th) { var c = th.getAttribute("data-c"); if (c === "time") { P.sort = null; } else if (P.sort === c) P.dir = -P.dir; else { P.sort = c; P.dir = -1; } renderPred(); return; }
+      var t = e.target.closest ? e.target.closest("[data-more]") : null;
+      if (t) { var id = t.getAttribute("data-more"); P.open[id] = !P.open[id]; var box = $("pm-" + id); if (box) box.hidden = !P.open[id]; t.textContent = P.open[id] ? T("less_markets") : T("more_markets"); }
+    };
+  }
+  function predCard(f) {
+    var id = f.fixture.id, o = !!P.open[id], st = stateOf(f);
+    return '<div class="pcard">' +
+      '<div class="pcard-head"><div class="pcard-teams"><b>' + esc(f.teams.home.name) + "</b><b>" + esc(f.teams.away.name) + "</b></div>" +
+      '<div class="pcard-meta">' + (st !== "ns" && f.goals.home != null ? '<span class="score">' + f.goals.home + "-" + f.goals.away + "</span>" : "") + statusBadge(f) + "</div></div>" +
+      '<div class="pcard-mk">' + pills(f, 3) + "</div>" +
+      '<div class="pcard-foot">' + confTag(f.confidence) + '<button type="button" class="link-btn" data-more="' + id + '">' + (o ? T("less_markets") : T("more_markets")) + "</button></div>" +
+      '<div id="pm-' + id + '"' + (o ? "" : " hidden") + ">" + marketsGrid(f) + "</div></div>";
+  }
+  function predTable(fx, grouped, counts) {
+    var head = '<tr><th data-c="time" class="' + (!P.sort ? "on" : "") + '">' + T("col_time") + "</th><th>" + T("col_match") + "</th>" +
+      COLS.map(function (c) { return '<th data-c="' + c[0] + '" class="num' + (P.sort === c[0] ? " on" : "") + '">' + c[0] + (P.sort === c[0] ? (P.dir < 0 ? " ↓" : " ↑") : "") + "</th>"; }).join("") + "<th>" + T("col_conf") + "</th></tr>";
+    var body = "", cur = null;
+    fx.forEach(function (f) {
+      if (grouped && f.league.id !== cur) { cur = f.league.id; body += '<tr class="lg-row" style="--lh:' + hue(f.league.country) + '"><td colspan="' + (COLS.length + 3) + '">' + logo(f.league.logo, "llogo") + "<span>" + esc(leagueLabel(f.league)) + '</span><em class="lg-n">' + (counts[cur] || "") + "</em></td></tr>"; }
+      var p = f.predictions, st = stateOf(f), h = f.goals && f.goals.home, a = f.goals && f.goals.away;
+      body += "<tr><td>" + statusBadge(f) + '</td><td class="tm"><b>' + esc(f.teams.home.name) + "</b> – <b>" + esc(f.teams.away.name) + "</b>" +
+        (st !== "ns" && h != null ? ' <span class="score">' + h + "-" + a + "</span>" : "") + (!grouped ? '<div class="muted small">' + esc(leagueLabel(f.league)) + "</div>" : "") + "</td>" +
+        COLS.map(function (c) {
+          var v = val(p, c[1]), s = p.strength && p.strength[c[2]], cls = "num" + (s ? " strong" : v >= 60 ? " hi" : "");
+          if (st === "ft" && h != null) cls += hit(c[2], h, a) ? " ok" : " ko";
+          return '<td class="' + cls + '">' + (v == null ? "—" : v) + "</td>";
+        }).join("") + "<td>" + confTag(f.confidence) + "</td></tr>";
+    });
+    return '<div class="tbl-wrap"><table class="ptable"><thead>' + head + "</thead><tbody>" + body + "</tbody></table></div>";
   }
 
   /* ================= TENNIS ================= */
   var TN = { day: romeDate(0) };
   function loadTennis() {
+    daySeg($("tennis-day"), [-2, -1, 0, 1], TN.day, function (d) { TN.day = d; loadTennis(); });
     var list = $("tennis-list"); loading(list); var day = TN.day;
     Promise.all([get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/tennis/report", 300000).catch(function () { return null; })]).then(function (r) {
       if (day !== TN.day) return;
@@ -332,30 +448,25 @@
     }).catch(function (e) { fail(list, e); });
   }
 
-  /* ================= REPORT (struttura originale) ================= */
+  /* ================= REPORT ================= */
   function loadReport() {
     var n = +$("report-range").value || 7;
     Promise.all([get("/report/summary?range=" + n, 120000), get("/report?range=" + n, 120000), get("/tennis/report", 300000).catch(function () { return null; })]).then(function (r) {
       var sum = r[0] || {}, rep = r[1] || {}, ten = r[2], s = sum.summary || {};
       var from = romeDate(-(n - 1));
       var picks = (rep.picks || []).filter(function (p) { return String(p.kickoff || "").slice(0, 10) >= from; });
-      // 1. riepilogo
       $("report-summary").innerHTML = kpi(s.total || 0, T("r_total")) + kpi(s.won || 0, T("r_won"), "win") + kpi(s.lost || 0, T("r_lost"), "loss") + kpi(s.total ? s.accuracy + "%" : "—", T("r_acc"), "accent");
-      // 2. rendimento per mercato
       var mk = {}; picks.forEach(function (p) { var m = mk[p.market] = mk[p.market] || { w: 0, l: 0 }; p.result ? m.w++ : m.l++; });
       var keys = Object.keys(mk).sort(function (a, b) { return (mk[b].w + mk[b].l) - (mk[a].w + mk[a].l); });
       $("report-markets").innerHTML = keys.length ? '<table class="tbl"><thead><tr><th>' + T("r_market") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th></tr></thead><tbody>" + keys.map(function (k) {
         var m = mk[k], t = m.w + m.l; return "<tr><td>" + esc(mkName(k)) + '</td><td class="c-win">' + m.w + '</td><td class="c-loss">' + m.l + "</td><td><b>" + Math.round(m.w / t * 100) + "%</b></td></tr>";
       }).join("") + "</tbody></table>" : empty(T("r_empty"));
-      // 3. grafici
       var days = (sum.by_day || []).filter(function (d) { return d.total; });
       $("chart-acc").innerHTML = days.length ? lineChart(days) : '<div class="muted small">—</div>';
       $("chart-wl").innerHTML = wlChart(s.won || 0, s.lost || 0);
-      // 4. elenco pick
       $("report-list").innerHTML = picks.length ? '<div class="list">' + picks.map(function (p) {
         return '<div class="lrow ' + (p.result ? "win" : "loss") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(mkName(p.market)) + " · " + esc(p.probability) + "% · " + fmtDay(p.kickoff) + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.result) + "</div></div>";
       }).join("") + "</div>" : empty(T("r_empty"));
-      // tennis
       var ts = ten && ten.summary, tp = (ten && ten.picks) || [];
       $("report-tennis-kpis").innerHTML = kpi(ts ? ts.total : 0, T("r_total")) + kpi(ts ? ts.won : 0, T("r_won"), "win") + kpi(ts ? ts.lost : 0, T("r_lost"), "loss") + kpi(ts && ts.total ? ts.accuracy + "%" : "—", T("r_acc"), "accent");
       $("report-tennis-list").innerHTML = tp.length ? '<div class="list">' + tp.slice().reverse().map(function (p) {
@@ -365,12 +476,12 @@
   }
   function lineChart(days) {
     var W = 320, H = 150, pad = 24, n = days.length;
-    var pts = days.map(function (d, i) { var x = n === 1 ? W / 2 : pad + i * (W - 2 * pad) / (n - 1); var y = H - pad - (d.won / d.total) * (H - 2 * pad); return [x, y, Math.round(d.won / d.total * 100), d]; });
+    var pts = days.map(function (d, i) { var x = n === 1 ? W / 2 : pad + i * (W - 2 * pad) / (n - 1); var y = H - pad - (d.won / d.total) * (H - 2 * pad); return [x, y, d]; });
     var path = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
     return '<svg viewBox="0 0 ' + W + " " + H + '" class="svg-chart" role="img"><line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '" class="ax"/><line x1="' + pad + '" y1="' + pad + '" x2="' + (W - pad) + '" y2="' + pad + '" class="grid"/>' +
       '<text x="2" y="' + (pad + 4) + '" class="lbl">100%</text><text x="8" y="' + (H - pad + 4) + '" class="lbl">0%</text>' +
       (n > 1 ? '<path d="' + path + '" class="ln"/>' : "") + pts.map(function (p) {
-        return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5" class="pt"><title>' + p[3].date + ": " + p[3].won + "/" + p[3].total + '</title></circle><text x="' + p[0].toFixed(1) + '" y="' + (H - 6) + '" class="lbl" text-anchor="middle">' + p[3].date.slice(8) + "/" + p[3].date.slice(5, 7) + "</text>";
+        return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5" class="pt"><title>' + p[2].date + ": " + p[2].won + "/" + p[2].total + '</title></circle><text x="' + p[0].toFixed(1) + '" y="' + (H - 6) + '" class="lbl" text-anchor="middle">' + p[2].date.slice(8) + "/" + p[2].date.slice(5, 7) + "</text>";
       }).join("") + "</svg>";
   }
   function wlChart(w, l) {
@@ -379,20 +490,20 @@
   }
 
   /* ================= ARCHIVIO ================= */
-  var A = { day: romeDate(-1), open: {}, col: {} };
-  function initArchive() {
+  var A = { day: romeDate(-1), open: {} };
+  function loadArchive() {
     var inp = $("archive-date"); inp.max = romeDate(1); inp.value = A.day;
-    inp.onchange = function () { if (inp.value) { A.day = inp.value; loadArchive(); } };
-    $("archive-prev").onclick = function () { A.day = shiftDate(A.day, -1); inp.value = A.day; loadArchive(); };
-    $("archive-next").onclick = function () { if (A.day < romeDate(1)) { A.day = shiftDate(A.day, 1); inp.value = A.day; loadArchive(); } };
+    inp.onchange = function () { if (inp.value) { A.day = inp.value; renderArchive(); } };
+    $("archive-prev").onclick = function () { A.day = shiftDate(A.day, -1); inp.value = A.day; renderArchive(); };
+    $("archive-next").onclick = function () { if (A.day < romeDate(1)) { A.day = shiftDate(A.day, 1); inp.value = A.day; renderArchive(); } };
     get("/history", 300000).then(function (h) {
       var box = $("archive-days");
       box.innerHTML = (h.days || []).slice(0, 45).map(function (d) { return '<button type="button" class="chip' + (d === A.day ? " on" : "") + '" data-d="' + d + '">' + fmtDay(d) + "</button>"; }).join("");
-      box.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-d]") : null; if (!b) return; A.day = b.getAttribute("data-d"); inp.value = A.day; loadArchive(); };
+      box.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-d]") : null; if (!b) return; A.day = b.getAttribute("data-d"); inp.value = A.day; renderArchive(); };
     }).catch(function () {});
-    loadArchive();
+    renderArchive();
   }
-  function loadArchive() {
+  function renderArchive() {
     var chips = document.querySelectorAll("#archive-days .chip");
     for (var i = 0; i < chips.length; i++) chips[i].classList.toggle("on", chips[i].getAttribute("data-d") === A.day);
     var pb = $("archive-picks"), mb = $("archive-matches"); pb.removeAttribute("data-loaded"); mb.removeAttribute("data-loaded"); loading(pb); loading(mb);
@@ -404,16 +515,12 @@
       var won = picks.filter(function (p) { return p.result === true; }).length, lost = picks.filter(function (p) { return p.result === false; }).length;
       $("archive-kpis").innerHTML = kpi(fx.length, T("k_matches")) + kpi(picks.length, T("top_pick")) + kpi(picks.length ? won + " / " + lost : "—", T("k_wl")) + kpi(tp.length, "🎾 " + T("k_picks"));
       var html = picks.length ? '<div class="list">' + picks.sort(function (a, b) { return new Date(a.kickoff) - new Date(b.kickoff); }).map(function (p) {
-        return '<div class="lrow"><div><b>' + esc(mkName(p.market)) + '</b> <span class="muted">· ' + esc(p.match) + '</span><div class="muted small">' + fmtTime(p.kickoff) + " · " + esc(p.league || "") + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r"><span class="prob-s">' + esc(p.probability) + "%</span>" + resultBadge(p.void ? "void" : p.result) + "</div></div>";
+        return '<div class="lrow"><div><b>' + esc(mkName(p.market)) + '</b> <span class="muted">· ' + esc(p.match) + '</span><div class="muted small">' + fmtTime(p.kickoff) +  " · " + esc(trLeague(p.league)) + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r"><span class="prob-s">' + esc(p.probability) + "%</span>" + resultBadge(p.void ? "void" : p.result) + "</div></div>";
       }).join("") + "</div>" : "";
       if (tp.length) html += '<div class="cards" style="margin-top:12px">' + tp.map(tennisCard).join("") + "</div>";
       pb.innerHTML = html || empty(T("no_picks_day"));
-      mb.innerHTML = fx.length ? groupByLeague(fx, function (f) {
-        var o = !!A.open[f.fixture.id];
-        return liveRow(f).replace('id="det-' + f.fixture.id + '"', 'id="adet-' + f.fixture.id + '"').replace(/class="mdet" id="adet-(\d+)"( hidden)?>/, 'class="mdet" id="adet-$1"' + (o ? "" : " hidden") + ">" + (o ? detailHtml(f, det[f.fixture.id]) : ""));
-      }, A.col) : empty(T("no_data"));
+      mb.innerHTML = fx.length ? groupByLeague(fx, function (f) { return liveRow(f, !!A.open[f.fixture.id], det[f.fixture.id] || null, "adet-"); }, countBy(fx)) : empty(T("no_data"));
       mb.onclick = function (e) {
-        if (toggleLeague(e, A.col)) return;
         var row = e.target.closest ? e.target.closest(".mrow") : null; if (!row) return;
         var id = row.getAttribute("data-fid"); A.open[id] = !A.open[id]; row.classList.toggle("open", A.open[id]);
         var box = $("adet-" + id), f = fx.filter(function (x) { return String(x.fixture.id) === id; })[0];
@@ -422,97 +529,53 @@
     }).catch(function (e) { fail(pb, e); mb.innerHTML = ""; });
   }
 
-  /* ---------- liste ---------- */
-  var ORDER = ["World", "Europe", "Italy", "England", "Spain", "Germany", "France", "Portugal", "Netherlands", "Belgium", "Turkey", "Scotland", "Saudi-Arabia"];
-  function sortFx(fx) {
-    return fx.slice().sort(function (a, b) {
-      var ia = ORDER.indexOf(a.league.country), ib = ORDER.indexOf(b.league.country); ia = ia < 0 ? 99 : ia; ib = ib < 0 ? 99 : ib;
-      if (ia !== ib) return ia - ib; if (a.league.id !== b.league.id) return a.league.id - b.league.id;
-      return (a.fixture.timestamp || 0) - (b.fixture.timestamp || 0);
-    });
-  }
-  function groupByLeague(fx, render, col) {
-    var out = "", cur = null, cnt = {};
-    fx.forEach(function (f) { cnt[f.league.id] = (cnt[f.league.id] || 0) + 1; });
-    fx.forEach(function (f) {
-      if (f.league.id !== cur) {
-        if (cur !== null) out += "</div></div>"; cur = f.league.id;
-        out += '<div class="league' + (col && col[cur] ? " collapsed" : "") + '"><div class="league-head" data-lid="' + cur + '" role="button" tabindex="0">' + logo(f.league.logo, "llogo") + "<span>" + esc(f.league.country) + " · " + esc(f.league.name) + '</span><em class="lg-n">' + cnt[cur] + '</em><i class="lg-t" aria-hidden="true">⌄</i></div><div class="league-body">';
-      }
-      out += render(f);
-    });
-    return out + (cur !== null ? "</div></div>" : "");
-  }
-  function fillFilters(fx, cId, lId, cb) {
-    var c = $(cId), l = $(lId), cv = c.value, lv = l.value, countries = {}, leagues = {};
-    fx.forEach(function (f) { countries[f.league.country] = 1; (leagues[f.league.country] = leagues[f.league.country] || {})[f.league.name] = 1; });
-    c.innerHTML = '<option value="">' + T("all_countries") + "</option>" + Object.keys(countries).sort().map(function (x) { return "<option" + (x === cv ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("");
-    function fillL() {
-      var src = c.value ? leagues[c.value] || {} : fx.reduce(function (o, f) { o[f.league.name] = 1; return o; }, {});
-      l.innerHTML = '<option value="">' + T("all_leagues") + "</option>" + Object.keys(src).sort().map(function (x) { return "<option" + (x === lv ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("");
-    }
-    fillL();
-    c.onchange = function () { lv = ""; fillL(); cb(); };
-    l.onchange = function () { lv = l.value; cb(); };
-  }
-  function toggleLeague(e, col) {
-    var h = e.target.closest ? e.target.closest(".league-head") : null; if (!h) return false;
-    var lg = h.parentNode, id = h.getAttribute("data-lid"); lg.classList.toggle("collapsed"); col[id] = lg.classList.contains("collapsed"); return true;
-  }
-  function applyCL(fx, cId, lId) { var c = $(cId).value, l = $(lId).value; return fx.filter(function (f) { return (!c || f.league.country === c) && (!l || f.league.name === l); }); }
-
-  /* ---------- navigazione ---------- */
-  var SECTIONS = ["top-picks", "live", "predictions", "tennis", "report"];
-  var archiveReady = false;
-  function route() {
-    var h = (location.hash || "").slice(1).split("?")[0];
-    var view = h === "archive" ? "archive" : h === "method" ? "method" : "home";
-    $("view-home").hidden = view !== "home"; $("view-archive").hidden = view !== "archive"; $("view-method").hidden = view !== "method";
+  /* ---------- navigazione a pagine ---------- */
+  var VIEWS = ["home", "predictions", "tennis", "report", "archive", "method"];
+  var LOADERS = { home: loadHome, predictions: loadPred, tennis: loadTennis, report: loadReport, archive: loadArchive };
+  var loaded = {}, current = null;
+  function route(force) {
+    var h = (location.hash || "#home").slice(1);
+    var v = VIEWS.indexOf(h) >= 0 ? h : (h === "live" || h === "top-picks" ? "home" : "home");
+    VIEWS.forEach(function (x) { $("view-" + x).hidden = x !== v; });
     var links = document.querySelectorAll(".nav a");
-    for (var i = 0; i < links.length; i++) links[i].classList.toggle("active", links[i].getAttribute("data-go") === (view === "home" ? (h || "top-picks") : view));
+    for (var i = 0; i < links.length; i++) links[i].classList.toggle("active", links[i].getAttribute("data-go") === v);
     closeNav();
-    if (view === "archive" && !archiveReady) { archiveReady = true; initArchive(); }
-    if (view === "home" && SECTIONS.indexOf(h) >= 0) { var el = $(h); if (el) setTimeout(function () { el.scrollIntoView(); }, 0); }
-    else window.scrollTo(0, 0);
+    if (LOADERS[v] && (force === true || !loaded[v] || Date.now() - loaded[v] > 120000)) { loaded[v] = Date.now(); LOADERS[v](); }
+    if (v === "home" && pendingMatch) { var pm = pendingMatch; pendingMatch = null; setTimeout(function () { goToMatch(pm[0], pm[1]); }, 300); }
+    else if (h === "live") setTimeout(function () { $("live").scrollIntoView(); }, 50);
+    else if (current !== v) window.scrollTo(0, 0);
+    current = v;
   }
   function closeNav() { $("nav").classList.remove("open"); $("nav-toggle").setAttribute("aria-expanded", "false"); }
-
-  function loadAll(langChange) {
-    daySeg($("live-day"), [-1, 0, 1], M.day, function (d) { M.day = d; M.open = {}; $("live-list").removeAttribute("data-loaded"); loadLive(); });
-    daySeg($("pred-day"), [0, 1], P.day, function (d) { P.day = d; loadPred(); });
-    daySeg($("tennis-day"), [-2, -1, 0, 1], TN.day, function (d) { TN.day = d; loadTennis(); });
-    loadPicks(); loadLive(langChange); loadPred(); loadTennis(); loadReport();
-    if (archiveReady) loadArchive();
-    get("/status", 120000).then(function (s) {
-      var t = s.last && (s.last.finished || s.last.started);
-      $("api-status").textContent = t ? T("data_ref") + ": " + new Date(t).toLocaleString(loc(), { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
-    }).catch(function () {});
-  }
 
   function init() {
     $("year").textContent = new Date().getFullYear();
     $("nav-toggle").addEventListener("click", function (e) { e.stopPropagation(); var n = $("nav"), o = !n.classList.contains("open"); n.classList.toggle("open", o); this.setAttribute("aria-expanded", o ? "true" : "false"); });
     document.addEventListener("click", function (e) { var n = $("nav"); if (n.classList.contains("open") && !n.contains(e.target)) closeNav(); });
-    $("nav").addEventListener("click", function (e) { var a = e.target.closest ? e.target.closest("a") : null; if (a && location.hash === a.getAttribute("href")) { e.preventDefault(); route(); } });
     $("theme-toggle").addEventListener("click", function () {
       var root = document.documentElement, cur = root.getAttribute("data-theme");
       if (!cur) cur = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
       var next = cur === "dark" ? "light" : "dark"; root.setAttribute("data-theme", next); try { localStorage.setItem("pbp-theme", next); } catch (e) {}
     });
     $("lang").addEventListener("change", function () { try { localStorage.setItem("pbp-lang", this.value); } catch (e) {} setLang(this.value, true); });
-    ["m-status", "m-search"].forEach(function (id) { $(id).addEventListener(id === "m-search" ? "input" : "change", renderLive); });
-    ["p-conf", "p-strong", "p-market"].forEach(function (id) { $(id).addEventListener("change", renderPred); });
+    $("m-search").addEventListener("input", function () { M.limit = PAGE; renderLive(); });
+    $("p-search").addEventListener("input", function () { P.limit = PAGE; renderPred(); });
     $("report-range").addEventListener("change", loadReport);
+    $("cta-live").addEventListener("click", function (e) { e.preventDefault(); $("live").scrollIntoView({ behavior: "smooth" }); });
+    if (wide.addEventListener) wide.addEventListener("change", function () { if (current === "predictions") renderPred(); });
     var top = $("back-to-top");
     window.addEventListener("scroll", function () { top.classList.toggle("show", window.pageYOffset > 500); }, { passive: true });
     top.addEventListener("click", function () { window.scrollTo(0, 0); });
-    window.addEventListener("hashchange", route);
-    pickLang(function (l) { setLang(l, false); loadAll(false); route(); });
-    // aggiornamento automatico (i dati cambiano al massimo ogni 15'): partite e top picks ogni 2 minuti, pagina visibile
+    window.addEventListener("hashchange", function () { route(); });
+    pickLang(function (l) { setLang(l, false); route(); });
+    get("/status", 120000).then(function (s) {
+      var t = s.last && (s.last.finished || s.last.started);
+      $("api-status").textContent = t ? T("data_ref") + ": " + new Date(t).toLocaleString(loc(), { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+    }).catch(function () {});
+    // aggiornamento automatico della home (i dati cambiano al massimo ogni 15')
     setInterval(function () {
-      if (document.hidden) return;
-      cache = {};
-      if (!$("view-home").hidden) { loadPicks(); if (M.day === romeDate(0)) loadLive(true); }
+      if (document.hidden || current !== "home") return;
+      cache = {}; loadHome();
     }, 120000);
   }
   document.addEventListener("DOMContentLoaded", init);
