@@ -108,7 +108,7 @@
     { t: "g_btts", items: [["GG", "btts", "btts"], ["NG", "no_btts", "no_btts"]] }
   ];
   var COLS = [["1", "home_win", "home_win"], ["X", "draw", "draw"], ["2", "away_win", "away_win"], ["1X", "double_chance.1x", "dc_1x"], ["X2", "double_chance.x2", "dc_x2"], ["12", "double_chance.12", "dc_12"],
-    ["O1.5", "over_15", "over_15"], ["O2.5", "over_25", "over_25"], ["U2.5", "under_25", "under_25"], ["GG", "btts", "btts"], ["NG", "no_btts", "no_btts"]];
+    ["O1.5", "over_15", "over_15"], ["U1.5", "under_15", "under_15"], ["O2.5", "over_25", "over_25"], ["U2.5", "under_25", "under_25"], ["GG", "btts", "btts"], ["NG", "no_btts", "no_btts"]];
   function val(p, path) { return path.split(".").reduce(function (o, k) { return o ? o[k] : null; }, p); }
   function hit(key, h, a) { return { home_win: h > a, draw: h === a, away_win: a > h, dc_1x: h >= a, dc_x2: a >= h, dc_12: h !== a, over_15: h + a > 1, under_15: h + a < 2, over_25: h + a > 2, under_25: h + a < 3, btts: h > 0 && a > 0, no_btts: !(h > 0 && a > 0) }[key]; }
   function confTag(c) { return c ? '<span class="tag conf-' + esc(c) + '">' + T("conf_" + c) + "</span>" : ""; }
@@ -427,7 +427,7 @@
     else if (wide.matches) lst.innerHTML = predTable(shown, !P.sort, countBy(fx));
     else lst.innerHTML = groupByLeague(shown, predCard, countBy(fx));
     if (none) lst.innerHTML += '<p class="muted small center">' + none + " " + T("without_pred") + "</p>";
-    lst.setAttribute("data-loaded", "1");
+    lst.setAttribute("data-loaded", "1"); stickTop();
     moreBtn($("pred-more"), shown.length, fx.length, P, renderPred);
     lst.onclick = function (e) {
       var th = e.target.closest ? e.target.closest("th[data-c]") : null;
@@ -436,6 +436,12 @@
       if (t) { var id = t.getAttribute("data-more"); P.open[id] = !P.open[id]; var box = $("pm-" + id); if (box) box.hidden = !P.open[id]; t.textContent = P.open[id] ? T("less_markets") : T("more_markets"); }
     };
   }
+  function stickTop() {   // intestazione tabella fissa sotto barra del sito + barra campionati
+    var tb = document.querySelector(".topbar"), lb = $("pred-leagues"), t = tb ? tb.offsetHeight : 0;
+    if (lb && lb.offsetHeight) t = (parseFloat(getComputedStyle(lb).top) || t) + lb.offsetHeight;
+    document.documentElement.style.setProperty("--th-top", t + "px");
+  }
+  window.addEventListener("resize", function () { if ($("pred-leagues")) stickTop(); });
   function predCard(f) {
     var id = f.fixture.id, o = !!P.open[id], st = stateOf(f);
     return '<div class="pcard">' +
