@@ -459,3 +459,8 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin
 .mrow-ev { min-width: 0; overflow: hidden; }
 .evx { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .evx.pend { color: var(--muted); font-style: italic; }
+
+/* ===================== v14: link SEO nel footer ===================== */
+.foot-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 0 auto 10px; max-width: 900px; font-size: 13px; }
+.foot-nav a, .footer a { color: var(--muted, #8a97a8); text-decoration: none; }
+.foot-nav a:hover, .footer a:hover { color: var(--text); text-decoration: underline; }
