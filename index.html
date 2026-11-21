@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -137,22 +137,25 @@
     <h1>📈 <span data-i18n="report_title">Report</span></h1>
     <p class="sub" data-i18n="report_sub">Risultati dei Top Picks pubblicati, valutati automaticamente a fine partita.</p>
   </div>
+  <div class="toolbar"><label class="check"><span data-i18n="r_period">Periodo</span>
+    <select id="report-range">
+      <option value="1" data-i18n="r_today">Oggi</option><option value="7" selected data-i18n="r_7">Ultimi 7 giorni</option><option value="30" data-i18n="r_30">Ultimi 30 giorni</option><option value="60" data-i18n="r_60">Ultimi 60 giorni</option>
+    </select></label></div>
+  <div class="panel"><h3 data-i18n="r_overview">Riepilogo del periodo</h3><div id="report-overview"></div>
+    <p class="muted small" data-i18n="r_note">Calcio e tennis sono conteggiati separatamente. Ogni pronostico pubblicato conta come una giocata: una partita di calcio può avere fino a 2 pronostici, una di tennis 1. Sono contati solo i pronostici già conclusi; quelli in attesa e le partite annullate sono esclusi.</p></div>
+
+  <h2 class="rep-h2" data-i18n="r_fb_title">⚽ Calcio – Top Picks</h2>
   <div class="kpis" id="report-summary"></div>
   <div class="panel"><h3 data-i18n="r_by_market">Rendimento per mercato</h3><div id="report-markets"></div></div>
-  <div class="panel">
-    <h3 data-i18n="r_hist">Rendimento storico</h3>
-    <p class="sub small" data-i18n="r_hist_sub">Risultati aggregati dei soli Top Picks. Scegli il periodo da analizzare.</p>
-    <div class="toolbar"><label class="check"><span data-i18n="r_period">Periodo</span>
-      <select id="report-range">
-        <option value="1" data-i18n="r_today">Oggi</option><option value="7" selected data-i18n="r_7">Ultimi 7 giorni</option><option value="30" data-i18n="r_30">Ultimi 30 giorni</option><option value="60" data-i18n="r_60">Ultimi 60 giorni</option>
-      </select></label></div>
-    <div class="charts">
-      <div class="chart-card"><h4 data-i18n="r_trend">Andamento precisione</h4><div id="chart-acc"></div></div>
-      <div class="chart-card"><h4 data-i18n="r_wl">Vinti / Persi</h4><div id="chart-wl"></div></div>
-    </div>
+  <div class="charts">
+    <div class="chart-card"><h4 data-i18n="r_trend">Andamento precisione</h4><div id="chart-acc"></div></div>
+    <div class="chart-card"><h4 data-i18n="r_wl">Vinti / Persi</h4><div id="chart-wl"></div></div>
   </div>
   <div class="panel"><h3 data-i18n="r_picks">Pick valutati</h3><div id="report-list"></div></div>
-  <div class="panel"><h3 data-i18n="r_tennis">Tennis (ultimi 30 giorni)</h3><div class="kpis small" id="report-tennis-kpis"></div><div id="report-tennis-list"></div></div>
+
+  <h2 class="rep-h2" data-i18n="r_tn_title">🎾 Tennis – Top Picks</h2>
+  <div class="kpis" id="report-tennis-kpis"></div>
+  <div class="panel"><h3 data-i18n="r_picks">Pick valutati</h3><div id="report-tennis-list"></div></div>
 </div>
 
 <!-- ================= ARCHIVIO ================= -->
@@ -198,7 +201,6 @@
     <a href="/es/pronosticos-hoy" hreflang="es">Español</a>
     <a href="/pt/palpites-hoje" hreflang="pt">Português</a>
   </nav>
-  <p class="muted">Un progetto di <a href="https://www.roulify.it/" rel="noopener">Roulify</a></p>
   <p>© <span id="year"></span> PreBetPro · <span data-i18n="footer">Pronostici calcio e tennis basati sui dati</span></p>
   <p class="muted" data-i18n="disclaimer">Le probabilità sono stime statistiche, non garanzie. 18+ · Gioca responsabilmente.</p>
   <p class="muted" id="api-status"></p>
@@ -206,7 +208,7 @@
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=15" defer></script>
-<script src="js/app.js?v=15" defer></script>
+<script src="js/i18n.js?v=16" defer></script>
+<script src="js/app.js?v=16" defer></script>
 </body>
 </html>
