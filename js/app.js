@@ -267,7 +267,8 @@
     chipBar($("live-chips"), ["all", "live", "next3", "ft", "top", "strong"], M, renderLive);
     var list = $("live-list"); if (!silent) loading(list);
     var day = M.day;
-    get("/day?date=" + day).then(function (d) {
+    Promise.all([get("/day?date=" + day), day <= romeDate(0) ? get("/details?date=" + day, 60000).catch(function () { return null; }) : null]).then(function (r) {
+      var d = r[0]; if (r[1]) M.det[day] = r[1];
       if (day !== M.day) return;
       M.fixtures = sortFx(d.fixtures || []); M.updated = d.updated;
       renderLive();
@@ -299,9 +300,22 @@
       '<div class="mrow-teams"><div class="team">' + logo(f.teams.home.logo, "tlogo") + "<span>" + esc(f.teams.home.name) + "</span><b>" + (st !== "ns" && f.goals.home != null ? f.goals.home : "") + "</b></div>" +
       '<div class="team">' + logo(f.teams.away.logo, "tlogo") + "<span>" + esc(f.teams.away.name) + "</span><b>" + (st !== "ns" && f.goals.away != null ? f.goals.away : "") + "</b></div>" +
       (st !== "ns" && ht && ht.home != null ? '<div class="ht">HT ' + ht.home + "-" + ht.away + (f.score.penalty && f.score.penalty.home != null ? " · " + T("pen_short") + " " + f.score.penalty.home + "-" + f.score.penalty.away : "") + "</div>" : "") + "</div>" +
+      evCol(f, det !== undefined ? det : (M.det[M.day] && M.det[M.day][id])) +
       '<div class="mrow-mk">' + pills(f, 3) + "</div>" +
       '<div class="mrow-go" aria-hidden="true">⌄</div></div>' +
       '<div class="mdet" id="' + (prefix || "det-") + id + '"' + (open ? "" : " hidden") + ">" + (open ? detailHtml(f, det !== undefined ? det : (M.det[M.day] && M.det[M.day][id]), injFor(prefix === "adet-" ? A.inj : M.inj[M.day], id)) : "") + "</div>";
+  }
+  function evCol(f, d) {
+    var ev = (d && d.events) || [], hid = f.teams.home.id;
+    var line = function (home) {
+      return ev.filter(function (e) { return (e[2] === hid) === home && ((e[5] === "Goal" && e[6] !== "Missed Penalty") || (e[5] === "Card" && /red|second/i.test(e[6]))); }).map(function (e) {
+        var min = (e[0] != null ? e[0] : "") + (e[1] ? "+" + e[1] : "") + "'";
+        if (e[5] === "Card") return '<span class="evx rc">🟥 ' + esc(e[3] || "") + " " + min + "</span>";
+        return '<span class="evx">⚽ ' + esc(e[3] || "?") + " " + min + (e[6] === "Penalty" ? " (" + T("ev_pen") + ")" : e[6] === "Own Goal" ? " (" + T("ev_own") + ")" : "") + "</span>";
+      }).join("");
+    };
+    var h = line(true), a = line(false);
+    return '<div class="mrow-ev">' + (h || a ? '<div class="evl">' + h + '</div><div class="evl">' + a + "</div>" : "") + "</div>";
   }
   function loadDetails(day) {
     Promise.all([get("/details?date=" + day, 60000), get("/injuries?date=" + day, 600000).catch(function () { return {}; })]).then(function (r) {
@@ -439,7 +453,7 @@
         COLS.map(function (c) {
           var v = val(p, c[1]), s = p.strength && p.strength[c[2]], cls = "num" + (s ? " strong" : v >= 60 ? " hi" : "");
           if (st === "ft" && h != null) cls += hit(c[2], h, a) ? " ok" : " ko";
-          return '<td class="' + cls + '">' + (v == null ? "—" : v) + "</td>";
+          return '<td class="' + cls + '">' + (v == null ? "—" : v + "%") + "</td>";
         }).join("") + "<td>" + confTag(f.confidence) + "</td></tr>";
     });
     return '<div class="tbl-wrap"><table class="ptable"><thead>' + head + "</thead><tbody>" + body + "</tbody></table></div>";
