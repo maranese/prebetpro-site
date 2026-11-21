@@ -3,12 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>PreBetPro – Pronostici calcio e tennis</title>
-  <meta name="description" content="Pronostici calcio e tennis basati su dati e modelli statistici: solo le partite che superano i filtri di affidabilità, risultati in diretta, report e archivio.">
+  <title>PreBetPro – Pronostici calcio e tennis di oggi basati sui dati</title>
+  <meta name="description" content="Pronostici calcio e tennis di oggi calcolati con modelli statistici: Serie A, Serie B, Premier League, Champions League, ATP e WTA. Solo le partite più affidabili, risultati live e report pubblico degli esiti.">
+  <link rel="canonical" href="https://prebetpro.com/">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PreBetPro">
+  <meta property="og:title" content="PreBetPro – Pronostici calcio e tennis di oggi basati sui dati">
+  <meta property="og:description" content="Pronostici calcio e tennis calcolati con modelli statistici: solo le partite che superano i filtri di affidabilità, risultati live, report pubblici dei risultati.">
+  <meta property="og:url" content="https://prebetpro.com/">
+  <meta property="og:locale" content="it_IT">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://prebetpro.com/#website","url":"https://prebetpro.com/","name":"PreBetPro","description":"Pronostici calcio e tennis basati su dati e modelli statistici, con risultati live e report pubblico dei risultati.","inLanguage":["it","en","es","pt-BR"],"publisher":{"@id":"https://prebetpro.com/#org"}},{"@type":"Organization","@id":"https://prebetpro.com/#org","name":"PreBetPro","url":"https://prebetpro.com/"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Come vengono calcolati i pronostici di PreBetPro?","acceptedAnswer":{"@type":"Answer","text":"Per ogni partita un modello di Poisson stima i gol attesi delle due squadre dagli ultimi risultati (casa/trasferta) e calcola le probabilità di 1X2, doppia chance, Over/Under e Goal/No Goal. Vengono pubblicati come Top Picks solo i mercati che superano soglie minime di probabilità e affidabilità."}},{"@type":"Question","name":"I risultati dei pronostici sono verificabili?","acceptedAnswer":{"@type":"Answer","text":"Sì. Ogni Top Pick viene congelato prima della partita e valutato automaticamente a fine gara; vincite e perdite restano pubbliche nella sezione Report e nell'Archivio."}},{"@type":"Question","name":"Quali sport e campionati sono coperti?","acceptedAnswer":{"@type":"Answer","text":"Calcio: principali campionati europei (Serie A, Serie B, Premier League, Liga, Bundesliga, Ligue 1 e altri), coppe europee e nazionali. Tennis: tornei ATP, WTA, Challenger e ITF con risultati live."}},{"@type":"Question","name":"Ogni quanto si aggiorna il sito?","acceptedAnswer":{"@type":"Answer","text":"Durante le partite di calcio ogni 15 minuti, il tennis ogni 30 minuti, dalle 8 a mezzanotte (ora italiana)."}}]}]}</script>
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=101">
+  <link rel="stylesheet" href="css/style.css?v=11">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -41,35 +51,35 @@
   <section class="hero">
     <div class="hero-text">
       <h1 data-i18n="hero_claim">Solo le partite che contano</h1>
-      <p class="hero-sub" data-i18n="hero_sub"></p>
+      <p class="hero-sub" data-i18n="hero_sub">Ogni giorno analizziamo tutto, pubblichiamo solo il meglio.</p>
       <p class="hero-today" id="hero-today"></p>
       <div class="hero-cta">
-        <a class="btn primary" href="#predictions" data-i18n="cta_pred"></a>
-        <a class="btn ghost" href="#live" id="cta-live" data-i18n="cta_live"></a>
+        <a class="btn primary" href="#predictions" data-i18n="cta_pred">Pronostici di oggi</a>
+        <a class="btn ghost" href="#live" id="cta-live" data-i18n="cta_live">Partite live</a>
       </div>
     </div>
     <ul class="hero-points">
-      <li><b data-i18n="hero_p1"></b><span data-i18n="hero_p1t"></span></li>
-      <li><b data-i18n="hero_p2"></b><span data-i18n="hero_p2t"></span></li>
-      <li><b data-i18n="hero_p3"></b><span data-i18n="hero_p3t"></span></li>
+      <li><b data-i18n="hero_p1">Dati reali</b><span data-i18n="hero_p1t">Risultati, calendari e quote aggiornati in automatico.</span></li>
+      <li><b data-i18n="hero_p2">Modelli statistici</b><span data-i18n="hero_p2t">Probabilità calcolate per ogni mercato, senza sensazioni.</span></li>
+      <li><b data-i18n="hero_p3">Risultati verificati</b><span data-i18n="hero_p3t">Ogni pick viene valutato e resta pubblico nel report.</span></li>
     </ul>
   </section>
 
   <section class="sec" id="top-picks">
     <div class="sec-head">
       <h2>🔥 <span data-i18n="picks_title">Top Picks</span> <span class="count-badge" id="picks-count"></span></h2>
-      <p class="info-box" data-i18n="picks_box"></p>
+      <p class="info-box" data-i18n="picks_box">Selezione ristretta: tra tutte le partite analizzate pubblichiamo solo quelle che superano i nostri criteri di affidabilità. Pochi pronostici, scelti per qualità.</p>
     </div>
-    <h3 class="sub-title">⚽ <span data-i18n="fb_title"></span></h3>
+    <h3 class="sub-title">⚽ <span data-i18n="fb_title">Calcio</span></h3>
     <div class="hscroll" id="picks-football"></div>
-    <h3 class="sub-title">🎾 <span data-i18n="tn_title"></span></h3>
+    <h3 class="sub-title">🎾 <span data-i18n="tn_title">Tennis</span></h3>
     <div class="hscroll" id="picks-tennis"></div>
   </section>
 
   <section class="sec" id="live">
     <div class="sec-head">
       <h2>⚽ <span data-i18n="live_title">Partite del giorno</span></h2>
-      <p class="sub" data-i18n="live_sub"></p>
+      <p class="sub" data-i18n="live_sub">Risultati in diretta, primo tempo e finali dei campionati monitorati, con le probabilità principali del modello. Tocca una partita per i dettagli.</p>
     </div>
     <div class="toolbar">
       <div class="seg" id="live-day"></div>
@@ -87,9 +97,9 @@
 <div class="view" id="view-predictions" hidden>
   <div class="sec-head">
     <h1>📊 <span data-i18n="pred_title">Pronostici</span></h1>
-    <p class="sub" data-i18n="pred_sub"></p>
+    <p class="sub" data-i18n="pred_sub">Tutti i mercati calcolati dal modello per ogni partita. In evidenza i valori oltre la soglia del mercato: solo quelli delle partite a confidenza alta diventano Top Picks.</p>
   </div>
-  <h2 class="sub-title">🔥 <span data-i18n="picks_today_title"></span></h2>
+  <h2 class="sub-title">🔥 <span data-i18n="picks_today_title">Top Picks di oggi</span></h2>
   <div class="hscroll" id="pred-picks"></div>
   <div class="toolbar">
     <div class="seg" id="pred-day"></div>
@@ -106,83 +116,83 @@
 <div class="view" id="view-tennis" hidden>
   <div class="sec-head">
     <h1>🎾 <span data-i18n="tennis_title">Tennis</span></h1>
-    <p class="sub" data-i18n="tennis_sub"></p>
+    <p class="sub" data-i18n="tennis_sub">Favoriti dei tabelloni principali ATP, WTA e Challenger con probabilità stimata tra 68% e 82%. Quota equa = 1 / probabilità; quota minima = prezzo più basso che conviene accettare.</p>
   </div>
   <div class="toolbar"><div class="seg" id="tennis-day"></div></div>
   <div class="kpis" id="tennis-kpis"></div>
-  <h2 class="sub-title">🔥 <span data-i18n="tn_picks_title"></span></h2>
+  <h2 class="sub-title">🔥 <span data-i18n="tn_picks_title">Pick tennis</span></h2>
   <div class="hscroll" id="tennis-list"></div>
-  <h2 class="sub-title">🎾 <span data-i18n="tn_all_title"></span></h2>
+  <h2 class="sub-title">🎾 <span data-i18n="tn_all_title">Tutte le partite</span></h2>
   <div class="toolbar"><input id="tn-search" type="search" data-i18n-ph="search_player" aria-label="search"></div>
   <div class="chips filter-chips" id="tn-chips"></div>
   <p class="updated" id="tn-updated"></p>
   <div id="tn-matches"></div>
   <div class="more-wrap" id="tn-more"></div>
-  <p class="info-box" data-i18n="tn_note"></p>
+  <p class="info-box" data-i18n="tn_note">Dati da Live Tennis API: ATP, WTA, Challenger e ITF, aggiornati ogni 30 minuti dalle 8 alle 24. Alcuni match di primo piano possono mancare.</p>
 </div>
 
 <!-- ================= REPORT ================= -->
 <div class="view" id="view-report" hidden>
   <div class="sec-head">
     <h1>📈 <span data-i18n="report_title">Report</span></h1>
-    <p class="sub" data-i18n="report_sub"></p>
+    <p class="sub" data-i18n="report_sub">Risultati dei Top Picks pubblicati, valutati automaticamente a fine partita.</p>
   </div>
   <div class="kpis" id="report-summary"></div>
-  <div class="panel"><h3 data-i18n="r_by_market"></h3><div id="report-markets"></div></div>
+  <div class="panel"><h3 data-i18n="r_by_market">Rendimento per mercato</h3><div id="report-markets"></div></div>
   <div class="panel">
-    <h3 data-i18n="r_hist"></h3>
-    <p class="sub small" data-i18n="r_hist_sub"></p>
-    <div class="toolbar"><label class="check"><span data-i18n="r_period"></span>
+    <h3 data-i18n="r_hist">Rendimento storico</h3>
+    <p class="sub small" data-i18n="r_hist_sub">Risultati aggregati dei soli Top Picks. Scegli il periodo da analizzare.</p>
+    <div class="toolbar"><label class="check"><span data-i18n="r_period">Periodo</span>
       <select id="report-range">
-        <option value="1" data-i18n="r_today"></option><option value="7" selected data-i18n="r_7"></option><option value="30" data-i18n="r_30"></option><option value="60" data-i18n="r_60"></option>
+        <option value="1" data-i18n="r_today">Oggi</option><option value="7" selected data-i18n="r_7">Ultimi 7 giorni</option><option value="30" data-i18n="r_30">Ultimi 30 giorni</option><option value="60" data-i18n="r_60">Ultimi 60 giorni</option>
       </select></label></div>
     <div class="charts">
-      <div class="chart-card"><h4 data-i18n="r_trend"></h4><div id="chart-acc"></div></div>
-      <div class="chart-card"><h4 data-i18n="r_wl"></h4><div id="chart-wl"></div></div>
+      <div class="chart-card"><h4 data-i18n="r_trend">Andamento precisione</h4><div id="chart-acc"></div></div>
+      <div class="chart-card"><h4 data-i18n="r_wl">Vinti / Persi</h4><div id="chart-wl"></div></div>
     </div>
   </div>
-  <div class="panel"><h3 data-i18n="r_picks"></h3><div id="report-list"></div></div>
-  <div class="panel"><h3 data-i18n="r_tennis"></h3><div class="kpis small" id="report-tennis-kpis"></div><div id="report-tennis-list"></div></div>
+  <div class="panel"><h3 data-i18n="r_picks">Pick valutati</h3><div id="report-list"></div></div>
+  <div class="panel"><h3 data-i18n="r_tennis">Tennis (ultimi 30 giorni)</h3><div class="kpis small" id="report-tennis-kpis"></div><div id="report-tennis-list"></div></div>
 </div>
 
 <!-- ================= ARCHIVIO ================= -->
 <div class="view" id="view-archive" hidden>
   <div class="sec-head">
     <h1 data-i18n="archive_title">Archivio</h1>
-    <p class="sub" data-i18n="archive_sub"></p>
+    <p class="sub" data-i18n="archive_sub">Lo storico giorno per giorno di tutto ciò che è stato pubblicato: partite, risultati, probabilità e esito di ogni pick.</p>
   </div>
   <div class="toolbar">
     <div class="filters">
-      <label class="check"><span data-i18n="day"></span> <input type="date" id="archive-date"></label>
-      <button class="btn" id="archive-prev" type="button" data-i18n="prev"></button>
-      <button class="btn" id="archive-next" type="button" data-i18n="next"></button>
+      <label class="check"><span data-i18n="day">Giorno</span> <input type="date" id="archive-date"></label>
+      <button class="btn" id="archive-prev" type="button" data-i18n="prev">‹ Prec</button>
+      <button class="btn" id="archive-next" type="button" data-i18n="next">Succ ›</button>
     </div>
   </div>
   <div class="chips" id="archive-days"></div>
   <div class="kpis small" id="archive-kpis"></div>
-  <h2 class="block-title" data-i18n="day_picks"></h2>
+  <h2 class="block-title" data-i18n="day_picks">Pick del giorno</h2>
   <div id="archive-picks"></div>
-  <h2 class="block-title" data-i18n="day_matches"></h2>
+  <h2 class="block-title" data-i18n="day_matches">Partite</h2>
   <div id="archive-matches"></div>
 </div>
 
 <!-- ================= METODO ================= -->
 <div class="view" id="view-method" hidden>
   <div class="sec-head"><h1 data-i18n="method_title">Metodo</h1></div>
-  <div class="panel prose" id="method-body"></div>
+  <div class="panel prose" id="method-body"><h3>Modello calcio</h3><p>Per ogni squadra il sistema conserva gli ultimi 15 risultati, separati tra casa e trasferta. I gol attesi di ciascuna squadra derivano dalla media ponderata dei gol totali delle partite recenti (ultime 5 peso 1,5; 5 precedenti peso 1,0; le più vecchie 0,7) e vengono combinati in un modello di Poisson che calcola la probabilità di ogni risultato da 0-0 a 5-5.</p><p>Da questi risultati il sito ricava 1X2, Doppia chance, Under/Over 1,5 e 2,5, Goal/No Goal. La confidenza dipende da quanto sono stabili i risultati delle squadre: <strong>alta</strong>, <strong>media</strong> o <strong>bassa</strong>. Servono almeno 8 partite registrate per squadra.</p><p>Un mercato è <em>forte</em> quando supera la propria soglia (es. 1 o 2 ≥ 70%, Over 1,5 ≥ 72%, Under 2,5 ≥ 65%). I <strong>Top Picks</strong> sono i mercati forti delle partite a confidenza alta, in ordine di probabilità (massimo 20 al giorno). Ogni pick viene congelato prima del via e valutato sul risultato dei 90': report e archivio mostrano tutti gli esiti, vinti e persi.</p><h3>Modello tennis</h3><p>Le quote del bookmaker più efficiente vengono trasformate in probabilità senza margine. Si pubblicano solo i favoriti tra 68% e 82% nei singolari dei tabelloni principali ATP, WTA e Challenger, con quota equa (1/p) e quota minima consigliata.</p><h3>Aggiornamenti</h3><p>Durante il giorno partite e risultati si aggiornano ogni 15 minuti quando ci sono partite in corso; formazioni, marcatori e statistiche vengono scaricati a fine partita per i campionati principali, le coppe europee e le partite con Top Pick. Di notte (00:00–08:00) gli aggiornamenti sono sospesi.</p><p class="warn">Stime statistiche, mai certezze. Il gioco comporta rischio di perdita. Vietato ai minori di 18 anni · Gioca responsabilmente.</p></div>
 </div>
 
 </main>
 
 <footer class="footer">
-  <p>© <span id="year"></span> PreBetPro · <span data-i18n="footer"></span></p>
-  <p class="muted" data-i18n="disclaimer"></p>
+  <p>© <span id="year"></span> PreBetPro · <span data-i18n="footer">Pronostici calcio e tennis basati sui dati</span></p>
+  <p class="muted" data-i18n="disclaimer">Le probabilità sono stime statistiche, non garanzie. 18+ · Gioca responsabilmente.</p>
   <p class="muted" id="api-status"></p>
 </footer>
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=101" defer></script>
-<script src="js/app.js?v=101" defer></script>
+<script src="js/i18n.js?v=11" defer></script>
+<script src="js/app.js?v=11" defer></script>
 </body>
 </html>

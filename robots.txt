@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Motori di ricerca e assistenti AI che citano le fonti (ricerca, non addestramento)
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+Sitemap: https://prebetpro.com/sitemap.xml

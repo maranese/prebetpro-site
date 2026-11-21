@@ -1,0 +1,22 @@
+# PreBetPro
+
+> PreBetPro (https://prebetpro.com) pubblica ogni giorno pronostici di calcio e tennis calcolati con modelli statistici, risultati in diretta e un report pubblico con l'esito di ogni pronostico. Disponibile in italiano, inglese, spagnolo e portoghese (Brasile).
+
+## Cosa trovi
+- Top Picks: selezione ristretta dei pronostici che superano le soglie di probabilità e affidabilità del modello.
+- Pronostici: per ogni partita le probabilità di 1X2, doppia chance (1X, X2, 12), Over/Under 1.5 e 2.5, Goal/No Goal, con livello di confidenza.
+- Partite del giorno: risultati live, marcatori, cartellini, formazioni, statistiche, indisponibili.
+- Tennis: partite ATP, WTA, Challenger e ITF in diretta e pick con probabilità, quota equa e quota minima.
+- Report e Archivio: esito di ogni pick pubblicato, percentuale di successo per mercato e storico giornaliero.
+
+## Metodo (sintesi)
+- Calcio: modello di Poisson sui gol attesi, pesi casa/trasferta e forma recente, minimo 8 partite per squadra; i pick vengono congelati prima del calcio d'inizio e valutati in automatico.
+- Tennis: probabilità stimata tra 68% e 82% per il favorito; quota equa = 1 / probabilità.
+- Le probabilità sono stime statistiche, non garanzie. Contenuti per maggiori di 18 anni.
+
+## Dati in formato JSON (pubblici, sola lettura)
+- Partite e pronostici del giorno: https://prebetpro-api.vincenzodiguida.workers.dev/day?date=AAAA-MM-GG
+- Top Picks e storico del giorno: https://prebetpro-api.vincenzodiguida.workers.dev/history?date=AAAA-MM-GG
+- Report dei risultati: https://prebetpro-api.vincenzodiguida.workers.dev/report/summary?range=30
+- Tennis (pick): https://prebetpro-api.vincenzodiguida.workers.dev/tennis?date=AAAA-MM-GG
+- Tennis (tutte le partite): https://prebetpro-api.vincenzodiguida.workers.dev/tennis/matches?date=AAAA-MM-GG
