@@ -4,21 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>PreBetPro – Pronostici calcio e tennis</title>
-  <meta name="description" content="Pronostici calcio e tennis basati su dati e modelli statistici: risultati in diretta, top picks, report e archivio. Football & tennis predictions.">
+  <meta name="description" content="Pronostici calcio e tennis basati su dati e modelli statistici: solo le partite che superano i filtri di affidabilità, risultati in diretta, report e archivio.">
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=8">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-inner">
-    <a href="#top-picks" class="logo" aria-label="PreBetPro"><span class="logo-mark">▶</span> PreBetPro</a>
+    <a href="#home" class="logo" aria-label="PreBetPro"><span class="logo-mark">▶</span> PreBetPro</a>
     <nav class="nav" id="nav" aria-label="Menu">
-      <a href="#top-picks" data-go="top-picks" data-i18n="nav_picks">Top Picks</a>
-      <a href="#live" data-go="live" data-i18n="nav_live">Partite</a>
+      <a href="#home" data-go="home" data-i18n="nav_home">Home</a>
       <a href="#predictions" data-go="predictions" data-i18n="nav_pred">Pronostici</a>
       <a href="#tennis" data-go="tennis" data-i18n="nav_tennis">Tennis</a>
       <a href="#report" data-go="report" data-i18n="nav_report">Report</a>
@@ -29,7 +28,7 @@
       <select id="lang" class="lang-select" aria-label="Language">
         <option value="it">IT</option><option value="en">EN</option><option value="es">ES</option><option value="pt">PT-BR</option>
       </select>
-      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Tema chiaro/scuro">◐</button>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Tema chiaro/scuro"><span class="ico-sun">☀</span><span class="ico-moon">☾</span></button>
       <button id="nav-toggle" class="icon-btn nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
     </div>
   </div>
@@ -37,21 +36,36 @@
 
 <main id="app">
 
-<!-- ================= HOME (pagina unica a sezioni) ================= -->
-<div id="view-home">
+<!-- ================= HOME ================= -->
+<div class="view" id="view-home">
+  <section class="hero">
+    <div class="hero-text">
+      <h1 data-i18n="hero_claim">Solo le partite che contano</h1>
+      <p class="hero-sub" data-i18n="hero_sub"></p>
+      <p class="hero-today" id="hero-today"></p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#predictions" data-i18n="cta_pred"></a>
+        <a class="btn ghost" href="#live" id="cta-live" data-i18n="cta_live"></a>
+      </div>
+    </div>
+    <ul class="hero-points">
+      <li><b data-i18n="hero_p1"></b><span data-i18n="hero_p1t"></span></li>
+      <li><b data-i18n="hero_p2"></b><span data-i18n="hero_p2t"></span></li>
+      <li><b data-i18n="hero_p3"></b><span data-i18n="hero_p3t"></span></li>
+    </ul>
+  </section>
 
-  <!-- TOP PICKS -->
   <section class="sec" id="top-picks">
     <div class="sec-head">
-      <h2>🔥 <span data-i18n="picks_title">Top Picks</span></h2>
-      <p class="sub" data-i18n="picks_sub"></p>
+      <h2>🔥 <span data-i18n="picks_title">Top Picks</span> <span class="count-badge" id="picks-count"></span></h2>
+      <p class="info-box" data-i18n="picks_box"></p>
     </div>
-    <div class="kpis" id="picks-kpis"></div>
+    <h3 class="sub-title">⚽ <span data-i18n="fb_title"></span></h3>
     <div class="hscroll" id="picks-football"></div>
+    <h3 class="sub-title">🎾 <span data-i18n="tn_title"></span></h3>
     <div class="hscroll" id="picks-tennis"></div>
   </section>
 
-  <!-- PARTITE (LIVESCORE) -->
   <section class="sec" id="live">
     <div class="sec-head">
       <h2>⚽ <span data-i18n="live_title">Partite del giorno</span></h2>
@@ -59,81 +73,73 @@
     </div>
     <div class="toolbar">
       <div class="seg" id="live-day"></div>
-      <div class="filters">
-        <select id="m-country" aria-label="country"></select>
-        <select id="m-league" aria-label="league"></select>
-        <select id="m-status" aria-label="status">
-          <option value="" data-i18n="all_status"></option><option value="live" data-i18n="st_live"></option><option value="ns" data-i18n="st_ns"></option><option value="ft" data-i18n="st_ft"></option>
-        </select>
-        <input id="m-search" type="search" data-i18n-ph="search_team" aria-label="search">
-      </div>
+      <input id="m-search" type="search" data-i18n-ph="search_team" aria-label="search">
     </div>
-    <div class="kpis small" id="live-kpis"></div>
+    <div class="chips filter-chips" id="live-chips"></div>
+    <div class="league-bar" id="live-leagues"></div>
     <p class="updated" id="live-updated"></p>
     <div id="live-list"></div>
-  </section>
-
-  <!-- PRONOSTICI -->
-  <section class="sec" id="predictions">
-    <div class="sec-head">
-      <h2>📊 <span data-i18n="pred_title">Pronostici</span></h2>
-      <p class="sub" data-i18n="pred_sub"></p>
-    </div>
-    <div class="toolbar">
-      <div class="seg" id="pred-day"></div>
-      <div class="filters">
-        <select id="p-country" aria-label="country"></select>
-        <select id="p-league" aria-label="league"></select>
-        <select id="p-market" aria-label="market">
-          <option value="" data-i18n="all_markets"></option><option value="0" data-i18n="g_1x2"></option><option value="1" data-i18n="g_dc"></option><option value="2" data-i18n="g_goals"></option><option value="3" data-i18n="g_btts"></option>
-        </select>
-        <select id="p-conf" aria-label="confidence">
-          <option value="" data-i18n="all_conf"></option><option value="high" data-i18n="only_high"></option><option value="medium" data-i18n="med_plus"></option>
-        </select>
-        <label class="check"><input type="checkbox" id="p-strong"> <span data-i18n="only_strong"></span></label>
-      </div>
-    </div>
-    <div id="pred-list"></div>
-  </section>
-
-  <!-- TENNIS -->
-  <section class="sec" id="tennis">
-    <div class="sec-head">
-      <h2>🎾 <span data-i18n="tennis_title">Tennis</span></h2>
-      <p class="sub" data-i18n="tennis_sub"></p>
-    </div>
-    <div class="toolbar"><div class="seg" id="tennis-day"></div></div>
-    <div class="kpis" id="tennis-kpis"></div>
-    <div class="cards" id="tennis-list"></div>
-  </section>
-
-  <!-- REPORT (struttura originale) -->
-  <section class="sec" id="report">
-    <div class="sec-head">
-      <h2>📈 <span data-i18n="report_title">Report</span></h2>
-      <p class="sub" data-i18n="report_sub"></p>
-    </div>
-    <div class="kpis" id="report-summary"></div>
-    <div class="panel"><h3 data-i18n="r_by_market"></h3><div id="report-markets"></div></div>
-    <div class="panel">
-      <h3 data-i18n="r_hist"></h3>
-      <p class="sub small" data-i18n="r_hist_sub"></p>
-      <div class="toolbar"><label class="check"><span data-i18n="r_period"></span>
-        <select id="report-range">
-          <option value="1" data-i18n="r_today"></option><option value="7" selected data-i18n="r_7"></option><option value="30" data-i18n="r_30"></option><option value="60" data-i18n="r_60"></option>
-        </select></label></div>
-      <div class="charts">
-        <div class="chart-card"><h4 data-i18n="r_trend"></h4><div id="chart-acc"></div></div>
-        <div class="chart-card"><h4 data-i18n="r_wl"></h4><div id="chart-wl"></div></div>
-      </div>
-    </div>
-    <div class="panel"><h3 data-i18n="r_picks"></h3><div id="report-list"></div></div>
-    <div class="panel"><h3 data-i18n="r_tennis"></h3><div class="kpis small" id="report-tennis-kpis"></div><div id="report-tennis-list"></div></div>
+    <div class="more-wrap" id="live-more"></div>
   </section>
 </div>
 
+<!-- ================= PRONOSTICI ================= -->
+<div class="view" id="view-predictions" hidden>
+  <div class="sec-head">
+    <h1>📊 <span data-i18n="pred_title">Pronostici</span></h1>
+    <p class="sub" data-i18n="pred_sub"></p>
+  </div>
+  <h2 class="sub-title">🔥 <span data-i18n="picks_today_title"></span></h2>
+  <div class="hscroll" id="pred-picks"></div>
+  <div class="toolbar">
+    <div class="seg" id="pred-day"></div>
+    <input id="p-search" type="search" data-i18n-ph="search_team" aria-label="search">
+  </div>
+  <div class="chips filter-chips" id="pred-chips"></div>
+  <div class="league-bar" id="pred-leagues"></div>
+  <p class="updated small" id="pred-hint"></p>
+  <div id="pred-list"></div>
+  <div class="more-wrap" id="pred-more"></div>
+</div>
+
+<!-- ================= TENNIS ================= -->
+<div class="view" id="view-tennis" hidden>
+  <div class="sec-head">
+    <h1>🎾 <span data-i18n="tennis_title">Tennis</span></h1>
+    <p class="sub" data-i18n="tennis_sub"></p>
+  </div>
+  <div class="toolbar"><div class="seg" id="tennis-day"></div></div>
+  <div class="kpis" id="tennis-kpis"></div>
+  <div class="cards" id="tennis-list"></div>
+  <p class="info-box" data-i18n="tennis_full_soon"></p>
+</div>
+
+<!-- ================= REPORT ================= -->
+<div class="view" id="view-report" hidden>
+  <div class="sec-head">
+    <h1>📈 <span data-i18n="report_title">Report</span></h1>
+    <p class="sub" data-i18n="report_sub"></p>
+  </div>
+  <div class="kpis" id="report-summary"></div>
+  <div class="panel"><h3 data-i18n="r_by_market"></h3><div id="report-markets"></div></div>
+  <div class="panel">
+    <h3 data-i18n="r_hist"></h3>
+    <p class="sub small" data-i18n="r_hist_sub"></p>
+    <div class="toolbar"><label class="check"><span data-i18n="r_period"></span>
+      <select id="report-range">
+        <option value="1" data-i18n="r_today"></option><option value="7" selected data-i18n="r_7"></option><option value="30" data-i18n="r_30"></option><option value="60" data-i18n="r_60"></option>
+      </select></label></div>
+    <div class="charts">
+      <div class="chart-card"><h4 data-i18n="r_trend"></h4><div id="chart-acc"></div></div>
+      <div class="chart-card"><h4 data-i18n="r_wl"></h4><div id="chart-wl"></div></div>
+    </div>
+  </div>
+  <div class="panel"><h3 data-i18n="r_picks"></h3><div id="report-list"></div></div>
+  <div class="panel"><h3 data-i18n="r_tennis"></h3><div class="kpis small" id="report-tennis-kpis"></div><div id="report-tennis-list"></div></div>
+</div>
+
 <!-- ================= ARCHIVIO ================= -->
-<section class="view" id="view-archive" hidden>
+<div class="view" id="view-archive" hidden>
   <div class="sec-head">
     <h1 data-i18n="archive_title">Archivio</h1>
     <p class="sub" data-i18n="archive_sub"></p>
@@ -151,13 +157,13 @@
   <div id="archive-picks"></div>
   <h2 class="block-title" data-i18n="day_matches"></h2>
   <div id="archive-matches"></div>
-</section>
+</div>
 
 <!-- ================= METODO ================= -->
-<section class="view" id="view-method" hidden>
+<div class="view" id="view-method" hidden>
   <div class="sec-head"><h1 data-i18n="method_title">Metodo</h1></div>
   <div class="panel prose" id="method-body"></div>
-</section>
+</div>
 
 </main>
 
@@ -169,7 +175,7 @@
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=7" defer></script>
-<script src="js/app.js?v=7" defer></script>
+<script src="js/i18n.js?v=8" defer></script>
+<script src="js/app.js?v=8" defer></script>
 </body>
 </html>
