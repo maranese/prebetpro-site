@@ -311,3 +311,82 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin
 .league.collapsed .league-body { display: none; }
 .league.collapsed .lg-t { transform: rotate(-90deg); }
 @media (max-width: 420px) { .mk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mk b { font-size: 13px; } }
+
+/* ===================== v8 ===================== */
+.view[hidden] { display: none !important; }
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; align-items: center; margin: 10px 0 26px; padding: 26px 24px;
+  border-radius: 20px; border: 1px solid var(--line); background: radial-gradient(120% 140% at 0% 0%, var(--accent-soft), transparent 60%), var(--card); box-shadow: var(--shadow); }
+.hero h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.05; margin: 0 0 10px; letter-spacing: -.8px; }
+.hero-sub { color: var(--muted); font-size: 16px; margin: 0 0 10px; max-width: 560px; }
+.hero-today { font-weight: 700; color: var(--accent); margin: 0 0 16px; min-height: 1.2em; }
+.hero-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn.primary { background: var(--accent); color: #05210f; border-color: var(--accent); font-weight: 700; text-decoration: none; }
+.btn.ghost { background: transparent; text-decoration: none; color: var(--text); }
+.hero-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.hero-points li { background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; display: flex; flex-direction: column; gap: 2px; }
+.hero-points b { font-size: 14.5px; } .hero-points span { color: var(--muted); font-size: 13px; }
+@media (max-width: 760px) { .hero { grid-template-columns: 1fr; padding: 20px 16px; gap: 16px; } }
+
+/* info + badge */
+.info-box { background: var(--accent-soft); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 10px 13px; font-size: 14px; margin: 6px 0 12px; }
+.count-badge { font-size: 12.5px; font-weight: 700; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 3px 10px; vertical-align: middle; white-space: nowrap; }
+.count-badge:empty { display: none; }
+.sub-title { font-size: 16px; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }
+.hscroll > .empty { grid-column: 1 / -1; min-width: 260px; }
+
+/* chip filtri + barra campionati fissa */
+.filter-chips .chip { font-weight: 600; }
+.league-bar { position: sticky; top: 58px; z-index: 20; display: flex; gap: 6px; overflow-x: auto; padding: 8px 2px; margin: 0 0 8px; background: var(--bg); -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+.league-bar:empty { display: none; }
+.lchip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 4px 11px 4px 6px; font-size: 12.5px; white-space: nowrap; cursor: pointer; border-left: 4px solid hsl(var(--lh, 140) 65% 50%); }
+.lchip:first-child { padding-left: 11px; border-left-width: 1px; }
+.lchip.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.lchip .llogo { width: 16px; height: 16px; }
+
+/* campionati distinguibili */
+.league { border-left: 4px solid hsl(var(--lh, 140) 65% 50%); }
+.league-head { background: linear-gradient(90deg, hsl(var(--lh, 140) 65% 50% / .16), var(--card2) 70%); text-transform: none; font-size: 14px; letter-spacing: .1px; }
+.league-head .lg-n { margin-left: auto; font-style: normal; font-size: 12px; color: var(--muted); background: var(--card); border-radius: 999px; padding: 1px 8px; }
+.league-body .team span { font-weight: 500; }
+.mrow.open { background: var(--accent-soft); }
+.mrow.open .mrow-go { transform: rotate(180deg); }
+.mrow.is-live .mrow-status .badge { box-shadow: 0 0 0 3px rgba(245,158,11,.15); }
+.more-wrap { display: flex; justify-content: center; margin: 6px 0 18px; }
+.more-wrap:empty { display: none; }
+.btn.more { padding: 9px 18px; border-radius: 999px; }
+@media (max-width: 640px) {
+  .mrow { padding: 8px 12px; gap: 8px; }
+  .mrow-mk .pill:nth-child(n+3) { display: none; }
+  .tlogo { width: 16px; height: 16px; }
+}
+
+/* pronostici: schede mobile */
+.pcard-teams { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pcard-mk { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
+.link-btn { border: 0; background: none; color: var(--accent); font-weight: 600; font-size: 13px; padding: 4px 0; cursor: pointer; }
+/* pronostici: tabella desktop */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); margin-bottom: 10px; }
+.ptable { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.ptable th { position: sticky; top: 0; background: var(--card2); text-align: left; padding: 8px 8px; font-size: 12px; color: var(--muted); white-space: nowrap; cursor: pointer; user-select: none; border-bottom: 1px solid var(--line); }
+.ptable th:nth-child(2), .ptable th:last-child { cursor: default; }
+.ptable th.on { color: var(--accent); }
+.ptable td { padding: 7px 8px; border-top: 1px solid var(--line); vertical-align: middle; }
+.ptable td.tm { min-width: 220px; }
+.ptable .num { text-align: center; font-variant-numeric: tabular-nums; width: 50px; }
+.ptable td.hi { font-weight: 700; }
+.ptable td.strong { background: var(--accent-soft); color: var(--accent); font-weight: 800; }
+.ptable td.ok { box-shadow: inset 0 -3px 0 var(--win); } .ptable td.ko { opacity: .55; }
+.ptable tbody tr:not(.lg-row):hover td { background: var(--accent-soft); }
+.ptable .lg-row td { background: linear-gradient(90deg, hsl(var(--lh, 140) 65% 50% / .18), var(--card2) 60%); border-left: 4px solid hsl(var(--lh, 140) 65% 50%); font-weight: 700; padding: 8px 10px; }
+.ptable .lg-row td > * { vertical-align: middle; } .ptable .lg-row .llogo { margin-right: 6px; }
+.ptable .lg-row .lg-n { float: right; font-style: normal; font-size: 12px; color: var(--muted); }
+
+/* icone tema */
+.icon-btn .ico-sun { display: none; }
+:root[data-theme="light"] .icon-btn .ico-sun { display: inline; } :root[data-theme="light"] .icon-btn .ico-moon { display: none; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .icon-btn .ico-sun { display: inline; } :root:not([data-theme="dark"]) .icon-btn .ico-moon { display: none; } }
+.sec-head h1 { font-size: 26px; margin: 4px 0 4px; letter-spacing: -.4px; }
+.pcard-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pcard-foot .tag { margin: 0; }
+.pcard-teams b { font-size: 15px; }
