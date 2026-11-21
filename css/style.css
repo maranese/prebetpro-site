@@ -473,3 +473,9 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin
   .ptable thead tr:first-child th:last-child { border-top-right-radius: var(--radius); }
   .ptable .num { width: 52px; }
 }
+
+/* ===================== v16: report separato calcio / tennis ===================== */
+.rep-h2 { font-size: 19px; margin: 26px 0 4px; }
+.rep-ov td:first-child { font-weight: 600; }
+.rep-ov tr.tot td { border-top: 2px solid var(--line); font-weight: 700; }
+.rep-ov td:not(:first-child), .rep-ov th:not(:first-child) { text-align: center; }
