@@ -306,14 +306,19 @@
       '<div class="mdet" id="' + (prefix || "det-") + id + '"' + (open ? "" : " hidden") + ">" + (open ? detailHtml(f, det !== undefined ? det : (M.det[M.day] && M.det[M.day][id]), injFor(prefix === "adet-" ? A.inj : M.inj[M.day], id)) : "") + "</div>";
   }
   function shortTeam(n) { var w = String(n || "").replace(/[.]/g, "").split(/\s+/).filter(function (x) { return x.length > 2 && !/^(FC|AC|AS|SS|US|SC|CF|CD|UD|RC|SD|AFC|SSC|ACF|VfB|VfL|TSG|RCD|OGC|AJ|SSD|ASD)$/i.test(x); }); return (w[0] || String(n || "")).slice(0, 3); }
+  function shortName(n) { var p = String(n || "").trim().split(/\s+/); return p.length < 2 || /\.$/.test(p[0]) ? String(n || "") : p[0].charAt(0) + ". " + p.slice(1).join(" "); }
   function evCol(f, d) {
     var ev = (d && d.events) || [], hid = f.teams.home.id;
+    var goals = ev.filter(function (e) { return e[5] === "Goal" && e[6] !== "Missed Penalty"; }).length;
     var items = ev.filter(function (e) { return (e[5] === "Goal" && e[6] !== "Missed Penalty") || (e[5] === "Card" && /red|second/i.test(e[6])); }).map(function (e) {
       var min = (e[0] != null ? e[0] : "") + (e[1] ? "+" + e[1] : "") + "'";
       var tm = ' <b class="evt">(' + esc(shortTeam(e[2] === hid ? f.teams.home.name : f.teams.away.name)) + ")</b>";
-      if (e[5] === "Card") return '<span class="evx rc"><i class="ei">🟥</i>' + esc(e[3] || "") + " " + min + tm + "</span>";
-      return '<span class="evx"><i class="ei">⚽</i>' + esc(e[3] || "?") + " " + min + (e[6] === "Penalty" ? " " + T("ev_pen") : e[6] === "Own Goal" ? " " + T("ev_own") : "") + tm + "</span>";
+      var nm = esc(shortName(e[3]) || "?");
+      if (e[5] === "Card") return '<span class="evx rc" title="' + esc(e[3] || "") + '"><i class="ei">🟥</i>' + nm + " " + min + tm + "</span>";
+      return '<span class="evx" title="' + esc(e[3] || "") + '"><i class="ei">⚽</i>' + nm + " " + min + (e[6] === "Penalty" ? " " + T("ev_pen") : e[6] === "Own Goal" ? " " + T("ev_own") : "") + tm + "</span>";
     });
+    var tot = (f.goals && f.goals.home || 0) + (f.goals && f.goals.away || 0);
+    if (stateOf(f) !== "ns" && tot > goals) items.push('<span class="evx pend"><i class="ei">⚽</i>+' + (tot - goals) + " " + T("ev_pending") + "</span>");
     return '<div class="mrow-ev">' + items.join("") + "</div>";
   }
   function loadDetails(day) {
