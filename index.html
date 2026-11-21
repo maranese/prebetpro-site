@@ -1,192 +1,175 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>PreBetPro – Football & Tennis Predictions</title>
-  <meta name="description" content="Data-driven football and tennis predictions: probabilities from statistical models, top picks, daily reports and full archive.">
+  <title>PreBetPro – Pronostici calcio e tennis</title>
+  <meta name="description" content="Pronostici calcio e tennis basati su dati e modelli statistici: risultati in diretta, top picks, report e archivio. Football & tennis predictions.">
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=7">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-inner">
-    <a href="#picks" class="logo" aria-label="PreBetPro home"><span class="logo-mark">▶</span> PreBetPro</a>
-    <nav class="nav" id="nav" aria-label="Main">
-      <a href="#picks" data-view="picks">Top Picks</a>
-      <a href="#matches" data-view="matches">Matches</a>
-      <a href="#predictions" data-view="predictions">Predictions</a>
-      <a href="#tennis" data-view="tennis">Tennis</a>
-      <a href="#report" data-view="report">Report</a>
-      <a href="#archive" data-view="archive">Archive</a>
-      <a href="#method" data-view="method">Method</a>
+    <a href="#top-picks" class="logo" aria-label="PreBetPro"><span class="logo-mark">▶</span> PreBetPro</a>
+    <nav class="nav" id="nav" aria-label="Menu">
+      <a href="#top-picks" data-go="top-picks" data-i18n="nav_picks">Top Picks</a>
+      <a href="#live" data-go="live" data-i18n="nav_live">Partite</a>
+      <a href="#predictions" data-go="predictions" data-i18n="nav_pred">Pronostici</a>
+      <a href="#tennis" data-go="tennis" data-i18n="nav_tennis">Tennis</a>
+      <a href="#report" data-go="report" data-i18n="nav_report">Report</a>
+      <a href="#archive" data-go="archive" data-i18n="nav_archive">Archivio</a>
+      <a href="#method" data-go="method" data-i18n="nav_method">Metodo</a>
     </nav>
     <div class="topbar-actions">
-      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
-      <button id="nav-toggle" class="icon-btn nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">☰</button>
+      <select id="lang" class="lang-select" aria-label="Language">
+        <option value="it">IT</option><option value="en">EN</option><option value="es">ES</option><option value="pt">PT-BR</option>
+      </select>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Tema chiaro/scuro">◐</button>
+      <button id="nav-toggle" class="icon-btn nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
     </div>
   </div>
 </header>
 
 <main id="app">
 
-  <!-- ===== TOP PICKS ===== -->
-  <section class="view" id="view-picks" data-title="Top Picks">
-    <div class="view-head">
-      <div>
-        <h1>Top Picks</h1>
-        <p class="sub">Football markets that pass the model's reliability filter (high confidence + strength threshold). Picks are frozen 3 hours before kick-off and graded on the 90' result.</p>
-      </div>
+<!-- ================= HOME (pagina unica a sezioni) ================= -->
+<div id="view-home">
+
+  <!-- TOP PICKS -->
+  <section class="sec" id="top-picks">
+    <div class="sec-head">
+      <h2>🔥 <span data-i18n="picks_title">Top Picks</span></h2>
+      <p class="sub" data-i18n="picks_sub"></p>
     </div>
     <div class="kpis" id="picks-kpis"></div>
-    <h2 class="block-title">⚽ Football</h2>
-    <div class="cards" id="picks-football"></div>
-    <h2 class="block-title">🎾 Tennis</h2>
-    <div class="cards" id="picks-tennis"></div>
-    <p class="updated" id="picks-updated"></p>
+    <div class="hscroll" id="picks-football"></div>
+    <div class="hscroll" id="picks-tennis"></div>
   </section>
 
-  <!-- ===== MATCHES ===== -->
-  <section class="view" id="view-matches" data-title="Matches" hidden>
-    <div class="view-head">
-      <div>
-        <h1>Matches</h1>
-        <p class="sub">Fixtures, live and final scores for the monitored leagues, with the model's main probabilities.</p>
-      </div>
+  <!-- PARTITE (LIVESCORE) -->
+  <section class="sec" id="live">
+    <div class="sec-head">
+      <h2>⚽ <span data-i18n="live_title">Partite del giorno</span></h2>
+      <p class="sub" data-i18n="live_sub"></p>
     </div>
     <div class="toolbar">
-      <div class="seg" id="matches-day" role="tablist"></div>
+      <div class="seg" id="live-day"></div>
       <div class="filters">
-        <select id="m-country" aria-label="Country"><option value="">All countries</option></select>
-        <select id="m-league" aria-label="League"><option value="">All leagues</option></select>
-        <select id="m-status" aria-label="Status">
-          <option value="">All statuses</option><option value="ns">Not started</option><option value="live">Live</option><option value="ft">Finished</option>
+        <select id="m-country" aria-label="country"></select>
+        <select id="m-league" aria-label="league"></select>
+        <select id="m-status" aria-label="status">
+          <option value="" data-i18n="all_status"></option><option value="live" data-i18n="st_live"></option><option value="ns" data-i18n="st_ns"></option><option value="ft" data-i18n="st_ft"></option>
         </select>
-        <input id="m-search" type="search" placeholder="Search team…" aria-label="Search team">
+        <input id="m-search" type="search" data-i18n-ph="search_team" aria-label="search">
       </div>
     </div>
-    <div class="kpis small" id="matches-kpis"></div>
-    <div id="matches-list"></div>
+    <div class="kpis small" id="live-kpis"></div>
+    <p class="updated" id="live-updated"></p>
+    <div id="live-list"></div>
   </section>
 
-  <!-- ===== PREDICTIONS ===== -->
-  <section class="view" id="view-predictions" data-title="Predictions" hidden>
-    <div class="view-head">
-      <div>
-        <h1>Predictions</h1>
-        <p class="sub">Every market computed by the model for each match. <span class="tag strong">Strong</span> marks values above the market threshold; only high-confidence strong markets become Top Picks.</p>
-      </div>
+  <!-- PRONOSTICI -->
+  <section class="sec" id="predictions">
+    <div class="sec-head">
+      <h2>📊 <span data-i18n="pred_title">Pronostici</span></h2>
+      <p class="sub" data-i18n="pred_sub"></p>
     </div>
     <div class="toolbar">
-      <div class="seg" id="pred-day" role="tablist"></div>
+      <div class="seg" id="pred-day"></div>
       <div class="filters">
-        <select id="p-country" aria-label="Country"><option value="">All countries</option></select>
-        <select id="p-league" aria-label="League"><option value="">All leagues</option></select>
-        <select id="p-conf" aria-label="Confidence">
-          <option value="">All confidence levels</option><option value="high">High confidence</option><option value="medium">Medium or higher</option>
+        <select id="p-country" aria-label="country"></select>
+        <select id="p-league" aria-label="league"></select>
+        <select id="p-market" aria-label="market">
+          <option value="" data-i18n="all_markets"></option><option value="0" data-i18n="g_1x2"></option><option value="1" data-i18n="g_dc"></option><option value="2" data-i18n="g_goals"></option><option value="3" data-i18n="g_btts"></option>
         </select>
-        <label class="check"><input type="checkbox" id="p-strong"> Only strong</label>
+        <select id="p-conf" aria-label="confidence">
+          <option value="" data-i18n="all_conf"></option><option value="high" data-i18n="only_high"></option><option value="medium" data-i18n="med_plus"></option>
+        </select>
+        <label class="check"><input type="checkbox" id="p-strong"> <span data-i18n="only_strong"></span></label>
       </div>
     </div>
     <div id="pred-list"></div>
   </section>
 
-  <!-- ===== TENNIS ===== -->
-  <section class="view" id="view-tennis" data-title="Tennis" hidden>
-    <div class="view-head">
-      <div>
-        <h1>Tennis</h1>
-        <p class="sub">Favourites from ATP, WTA and Challenger main draws with an estimated win probability between 68% and 82%. <strong>Fair odds</strong> = 1 / probability; <strong>min odds</strong> = lowest price worth taking.</p>
-      </div>
+  <!-- TENNIS -->
+  <section class="sec" id="tennis">
+    <div class="sec-head">
+      <h2>🎾 <span data-i18n="tennis_title">Tennis</span></h2>
+      <p class="sub" data-i18n="tennis_sub"></p>
     </div>
-    <div class="toolbar"><div class="seg" id="tennis-day" role="tablist"></div></div>
+    <div class="toolbar"><div class="seg" id="tennis-day"></div></div>
     <div class="kpis" id="tennis-kpis"></div>
     <div class="cards" id="tennis-list"></div>
   </section>
 
-  <!-- ===== REPORT ===== -->
-  <section class="view" id="view-report" data-title="Report" hidden>
-    <div class="view-head">
-      <div>
-        <h1>Report</h1>
-        <p class="sub">Results of the published Top Picks, graded automatically after full time.</p>
+  <!-- REPORT (struttura originale) -->
+  <section class="sec" id="report">
+    <div class="sec-head">
+      <h2>📈 <span data-i18n="report_title">Report</span></h2>
+      <p class="sub" data-i18n="report_sub"></p>
+    </div>
+    <div class="kpis" id="report-summary"></div>
+    <div class="panel"><h3 data-i18n="r_by_market"></h3><div id="report-markets"></div></div>
+    <div class="panel">
+      <h3 data-i18n="r_hist"></h3>
+      <p class="sub small" data-i18n="r_hist_sub"></p>
+      <div class="toolbar"><label class="check"><span data-i18n="r_period"></span>
+        <select id="report-range">
+          <option value="1" data-i18n="r_today"></option><option value="7" selected data-i18n="r_7"></option><option value="30" data-i18n="r_30"></option><option value="60" data-i18n="r_60"></option>
+        </select></label></div>
+      <div class="charts">
+        <div class="chart-card"><h4 data-i18n="r_trend"></h4><div id="chart-acc"></div></div>
+        <div class="chart-card"><h4 data-i18n="r_wl"></h4><div id="chart-wl"></div></div>
       </div>
     </div>
-    <div class="toolbar">
-      <div class="seg" id="report-range" role="tablist">
-        <button data-r="7" class="on">7 days</button><button data-r="30">30 days</button><button data-r="60">60 days</button>
-      </div>
-    </div>
-    <h2 class="block-title">⚽ Football Top Picks</h2>
-    <div class="kpis" id="report-kpis"></div>
-    <div class="panel"><h3>Daily results</h3><div class="bars" id="report-bars"></div></div>
-    <div class="panel"><h3>By market</h3><div id="report-markets"></div></div>
-    <div class="panel"><h3>Graded picks <span class="muted" id="report-list-note"></span></h3><div id="report-list"></div></div>
-    <h2 class="block-title">🎾 Tennis (last 30 days)</h2>
-    <div class="kpis" id="report-tennis-kpis"></div>
-    <div class="panel"><div id="report-tennis-list"></div></div>
+    <div class="panel"><h3 data-i18n="r_picks"></h3><div id="report-list"></div></div>
+    <div class="panel"><h3 data-i18n="r_tennis"></h3><div class="kpis small" id="report-tennis-kpis"></div><div id="report-tennis-list"></div></div>
   </section>
+</div>
 
-  <!-- ===== ARCHIVE ===== -->
-  <section class="view" id="view-archive" data-title="Archive" hidden>
-    <div class="view-head">
-      <div>
-        <h1>Archive</h1>
-        <p class="sub">Day-by-day record of everything published: matches, final scores, model probabilities and the outcome of every pick.</p>
-      </div>
+<!-- ================= ARCHIVIO ================= -->
+<section class="view" id="view-archive" hidden>
+  <div class="sec-head">
+    <h1 data-i18n="archive_title">Archivio</h1>
+    <p class="sub" data-i18n="archive_sub"></p>
+  </div>
+  <div class="toolbar">
+    <div class="filters">
+      <label class="check"><span data-i18n="day"></span> <input type="date" id="archive-date"></label>
+      <button class="btn" id="archive-prev" type="button" data-i18n="prev"></button>
+      <button class="btn" id="archive-next" type="button" data-i18n="next"></button>
     </div>
-    <div class="toolbar">
-      <div class="filters">
-        <label class="check">Day <input type="date" id="archive-date" aria-label="Archive day"></label>
-        <button class="btn" id="archive-prev" type="button">‹ Prev</button>
-        <button class="btn" id="archive-next" type="button">Next ›</button>
-      </div>
-    </div>
-    <div class="chips" id="archive-days"></div>
-    <div class="kpis small" id="archive-kpis"></div>
-    <h2 class="block-title">Picks of the day</h2>
-    <div id="archive-picks"></div>
-    <h2 class="block-title">Matches</h2>
-    <div id="archive-matches"></div>
-  </section>
+  </div>
+  <div class="chips" id="archive-days"></div>
+  <div class="kpis small" id="archive-kpis"></div>
+  <h2 class="block-title" data-i18n="day_picks"></h2>
+  <div id="archive-picks"></div>
+  <h2 class="block-title" data-i18n="day_matches"></h2>
+  <div id="archive-matches"></div>
+</section>
 
-  <!-- ===== METHOD ===== -->
-  <section class="view" id="view-method" data-title="Method" hidden>
-    <div class="view-head"><div><h1>Method</h1><p class="sub">How the numbers are produced.</p></div></div>
-    <div class="panel prose">
-      <h3>Football model</h3>
-      <p>For every team the system keeps its last 15 results (home and away separately). The expected goals of each side are derived from the weighted average of total goals in recent matches (most recent 5 matches weigh 1.5, next 5 weigh 1.0, older 0.7) and combined into a Poisson model that gives the probability of every scoreline from 0-0 to 5-5.</p>
-      <p>From those scorelines the site computes 1X2, Double Chance, Over/Under 1.5 and 2.5, Goal/No Goal. Confidence depends on how stable the teams' scoring has been (dispersion of results): <strong>high</strong>, <strong>medium</strong> or <strong>low</strong>. A team needs at least 8 recorded matches before any prediction is published.</p>
-      <p>A market is <em>strong</em> when its probability exceeds its own threshold (e.g. 1 or 2 ≥ 70%, Over 1.5 ≥ 72%, Under 2.5 ≥ 65%). <strong>Top Picks</strong> are the strong markets of high-confidence matches, ranked by probability (max 20 per day). Each pick is frozen before kick-off and graded on the 90-minute score; the Report and Archive show every result, wins and losses alike.</p>
-      <h3>Tennis model</h3>
-      <p>Prices from the sharpest bookmaker are converted into margin-free probabilities. Only favourites between 68% and 82% in ATP, WTA and Challenger main-draw singles with a low market margin are published, with fair odds (1/p) and the minimum odds worth taking.</p>
-      <h3>Data &amp; updates</h3>
-      <p>Fixtures and scores are refreshed automatically every 30 minutes; tennis picks are recalculated every 30 minutes and graded automatically.</p>
-      <p class="warn">Statistical estimates, never guarantees. Gambling involves risk of loss. 18+ only · Play responsibly.</p>
-    </div>
-  </section>
+<!-- ================= METODO ================= -->
+<section class="view" id="view-method" hidden>
+  <div class="sec-head"><h1 data-i18n="method_title">Metodo</h1></div>
+  <div class="panel prose" id="method-body"></div>
+</section>
 
 </main>
 
 <footer class="footer">
-  <p>© <span id="year"></span> PreBetPro · Data-driven football &amp; tennis insights</p>
-  <p class="muted">Probabilities are statistical estimates, not guarantees. 18+ · Play responsibly.</p>
+  <p>© <span id="year"></span> PreBetPro · <span data-i18n="footer"></span></p>
+  <p class="muted" data-i18n="disclaimer"></p>
   <p class="muted" id="api-status"></p>
 </footer>
 
-<button id="back-to-top" class="icon-btn fab" type="button" aria-label="Back to top">↑</button>
+<button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<div class="modal" id="modal" hidden>
-  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <button class="icon-btn modal-close" id="modal-close" type="button" aria-label="Close">✕</button>
-    <div id="modal-body"></div>
-  </div>
-</div>
-
-<script src="js/app.js?v=6" defer></script>
+<script src="js/i18n.js?v=7" defer></script>
+<script src="js/app.js?v=7" defer></script>
 </body>
 </html>
