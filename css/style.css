@@ -454,3 +454,8 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin
   .mrow:not(.trow) .mrow-teams .team b { margin-left: auto; padding-left: 16px; }
   .mrow-ev { align-self: start; padding-top: 1px; gap: 4px 14px; }
 }
+
+/* ===================== v13: marcatori sempre visibili, senza sovrapposizioni ===================== */
+.mrow-ev { min-width: 0; overflow: hidden; }
+.evx { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.evx.pend { color: var(--muted); font-style: italic; }
