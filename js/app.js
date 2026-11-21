@@ -399,7 +399,7 @@
   var P = { day: romeDate(0), fixtures: [], chip: "all", league: null, limit: PAGE, sort: null, dir: -1, open: {} };
   function loadPred() {
     daySeg($("pred-day"), [0, 1], P.day, function (d) { P.day = d; P.limit = PAGE; $("pred-list").removeAttribute("data-loaded"); loadPred(); });
-    chipBar($("pred-chips"), ["all", "high", "strong", "top"], P, renderPred);
+    chipBar($("pred-chips"), ["all", "high", "top"], P, renderPred);
     var pp = $("pred-picks"); loading(pp);
     picksFor(romeDate(0)).then(function (r) { pp.innerHTML = r.cards.length ? r.cards.map(pickCard).join("") : empty(T("fb_none_picks")); pp.setAttribute("data-loaded", "1"); bindPicks(pp); }).catch(function (e) { fail(pp, e); });
     var list = $("pred-list"); loading(list); var day = P.day;
@@ -418,7 +418,7 @@
     }
     var shown = fx.slice(0, P.limit), lst = $("pred-list");
     var none = P.fixtures.filter(function (f) { return !f.predictions; }).length;
-    $("pred-hint").textContent = wide.matches ? T("sort_hint") : "";
+    $("pred-hint").textContent = (wide.matches ? T("sort_hint") + " · " : "") + T("legend_strong");
     if (!shown.length) lst.innerHTML = empty(T("no_pred"));
     else if (wide.matches) lst.innerHTML = predTable(shown, !P.sort, countBy(fx));
     else lst.innerHTML = groupByLeague(shown, predCard, countBy(fx));
