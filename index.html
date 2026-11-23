@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=18">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -151,14 +151,27 @@
     <span class="muted small" id="report-span"></span>
   </div>
 
-  <div class="panel"><h3 data-i18n="r_overview">Riepilogo del periodo</h3><div id="report-overview"></div>
+  <div class="panel"><h3 data-i18n="r_overview_top">Riepilogo Top Picks del periodo</h3><div id="report-overview"></div>
     <div class="chart-card rep-comb"><h4><span data-i18n="r_comb_trend">Precisione nel tempo: calcio, tennis e totale</span> <em class="muted" id="report-comb-unit"></em></h4><div id="chart-comb"></div></div>
     <p class="muted small" data-i18n="r_note">Calcio e tennis sono conteggiati separatamente.</p></div>
 
-  <h2 class="rep-h2" data-i18n="r_fb_title">⚽ Calcio – Top Picks</h2>
+  <h2 class="rep-h2" data-i18n="r_fb_h">⚽ Calcio</h2>
+  <div class="toolbar rep-lvl-bar">
+    <div class="seg" id="rep-lvl" role="tablist">
+      <button type="button" data-lvl="all" data-i18n="lv_all">Tutte le previsioni</button>
+      <button type="button" data-lvl="thr" data-i18n="lv_thr">Sopra soglia</button>
+      <button type="button" data-lvl="top" class="on" data-i18n="lv_top">Top Picks</button>
+    </div>
+    <label class="check" id="rep-conf-w" hidden><span data-i18n="r_conf">Confidenza</span>
+      <select id="rep-conf"><option value="" data-i18n="r_conf_all">Tutte</option><option value="h" data-i18n="cf_h">Alta</option><option value="m" data-i18n="cf_m">Media</option><option value="l" data-i18n="cf_l">Bassa</option></select></label>
+  </div>
+  <p class="muted small rep-lvl-note" id="rep-lvl-note"></p>
   <div id="rep-fb"></div>
+  <div class="panel"><h3 data-i18n="r_cmp">Confronto dei livelli di selezione</h3><div id="rep-cmp"></div>
+    <p class="muted small" data-i18n="r_cmp_note">Le percentuali sono confrontabili solo con campioni sufficienti e mercati simili: guarda anche il numero di casi e la probabilità media.</p></div>
 
   <h2 class="rep-h2" data-i18n="r_tn_title">🎾 Tennis – Top Picks</h2>
+  <p class="muted small" data-i18n="r_tn_only">Per il tennis vengono registrati solo i Top Picks (favoriti con probabilità tra 68% e 82%).</p>
   <div id="rep-tn"></div>
 </div>
 
@@ -188,14 +201,21 @@
   </div>
   <h2 class="block-title" data-i18n="day_picks">Pick del giorno</h2>
   <div id="archive-picks"></div>
-  <h2 class="block-title" data-i18n="day_matches">Partite</h2>
-  <div id="archive-matches"></div>
+  <h2 class="block-title" data-i18n="a_allpred">Tutte le previsioni del giorno</h2>
+  <p class="muted small" data-i18n="a_allpred_note">Per ogni partita analizzata: tutte le probabilità calcolate prima del calcio d'inizio. Verde sottolineato = esito avvenuto · sfondo verde = sopra la soglia del mercato · ★ = Top Pick pubblicato.</p>
+  <div class="toolbar arc-filters">
+    <label class="check"><span data-i18n="a_show">Mostra</span>
+      <select id="arc-lvl"><option value="" data-i18n="a_f_all">Tutte le partite analizzate</option><option value="thr" data-i18n="a_f_thr">Solo con selezioni sopra soglia</option><option value="top" data-i18n="a_f_top">Solo con Top Picks</option></select></label>
+    <label class="check"><span data-i18n="a_league">Campionato</span> <select id="arc-lg"></select></label>
+  </div>
+  <div id="archive-preds"></div>
+  <details class="arc-more"><summary data-i18n="a_details">Risultati e dettagli delle partite (marcatori, formazioni, statistiche)</summary><div id="archive-matches"></div></details>
 </div>
 
 <!-- ================= METODO ================= -->
 <div class="view" id="view-method" hidden>
   <div class="sec-head"><h1 data-i18n="method_title">Metodo</h1></div>
-  <div class="panel prose" id="method-body"><h3>Modello calcio</h3><p>Per ogni squadra il sistema conserva gli ultimi 15 risultati, separati tra casa e trasferta. I gol attesi di ciascuna squadra derivano dalla media ponderata dei gol totali delle partite recenti (ultime 5 peso 1,5; 5 precedenti peso 1,0; le più vecchie 0,7) e vengono combinati in un modello di Poisson che calcola la probabilità di ogni risultato da 0-0 a 5-5.</p><p>Da questi risultati il sito ricava 1X2, Doppia chance, Under/Over 1,5 e 2,5, Goal/No Goal. La confidenza dipende da quanto sono stabili i risultati delle squadre: <strong>alta</strong>, <strong>media</strong> o <strong>bassa</strong>. Servono almeno 8 partite registrate per squadra.</p><p>Un mercato è <em>forte</em> quando supera la propria soglia (es. 1 o 2 ≥ 70%, Over 1,5 ≥ 72%, Under 2,5 ≥ 65%). I <strong>Top Picks</strong> sono i mercati forti delle partite a confidenza alta, in ordine di probabilità (massimo 20 al giorno). Ogni pick viene congelato prima del via e valutato sul risultato dei 90': report e archivio mostrano tutti gli esiti, vinti e persi.</p><h3>Modello tennis</h3><p>Le quote del bookmaker più efficiente vengono trasformate in probabilità senza margine. Si pubblicano solo i favoriti tra 68% e 82% nei singolari dei tabelloni principali ATP, WTA e Challenger, con quota equa (1/p) e quota minima consigliata.</p><h3>Aggiornamenti</h3><p>Durante il giorno partite e risultati si aggiornano ogni 15 minuti quando ci sono partite in corso; formazioni, marcatori e statistiche vengono scaricati a fine partita per i campionati principali, le coppe europee e le partite con Top Pick. Di notte (00:00–08:00) gli aggiornamenti sono sospesi.</p><p class="warn">Stime statistiche, mai certezze. Il gioco comporta rischio di perdita. Vietato ai minori di 18 anni · Gioca responsabilmente.</p></div>
+  <div class="panel prose" id="method-body"><h3>Modello calcio</h3><p>Per ogni squadra il sistema conserva gli ultimi 15 risultati, separati tra casa e trasferta. I gol attesi di ciascuna squadra derivano dalla media ponderata dei gol totali delle partite recenti (ultime 5 peso 1,5; 5 precedenti peso 1,0; le più vecchie 0,7) e vengono combinati in un modello di Poisson che calcola la probabilità di ogni risultato da 0-0 a 5-5.</p><p>Da questi risultati il sito ricava 1X2, Doppia chance, Under/Over 1,5 e 2,5, Goal/No Goal. La confidenza dipende da quanto sono stabili i risultati delle squadre: <strong>alta</strong>, <strong>media</strong> o <strong>bassa</strong>. Servono almeno 8 partite registrate per squadra.</p><p>Un mercato è <em>forte</em> quando supera la propria soglia (es. 1 o 2 ≥ 70%, Over 1,5 ≥ 72%, Under 2,5 ≥ 65%). I <strong>Top Picks</strong> sono i mercati forti delle partite a confidenza alta con probabilità di almeno il 73% (regola in vigore dal 22/11/2026, modello A-73), in ordine di probabilità (massimo 20 al giorno). Nel Report puoi confrontare tre livelli: tutte le previsioni, quelle sopra soglia e i Top Picks. Ogni pick viene congelato prima del via e valutato sul risultato dei 90': report e archivio mostrano tutti gli esiti, vinti e persi.</p><h3>Modello tennis</h3><p>Le quote del bookmaker più efficiente vengono trasformate in probabilità senza margine. Si pubblicano solo i favoriti tra 68% e 82% nei singolari dei tabelloni principali ATP, WTA e Challenger, con quota equa (1/p) e quota minima consigliata.</p><h3>Aggiornamenti</h3><p>Durante il giorno partite e risultati si aggiornano ogni 15 minuti quando ci sono partite in corso; formazioni, marcatori e statistiche vengono scaricati a fine partita per i campionati principali, le coppe europee e le partite con Top Pick. Di notte (00:00–08:00) gli aggiornamenti sono sospesi.</p><p class="warn">Stime statistiche, mai certezze. Il gioco comporta rischio di perdita. Vietato ai minori di 18 anni · Gioca responsabilmente.</p></div>
 </div>
 
 </main>
@@ -221,7 +241,7 @@
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=17" defer></script>
-<script src="js/app.js?v=17" defer></script>
+<script src="js/i18n.js?v=18" defer></script>
+<script src="js/app.js?v=18" defer></script>
 </body>
 </html>
