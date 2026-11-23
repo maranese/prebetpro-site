@@ -515,3 +515,21 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin
 #archive-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 @media (max-width: 600px) { #archive-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 #archive-date { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 10px; padding: 7px 10px; min-height: 38px; font: inherit; }
+
+/* ===================== v18: report calcio a 3 livelli ===================== */
+.rep-lvl-bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 4px; }
+.rep-lvl-note { margin: 2px 0 10px; }
+.svg-chart .diag { stroke: var(--muted); stroke-dasharray: 4 4; stroke-width: 1; opacity: .7; }
+.tp-star { color: #f5b301; font-size: 13px; }
+#view-report .panel { overflow-x: auto; }
+#view-report .rep-ov td:first-child { white-space: normal; min-width: 90px; }
+@media (max-width: 600px) { #view-report .rep-ov th, #view-report .rep-ov td { padding: 6px 4px; font-size: 12px; } #view-report .rep-ov th { font-size: 10.5px; } #rep-lvl button { padding: 7px 10px; } }
+
+/* ===================== v18: archivio con tutte le previsioni ===================== */
+.arc-filters { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.arc-tbl .ptable td.tm { min-width: 200px; }
+.arc-tbl .ptable .num { width: 46px; padding: 6px 4px; position: relative; }
+.arc-tbl .tp-star { position: absolute; top: 1px; right: 2px; font-size: 10px; }
+.arc-ft { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: var(--card2); font-weight: 800; font-variant-numeric: tabular-nums; }
+.arc-more { margin: 16px 0; } .arc-more > summary { cursor: pointer; font-weight: 700; padding: 10px 0; }
+@media (max-width: 899px) { .arc-tbl { overflow-x: auto; } }
