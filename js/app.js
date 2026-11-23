@@ -644,6 +644,98 @@
       brkTable(T("r_by_band"), rows, function (r) { var p = +r.p || 0; for (var i = 0; i < BANDS.length; i++) if (p >= BANDS[i][0] && p < BANDS[i][1]) return BANDS[i][2]; return "?"; }, BANDS.map(function (b) { return b[2]; })) + "</div>" +
       pagedList(id, sorted, rowFn);
   }
+  /* ---------- calcio: 3 livelli (tutte le previsioni / sopra soglia / Top Picks) ---------- */
+  var EVK = ["1", "X", "2", "1X", "X2", "12", "Over 1.5", "Under 1.5", "Over 2.5", "Under 2.5", "Goal", "No Goal"];
+  var EVTH = [70, 60, 70, 68, 68, 72, 72, null, 68, 65, 69, 66];   // soglie del Model A (Under 1.5 senza soglia)
+  var EVFAM = [[0, 1, 2], [3, 4, 5], [6, 7], [8, 9], [10, 11]];   // famiglie: 1X2, doppia chance, O/U 1.5, O/U 2.5, Goal/No Goal
+  function evHit(i, h, a) { return [h > a, h === a, a > h, h >= a, a >= h, h !== a, h + a > 1, h + a < 2, h + a > 2, h + a < 3, h > 0 && a > 0, !(h > 0 && a > 0)][i]; }
+  function cfName(c) { return T(c === "h" ? "cf_h" : c === "m" ? "cf_m" : "cf_l"); }
+  RP.lvl = "top"; RP.ev = null; RP.evKey = "";
+  function evRows(R, conf) { var out = []; ((RP.ev && RP.ev.days) || []).forEach(function (d) { if (d.d < R.from || d.d > R.to) return; d.rows.forEach(function (r) { if (r.g && (!conf || r.c === conf)) out.push({ d: d.d, r: r }); }); }); return out; }
+  function thrRows(ev) {
+    var out = []; ev.forEach(function (x) { var r = x.r; for (var i = 0; i < 12; i++) if (EVTH[i] != null && r.p[i] >= EVTH[i]) out.push({ d: x.d, m: r.m, k: EVK[i], p: r.p[i], r: evHit(i, r.g[0], r.g[1]) ? 1 : 0, ft: r.g[0] + "-" + r.g[1], lg: r.l, c: r.c, ko: r.ko, tp: (r.t || []).indexOf(EVK[i]) >= 0 }); });
+    return out;
+  }
+  function famStats(ev) {   // previsione principale = esito più probabile di ogni famiglia
+    var n = 0, w = 0, bs = 0, bn = 0; ev.forEach(function (x) { var r = x.r, h = r.g[0], a = r.g[1];
+      EVFAM.forEach(function (f) { var bi = f[0]; f.forEach(function (i) { if (r.p[i] > r.p[bi]) bi = i; }); n++; if (evHit(bi, h, a)) w++; });
+      for (var i = 0; i < 12; i++) { var o = evHit(i, h, a) ? 1 : 0, q = (r.p[i] || 0) / 100; bs += (q - o) * (q - o); bn++; } });
+    return { n: n, w: w, brier: bn ? bs / bn : null };
+  }
+  function calibChart(ev) {
+    var B = []; for (var k = 0; k < 10; k++) B.push({ n: 0, o: 0, p: 0 });
+    ev.forEach(function (x) { var r = x.r; for (var i = 0; i < 12; i++) { var q = r.p[i]; if (q == null) continue; var b = B[Math.min(9, Math.floor(q / 10))]; b.n++; b.p += q; if (evHit(i, r.g[0], r.g[1])) b.o++; } });
+    var W = 340, H = 220, pl = 32, pb = 26, pt = 10, pr = 10, X = function (v) { return pl + v / 100 * (W - pl - pr); }, Y = function (v) { return H - pb - v / 100 * (H - pt - pb); };
+    var g = '<line x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(100) + '" y2="' + Y(100) + '" class="diag"/>' + [0, 50, 100].map(function (v) { return '<line x1="' + X(0) + '" y1="' + Y(v) + '" x2="' + X(100) + '" y2="' + Y(v) + '" class="grid"/><text x="2" y="' + (Y(v) + 3) + '" class="lbl">' + v + '%</text><text x="' + X(v) + '" y="' + (H - 8) + '" class="lbl" text-anchor="middle">' + v + "%</text>"; }).join("");
+    var mx = Math.max.apply(null, B.map(function (b) { return b.n; })) || 1, pts = [];
+    B.forEach(function (b, k) { if (!b.n) return; var px = b.p / b.n, py = b.o / b.n * 100; pts.push([X(px), Y(py)]); g += '<circle cx="' + X(px).toFixed(1) + '" cy="' + Y(py).toFixed(1) + '" r="' + (3 + 5 * Math.sqrt(b.n / mx)).toFixed(1) + '" class="pt fb"><title>' + T("r_cal_tip", { a: Math.round(px), b: Math.round(py), n: b.n }) + "</title></circle>"; });
+    if (pts.length > 1) g = '<path d="' + pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join("") + '" class="ln fb"/>' + g;
+    return '<svg viewBox="0 0 ' + W + " " + H + '" class="svg-chart" role="img">' + g + "</svg>";
+  }
+  function grpTable(title, ev, keyFn, order) {   // per il livello "tutte": partite, previsioni principali corrette, Brier
+    var m = {}; ev.forEach(function (x) { var k = keyFn(x.r); (m[k] = m[k] || []).push(x); });
+    var keys = order ? order.filter(function (k) { return m[k]; }) : Object.keys(m).sort(function (a, b) { return m[b].length - m[a].length; });
+    return '<div class="panel"><h3>' + title + "</h3>" + (keys.length ? '<table class="tbl rep-ov"><thead><tr><th></th><th>' + T("r_matches") + "</th><th>" + T("r_main_ok") + "</th><th>Brier</th></tr></thead><tbody>" + keys.map(function (k) {
+      var s = famStats(m[k]); return "<tr><td>" + esc(k) + "</td><td>" + m[k].length + "</td><td><b>" + pctS(s.w, s.n) + "</b></td><td>" + (s.brier != null ? s.brier.toFixed(3) : "—") + "</td></tr>";
+    }).join("") + "</tbody></table>" : empty(T("r_empty"))) + "</div>";
+  }
+  function outcomeTable(ev) {
+    var m = EVK.map(function () { return { n: 0, p: 0, o: 0 }; });
+    ev.forEach(function (x) { var r = x.r; for (var i = 0; i < 12; i++) { if (r.p[i] == null) continue; m[i].n++; m[i].p += r.p[i]; if (evHit(i, r.g[0], r.g[1])) m[i].o++; } });
+    return '<div class="panel"><h3>' + T("r_by_outcome") + '</h3><table class="tbl rep-ov"><thead><tr><th></th><th>' + T("r_cases") + "</th><th>" + T("r_avgp") + "</th><th>" + T("r_freq") + "</th><th>" + T("r_gap") + "</th></tr></thead><tbody>" + EVK.map(function (k, i) {
+      var x = m[i]; if (!x.n) return ""; var ap = x.p / x.n, fr = x.o / x.n * 100, gp = fr - ap;
+      return "<tr><td>" + esc(mkName(k)) + "</td><td>" + x.n + "</td><td>" + Math.round(ap) + "%</td><td><b>" + Math.round(fr) + '%</b></td><td class="' + (Math.abs(gp) < 5 ? "" : gp > 0 ? "c-win" : "c-loss") + '">' + (gp > 0 ? "+" : "") + Math.round(gp) + "</td></tr>";
+    }).join("") + "</tbody></table></div>";
+  }
+  function fbAllBlock(ev, unit, bks) {
+    var s = famStats(ev), mainRows = [];
+    ev.forEach(function (x) { var r = x.r; EVFAM.forEach(function (f) { var bi = f[0]; f.forEach(function (i) { if (r.p[i] > r.p[bi]) bi = i; }); mainRows.push({ d: x.d, r: evHit(bi, r.g[0], r.g[1]) ? 1 : 0 }); }); });
+    return '<div class="kpis">' + kpi(ev.length, T("r_matches_an")) + kpi(ev.length * 12, T("r_outcomes")) + kpi(pctS(s.w, s.n), T("r_main_ok"), "accent") + kpi(s.brier != null ? s.brier.toFixed(3) : "—", T("r_brier")) + "</div>" +
+      '<p class="muted small rep-cal">' + T("r_all_note") + "</p>" +
+      '<div class="charts"><div class="chart-card"><h4>' + T("r_calchart") + "</h4>" + (ev.length ? calibChart(ev) : '<div class="muted small">—</div>') + '<p class="muted small">' + T("r_calchart_note") + "</p></div>" +
+      '<div class="chart-card"><h4>' + T("r_main_trend") + ' <em class="muted">' + T("r_unit_" + unit) + "</em></h4>" + (ev.length ? multiChart(bks, unit, [{ name: T("r_main_ok"), cls: "fb", vals: series(mainRows, bks, unit) }]) : '<div class="muted small">—</div>') + "</div></div>" +
+      '<div class="rep-brk">' + outcomeTable(ev) + grpTable(T("r_by_conf"), ev, function (r) { return cfName(r.c); }, [T("cf_h"), T("cf_m"), T("cf_l")]) + grpTable(T("r_by_league"), ev, function (r) { return trLeague(r.l); }) + "</div>" +
+      '<p class="muted small">' + T("r_all_arch") + "</p>";
+  }
+  function fbSelBlock(id, rows, unit, bks, lvl) {
+    var w = rows.filter(function (r) { return r.r; }).length, n = rows.length, avg = n ? Math.round(rows.reduce(function (a, r) { return a + (+r.p || 0); }, 0) / n) : 0;
+    var sorted = rows.slice().sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : String(b.ko || "").localeCompare(String(a.ko || "")); });
+    var rowFn = function (p) {
+      return '<div class="lrow ' + (p.r ? "win" : "loss") + '"><div><b>' + esc(p.m) + (p.tp ? ' <span class="tp-star" title="Top Pick">★</span>' : "") + '</b><div class="muted small">' + esc(mkName(p.k)) + " · " + esc(p.p) + "% · " + fmtDay(p.d) + (p.lg ? " · " + esc(trLeague(p.lg)) : "") + (p.c ? " · " + cfName(p.c) : "") + (p.ft ? " · FT " + esc(p.ft) : "") + '</div></div><div class="lrow-r">' + resultBadge(!!p.r) + "</div></div>";
+    };
+    var band = function (r) { var p = +r.p || 0; for (var i = 0; i < BANDS.length; i++) if (p >= BANDS[i][0] && p < BANDS[i][1]) return BANDS[i][2]; return "?"; };
+    return '<div class="kpis">' + kpi(n, T("r_total")) + kpi(w, T("r_won"), "win") + kpi(n - w, T("r_lost"), "loss") + kpi(pctS(w, n), T("r_acc"), "accent") + "</div>" +
+      (n ? '<p class="muted small rep-cal">' + T("r_calib", { a: avg + "%", b: pctS(w, n) }) + (n < 30 ? " " + T("r_small") : "") + "</p>" : "") +
+      '<div class="charts"><div class="chart-card"><h4>' + T("r_trend") + ' <em class="muted">' + T("r_unit_" + unit) + "</em></h4>" + (n ? multiChart(bks, unit, [{ name: T("r_football"), cls: "fb", vals: series(rows, bks, unit) }]) : '<div class="muted small">—</div>') + "</div>" +
+      '<div class="chart-card"><h4>' + T("r_wl") + "</h4>" + wlChart(w, n - w) + "</div></div>" +
+      '<div class="rep-brk">' + brkTable(T("r_by_market"), rows, function (r) { return mkName(r.k); }) + brkTable(T("r_by_band"), rows, band, BANDS.map(function (b) { return b[2]; })) +
+      (lvl === "thr" ? brkTable(T("r_by_conf"), rows, function (r) { return cfName(r.c); }, [T("cf_h"), T("cf_m"), T("cf_l")]) : brkTable(T("r_by_version"), rows, function (r) { return r.v === "A-73" ? T("v_a73") : T("v_a"); }, [T("v_a"), T("v_a73")])) +
+      brkTable(T("r_by_league"), rows, function (r) { return trLeague(r.lg); }) + "</div>" +
+      pagedList(id, sorted, rowFn);
+  }
+  function cmpTable(R, top) {
+    var all = thrRows(evRows(R, "")), hi = all.filter(function (r) { return r.c === "h"; }), lo = all.filter(function (r) { return r.c !== "h"; });
+    function row(lbl, rows, cls) { var n = rows.length, w = rows.filter(function (r) { return r.r; }).length, ap = n ? rows.reduce(function (a, r) { return a + (+r.p || 0); }, 0) / n : 0, ac = n ? w / n * 100 : 0;
+      return "<tr" + (cls ? ' class="' + cls + '"' : "") + "><td>" + lbl + "</td><td>" + n + (n && n < 30 ? ' <small class="muted">⚠</small>' : "") + "</td><td><b>" + pctS(w, n) + "</b></td><td>" + (n ? Math.round(ap) + "%" : "—") + '</td><td class="' + (!n || Math.abs(ac - ap) < 5 ? "" : ac > ap ? "c-win" : "c-loss") + '">' + (n ? (ac - ap > 0 ? "+" : "") + Math.round(ac - ap) : "—") + "</td></tr>"; }
+    return '<table class="tbl rep-ov"><thead><tr><th></th><th>' + T("r_cases") + "</th><th>" + T("r_acc") + "</th><th>" + T("r_avgp") + "</th><th>" + T("r_gap") + "</th></tr></thead><tbody>" +
+      row(T("cmp_thr"), all) + row(T("cmp_thr_lo"), lo) + row(T("cmp_thr_hi"), hi) + row("★ " + T("lv_top"), top, "tot") + "</tbody></table>";
+  }
+  function renderFb(R, unit, bks, top) {
+    var lvl = RP.lvl, conf = $("rep-conf").value, box = $("rep-fb");
+    [].forEach.call($("rep-lvl").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-lvl") === lvl); });
+    $("rep-conf-w").hidden = lvl === "top";
+    $("rep-lvl-note").textContent = T("lvn_" + lvl);
+    if (!RP.ev) { loading(box); $("rep-cmp").innerHTML = ""; return; }
+    $("rep-cmp").innerHTML = cmpTable(R, top);
+    if (lvl === "top") box.innerHTML = fbSelBlock("fb", top, unit, bks, "top");
+    else if (lvl === "thr") box.innerHTML = fbSelBlock("fb", thrRows(evRows(R, conf)), unit, bks, "thr");
+    else box.innerHTML = fbAllBlock(evRows(R, conf), unit, bks);
+  }
+  function needEv(R) {   // carica l'archivio completo per l'intervallo (cache per intervallo)
+    var key = R.from + "|" + R.to; if (RP.evKey === key && RP.ev) return;
+    RP.evKey = key; RP.ev = null;
+    get("/archive/eval?from=" + R.from + "&to=" + R.to, 300000).then(function (d) { if (RP.evKey !== key) return; RP.ev = d; renderReport(); }).catch(function (e) { fail($("rep-fb"), e); });
+  }
   function renderReport() {
     var d = RP.data; if (!d) return;
     var v = $("report-range").value; $("report-custom").hidden = v !== "custom";
@@ -658,7 +750,7 @@
       orow("⚽ " + T("r_football"), fw, fb.length) + orow("🎾 " + T("r_tennis_s"), tw, tn.length) + orow(T("r_combined"), fw + tw, fb.length + tn.length, "tot") + "</tbody></table>";
     $("report-comb-unit").textContent = T("r_unit_" + unit);
     $("chart-comb").innerHTML = fb.length + tn.length ? multiChart(bks, unit, [{ name: T("r_football"), cls: "fb", vals: series(fb, bks, unit) }, { name: T("r_tennis_s"), cls: "tn", vals: series(tn, bks, unit) }, { name: T("r_total_s"), cls: "tot", vals: series(fb.concat(tn), bks, unit) }], wide.matches) : '<div class="muted small">' + T("r_empty") + "</div>";
-    $("rep-fb").innerHTML = sportBlock("fb", fb, R, unit, bks, "fb");
+    needEv(R); renderFb(R, unit, bks, fb);
     $("rep-tn").innerHTML = sportBlock("tn", tn, R, unit, bks, "tn");
   }
   function loadReport() {
@@ -669,6 +761,8 @@
     $("report-range").addEventListener("change", function () { RP.lists = {}; renderReport(); });
     $("report-from").addEventListener("change", function () { RP.lists = {}; renderReport(); });
     $("report-to").addEventListener("change", function () { RP.lists = {}; renderReport(); });
+    $("rep-lvl").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest("[data-lvl]") : null; if (!b) return; RP.lvl = b.getAttribute("data-lvl"); RP.lists = {}; renderReport(); });
+    $("rep-conf").addEventListener("change", function () { RP.lists = {}; renderReport(); });
     $("view-report").addEventListener("click", function (e) {
       var b = e.target.closest ? e.target.closest("[data-pl]") : null; if (!b) return;
       var id = b.parentNode.getAttribute("data-plist"), st = RP.lists[id] = RP.lists[id] || { open: false, page: 0 }, a = b.getAttribute("data-pl");
@@ -725,12 +819,35 @@
     }
     $("archive-cal").innerHTML = html;
   }
+  function renderArcPreds() {
+    var box = $("archive-preds"), ev = A.ev || { rows: [] }, lv = $("arc-lvl").value, lg = $("arc-lg").value;
+    var rows = ev.rows.filter(function (r) {
+      if (lg && r.l !== lg) return false;
+      if (lv === "top") return r.t && r.t.length;
+      if (lv === "thr") return r.p.some(function (v, i) { return EVTH[i] != null && v >= EVTH[i]; });
+      return true; }).sort(function (a, b) { return a.l < b.l ? -1 : a.l > b.l ? 1 : String(a.ko).localeCompare(String(b.ko)); });
+    var na = Math.max(0, (ev.n || 0) - ev.rows.length), thr = 0, tps = 0;
+    ev.rows.forEach(function (r) { r.p.forEach(function (v, i) { if (EVTH[i] != null && v >= EVTH[i]) thr++; }); tps += (r.t || []).length; });
+    var head = '<p class="muted small">' + T("a_counts", { n: ev.n || 0, a: ev.rows.length, x: na, s: thr, t: tps }) + "</p>";
+    if (!rows.length) { box.innerHTML = head + empty(T("r_empty")); return; }
+    var th = "<tr><th>" + T("th_time") + "</th><th>" + T("th_match") + "</th>" + EVK.map(function (k) { return '<th class="num">' + esc(k === "Goal" ? "GG" : k === "No Goal" ? "NG" : k.replace("Over ", "O").replace("Under ", "U")) + "</th>"; }).join("") + "<th>" + T("r_conf") + "</th></tr>", body = "", lastL = null;
+    rows.forEach(function (r) {
+      if (r.l !== lastL) { lastL = r.l; body += '<tr class="lg-row" style="--lh:' + hue(r.l) + '"><td colspan="15">' + esc(trLeague(r.l)) + "</td></tr>"; }
+      var fin = !!r.g;
+      body += "<tr><td>" + fmtTime(r.ko) + '</td><td class="tm"><b>' + esc(r.m) + "</b>" + (fin ? ' <span class="arc-ft">' + r.g[0] + "-" + r.g[1] + "</span>" : r.x ? ' <span class="muted small">' + esc(r.x) + "</span>" : "") + "</td>" +
+        r.p.map(function (v, i) { var c = []; if (EVTH[i] != null && v >= EVTH[i]) c.push("strong"); if (fin) c.push(evHit(i, r.g[0], r.g[1]) ? "ok" : "ko"); var tp = (r.t || []).indexOf(EVK[i]) >= 0;
+          return '<td class="num ' + c.join(" ") + '">' + (v == null ? "—" : v + "%") + (tp ? '<span class="tp-star">★</span>' : "") + "</td>"; }).join("") +
+        "<td>" + cfName(r.c) + "</td></tr>";
+    });
+    box.innerHTML = head + '<div class="tbl-wrap arc-tbl"><table class="ptable"><thead>' + th + "</thead><tbody>" + body + "</tbody></table></div>";
+    var tb = document.querySelector(".topbar"); box.style.setProperty("--th-top", (tb ? tb.offsetHeight : 58) + "px");
+  }
   function renderArchive() {
     var pb = $("archive-picks"), mb = $("archive-matches"); pb.removeAttribute("data-loaded"); mb.removeAttribute("data-loaded"); loading(pb); loading(mb);
     var day = A.day, i = A.days.indexOf(day);
     $("archive-prev").disabled = i <= 0; $("archive-next").disabled = i < 0 || i >= A.days.length - 1;
     $("archive-title").textContent = (day === romeDate(0) ? T("today") + " · " : day === romeDate(-1) ? T("yesterday") + " · " : "") + fmtDay(day, true);
-    Promise.all([get("/history?date=" + day), get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/details?date=" + day, 300000).catch(function () { return {}; }), get("/injuries?date=" + day, 600000).catch(function () { return {}; })]).then(function (r) {
+    Promise.all([get("/history?date=" + day), get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), get("/details?date=" + day, 300000).catch(function () { return {}; }), get("/injuries?date=" + day, 600000).catch(function () { return {}; }), get("/archive/eval?from=" + day + "&to=" + day, 300000).catch(function () { return null; })]).then(function (r) {
       if (day !== A.day) return;
       A.inj = r[3] || {};
       var h = r[0] || {}, t = r[1] || {}, det = r[2] || {};
@@ -747,6 +864,10 @@
         return '<div class="lrow ' + (p.result === true ? "win" : p.result === false ? "loss" : "") + '"><div><b>' + esc(p.match) + '</b><div class="muted small">' + esc(p.pick) + " " + T("to_win") + " · " + esc(p.probability) + "% · " + esc(p.tournament || "") + (p.score ? " · " + esc(p.score) : "") + '</div></div><div class="lrow-r">' + resultBadge(p.result) + "</div></div>";
       }).join("") + "</div></div>";
       pb.innerHTML = html || empty(T("no_picks_day"));
+      A.ev = (r[4] && r[4].days && r[4].days[0] && r[4].days[0].d === day) ? r[4].days[0] : { n: fx.length, rows: [] };
+      var lgs = {}; A.ev.rows.forEach(function (x) { lgs[x.l] = 1; });
+      var sel = $("arc-lg"), cur = sel.value; sel.innerHTML = '<option value="">' + esc(T("r_conf_all")) + "</option>" + Object.keys(lgs).sort().map(function (l) { return '<option value="' + esc(l) + '"' + (l === cur ? " selected" : "") + ">" + esc(trLeague(l)) + "</option>"; }).join("");
+      $("arc-lvl").onchange = sel.onchange = renderArcPreds; renderArcPreds();
       mb.innerHTML = fx.length ? groupByLeague(fx, function (f) { return liveRow(f, !!A.open[f.fixture.id], det[f.fixture.id] || null, "adet-"); }, countBy(fx)) : empty(T("a_no_matches"));
       mb.onclick = function (e) {
         var row = e.target.closest ? e.target.closest(".mrow") : null; if (!row) return;
