@@ -165,7 +165,7 @@ window.PBP_I18N = {
       nav_home: "Home", nav_pred: "Pronostici",
       hero_claim: "Solo le partite che contano", hero_sub: "Ogni giorno analizziamo tutto, pubblichiamo solo il meglio.",
       hero_today: "Oggi abbiamo analizzato {n} partite: solo {k} superano i nostri filtri.",
-      hero_p1: "Dati reali", hero_p1t: "Risultati, calendari e quote aggiornati in automatico.",
+      hero_p1: "Dati reali", hero_p1t: "Risultati, calendari, formazioni e statistiche aggiornati in automatico.",
       hero_p2: "Modelli statistici", hero_p2t: "Probabilità calcolate per ogni mercato, senza sensazioni.",
       hero_p3: "Risultati verificati", hero_p3t: "Ogni pick viene valutato e resta pubblico nel report.",
       cta_pred: "Pronostici di oggi", cta_live: "Partite live",
@@ -180,7 +180,7 @@ window.PBP_I18N = {
       nav_home: "Home", nav_pred: "Predictions",
       hero_claim: "Only the matches that matter", hero_sub: "Every day we analyse everything and publish only the best.",
       hero_today: "Today we analysed {n} matches: only {k} pass our filters.",
-      hero_p1: "Real data", hero_p1t: "Results, fixtures and odds updated automatically.",
+      hero_p1: "Real data", hero_p1t: "Results, fixtures, line-ups and stats updated automatically.",
       hero_p2: "Statistical models", hero_p2t: "Probabilities computed for every market, no gut feelings.",
       hero_p3: "Verified results", hero_p3t: "Every pick is graded and stays public in the report.",
       cta_pred: "Today's predictions", cta_live: "Live matches",
@@ -195,7 +195,7 @@ window.PBP_I18N = {
       nav_home: "Inicio", nav_pred: "Pronósticos",
       hero_claim: "Solo los partidos que importan", hero_sub: "Cada día lo analizamos todo y publicamos solo lo mejor.",
       hero_today: "Hoy hemos analizado {n} partidos: solo {k} superan nuestros filtros.",
-      hero_p1: "Datos reales", hero_p1t: "Resultados, calendarios y cuotas actualizados automáticamente.",
+      hero_p1: "Datos reales", hero_p1t: "Resultados, calendarios, alineaciones y estadísticas actualizados automáticamente.",
       hero_p2: "Modelos estadísticos", hero_p2t: "Probabilidades calculadas para cada mercado, sin corazonadas.",
       hero_p3: "Resultados verificados", hero_p3t: "Cada pick se evalúa y queda público en el informe.",
       cta_pred: "Pronósticos de hoy", cta_live: "Partidos en directo",
@@ -210,7 +210,7 @@ window.PBP_I18N = {
       nav_home: "Início", nav_pred: "Palpites",
       hero_claim: "Só os jogos que importam", hero_sub: "Todo dia analisamos tudo e publicamos só o melhor.",
       hero_today: "Hoje analisamos {n} jogos: só {k} passam nos nossos filtros.",
-      hero_p1: "Dados reais", hero_p1t: "Resultados, calendários e odds atualizados automaticamente.",
+      hero_p1: "Dados reais", hero_p1t: "Resultados, calendários, escalações e estatísticas atualizados automaticamente.",
       hero_p2: "Modelos estatísticos", hero_p2t: "Probabilidades calculadas para cada mercado, sem achismo.",
       hero_p3: "Resultados verificados", hero_p3t: "Cada pick é avaliado e fica público no relatório.",
       cta_pred: "Palpites de hoje", cta_live: "Jogos ao vivo",
@@ -492,5 +492,9 @@ window.PBP_I18N = {
 })(window.PBP_I18N);
 (function (I) {
   var add = {"it": {"hero_today0": "Oggi abbiamo analizzato {n} partite e nessuna supera i nostri filtri: meglio nessun pronostico che uno debole.", "hero_today1": "Oggi abbiamo analizzato {n} partite: solo 1 supera i nostri filtri."}, "en": {"hero_today0": "Today we analysed {n} matches and none passes our filters: better no prediction than a weak one.", "hero_today1": "Today we analysed {n} matches: only 1 passes our filters."}, "es": {"hero_today0": "Hoy hemos analizado {n} partidos y ninguno supera nuestros filtros: mejor ningún pronóstico que uno débil.", "hero_today1": "Hoy hemos analizado {n} partidos: solo 1 supera nuestros filtros."}, "pt": {"hero_today0": "Hoje analisamos {n} jogos e nenhum passa nos nossos filtros: melhor nenhum palpite do que um fraco.", "hero_today1": "Hoje analisamos {n} jogos: só 1 passa nos nossos filtros."}};
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);
+(function (I) {
+  var add = {"it": {"hero_today": "Calcio: oggi abbiamo analizzato {n} partite, solo {k} superano i nostri filtri.", "hero_today1": "Calcio: oggi abbiamo analizzato {n} partite, solo 1 supera i nostri filtri.", "hero_today0": "Calcio: oggi abbiamo analizzato {n} partite e nessuna supera i nostri filtri: meglio nessun pronostico che uno debole.", "hero_tn": "Tennis: {k} Top Picks oggi.", "hero_tn1": "Tennis: 1 Top Pick oggi.", "hero_tn0": "Tennis: nessun Top Pick oggi.", "st_zones": "Zone"}, "en": {"hero_today": "Football: today we analysed {n} matches, only {k} pass our filters.", "hero_today1": "Football: today we analysed {n} matches, only 1 passes our filters.", "hero_today0": "Football: today we analysed {n} matches and none passes our filters: better no prediction than a weak one.", "hero_tn": "Tennis: {k} Top Picks today.", "hero_tn1": "Tennis: 1 Top Pick today.", "hero_tn0": "Tennis: no Top Picks today.", "st_zones": "Zones"}, "es": {"hero_today": "Fútbol: hoy hemos analizado {n} partidos, solo {k} superan nuestros filtros.", "hero_today1": "Fútbol: hoy hemos analizado {n} partidos, solo 1 supera nuestros filtros.", "hero_today0": "Fútbol: hoy hemos analizado {n} partidos y ninguno supera nuestros filtros: mejor ningún pronóstico que uno débil.", "hero_tn": "Tenis: {k} Top Picks hoy.", "hero_tn1": "Tenis: 1 Top Pick hoy.", "hero_tn0": "Tenis: ningún Top Pick hoy.", "st_zones": "Zonas"}, "pt": {"hero_today": "Futebol: hoje analisamos {n} jogos, só {k} passam nos nossos filtros.", "hero_today1": "Futebol: hoje analisamos {n} jogos, só 1 passa nos nossos filtros.", "hero_today0": "Futebol: hoje analisamos {n} jogos e nenhum passa nos nossos filtros: melhor nenhum palpite do que um fraco.", "hero_tn": "Tênis: {k} Top Picks hoje.", "hero_tn1": "Tênis: 1 Top Pick hoje.", "hero_tn0": "Tênis: nenhum Top Pick hoje.", "st_zones": "Zonas"}};
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
