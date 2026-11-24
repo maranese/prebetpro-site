@@ -186,9 +186,33 @@
       return (a.fixture.timestamp || 0) - (b.fixture.timestamp || 0);
     });
   }
+  var STAND = { 135: 1, 136: 1, 138: 1, 942: 1, 943: 1, 39: 1, 40: 1, 41: 1, 42: 1, 140: 1, 141: 1, 78: 1, 79: 1, 80: 1, 61: 1, 62: 1, 88: 1, 89: 1, 94: 1, 95: 1, 144: 1, 203: 1, 179: 1, 180: 1, 307: 1 };
+  function standBtn(lg) { return STAND[lg.id] ? '<button type="button" class="lg-st" data-stand="' + lg.id + '" data-lname="' + esc(leagueLabel(lg)) + '">📊 ' + T("st_btn") + "</button>" : ""; }
   function leagueHead(lg, n) {
-    return '<div class="league-head">' + logo(lg.logo, "llogo") + "<span>" + esc(leagueLabel(lg)) + '</span><em class="lg-n">' + n + "</em></div>";
+    return '<div class="league-head"' + (STAND[lg.id] ? ' data-stand="' + lg.id + '" data-lname="' + esc(leagueLabel(lg)) + '"' : "") + ">" + logo(lg.logo, "llogo") + "<span>" + esc(leagueLabel(lg)) + "</span>" + standBtn(lg) + '<em class="lg-n">' + n + "</em></div>";
   }
+  /* ---------- classifica (modale) ---------- */
+  function openStand(id, name) {
+    var ov = $("stand-ov"); if (!ov) { ov = document.createElement("div"); ov.id = "stand-ov"; ov.className = "st-ov"; document.body.appendChild(ov);
+      ov.addEventListener("click", function (e) { if (e.target === ov || (e.target.closest && e.target.closest(".st-x"))) closeStand(); }); }
+    ov.innerHTML = '<div class="st-box" role="dialog" aria-modal="true"><div class="st-hd"><b>📊 ' + esc(name || "") + '</b><button type="button" class="st-x" aria-label="' + esc(T("st_close")) + '">✕</button></div><div class="st-bd" id="stand-bd"></div></div>';
+    ov.hidden = false; document.body.classList.add("st-open"); loading($("stand-bd"));
+    get("/standings?league=" + id, 300000).then(function (d) {
+      var bd = $("stand-bd"); if (!bd) return;
+      if (!d || d.none || !d.groups) { bd.innerHTML = empty(T("st_none")); return; }
+      var note = d.src === "espn" ? T("st_src_espn", { t: fmtTime(d.upd) }) : T("st_src_af", { t: fmtDay(String(d.upd).slice(0, 10)) + " " + fmtTime(d.upd) });
+      bd.innerHTML = '<p class="muted small st-note">' + note + "</p>" + d.groups.map(function (g) {
+        return (d.groups.length > 1 && g.name ? "<h4>" + esc(g.name) + "</h4>" : "") + '<div class="st-wrap"><table class="tbl st-tbl"><thead><tr><th>#</th><th>' + T("st_team") + "</th><th>" + T("st_pts") + "</th><th>" + T("st_pl") + '</th><th class="st-opt">' + T("st_w") + '</th><th class="st-opt">' + T("st_d") + '</th><th class="st-opt">' + T("st_l") + "</th><th>" + T("st_goals") + "</th><th>" + T("st_gd") + "</th></tr></thead><tbody>" +
+          g.rows.map(function (r) { return "<tr><td>" + (r.r != null ? r.r : "") + '</td><td class="st-t">' + (r.logo ? '<img src="' + esc(r.logo) + '" alt="" loading="lazy">' : "") + esc(r.t) + (r.ded ? ' <small class="c-loss">(' + r.ded + ")</small>" : "") + "</td><td><b>" + (r.p != null ? r.p : "") + "</b></td><td>" + (r.pj != null ? r.pj : "") + '</td><td class="st-opt">' + (r.w != null ? r.w : "") + '</td><td class="st-opt">' + (r.d != null ? r.d : "") + '</td><td class="st-opt">' + (r.l != null ? r.l : "") + "</td><td>" + (r.gf != null ? r.gf + ":" + r.ga : "") + "</td><td>" + (r.gd > 0 ? "+" : "") + (r.gd != null ? r.gd : "") + "</td></tr>"; }).join("") + "</tbody></table></div>";
+      }).join("");
+    }).catch(function (e) { fail($("stand-bd"), e); });
+  }
+  function closeStand() { var ov = $("stand-ov"); if (ov) { ov.hidden = true; ov.innerHTML = ""; } document.body.classList.remove("st-open"); }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeStand(); });
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-stand]") : null; if (!b) return;
+    e.preventDefault(); e.stopPropagation(); openStand(b.getAttribute("data-stand"), b.getAttribute("data-lname"));
+  }, true);
   function groupByLeague(fx, render, counts) {
     var out = "", cur = null;
     fx.forEach(function (f) {
@@ -250,7 +274,7 @@
     Promise.all([picksFor(today), get("/tennis?date=" + today).catch(function () { return {}; })]).then(function (r) {
       var P0 = r[0], ten = r[1] || {}, tp = (ten.date === today && ten.picks) || [];
       var n = P0.fixtures.length, k = P0.todayMatches;
-      $("hero-today").textContent = n ? T("hero_today", { n: n, k: k }) : "";
+      $("hero-today").textContent = n ? T(k ? (k === 1 ? "hero_today1" : "hero_today") : "hero_today0", { n: n, k: k }) : "";
       $("picks-count").textContent = n ? T("picks_count", { k: k, n: n }) : "";
       fb.innerHTML = P0.cards.length ? P0.cards.map(pickCard).join("") : empty(T("fb_none_picks"));
       fb.setAttribute("data-loaded", "1"); bindPicks(fb);
@@ -456,7 +480,7 @@
       COLS.map(function (c) { return '<th data-c="' + c[0] + '" class="num' + (P.sort === c[0] ? " on" : "") + '">' + c[0] + (P.sort === c[0] ? (P.dir < 0 ? " ↓" : " ↑") : "") + "</th>"; }).join("") + "<th>" + T("col_conf") + "</th></tr>";
     var body = "", cur = null;
     fx.forEach(function (f) {
-      if (grouped && f.league.id !== cur) { cur = f.league.id; body += '<tr class="lg-row" style="--lh:' + hue(f.league.country) + '"><td colspan="' + (COLS.length + 3) + '">' + logo(f.league.logo, "llogo") + "<span>" + esc(leagueLabel(f.league)) + '</span><em class="lg-n">' + (counts[cur] || "") + "</em></td></tr>"; }
+      if (grouped && f.league.id !== cur) { cur = f.league.id; body += '<tr class="lg-row" style="--lh:' + hue(f.league.country) + '"><td colspan="' + (COLS.length + 3) + '">' + logo(f.league.logo, "llogo") + "<span>" + esc(leagueLabel(f.league)) + '</span>' + standBtn(f.league) + '<em class="lg-n">' + (counts[cur] || "") + "</em></td></tr>"; }
       var p = f.predictions, st = stateOf(f), h = f.goals && f.goals.home, a = f.goals && f.goals.away;
       body += "<tr><td>" + statusBadge(f) + '</td><td class="tm"><b>' + esc(f.teams.home.name) + "</b> – <b>" + esc(f.teams.away.name) + "</b>" +
         (st !== "ns" && h != null ? ' <span class="score">' + h + "-" + a + "</span>" : "") + (!grouped ? '<div class="muted small">' + esc(leagueLabel(f.league)) + "</div>" : "") + "</td>" +
