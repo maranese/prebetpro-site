@@ -430,6 +430,31 @@
   }
   var pendingMatch = null;
 
+  /* ---------- Sperimentazione: modello tennis indipendente (solo studio) ---------- */
+  var LAB = { day: romeDate(0) };
+  function loadLab() {
+    daySeg($("lab-day"), [-1, 0, 1], LAB.day, function (d) { LAB.day = d; loadLab(); });
+    var box = $("lab-picks"), rb = $("lab-report"), day = LAB.day; loading(box);
+    get("/lab?date=" + day, 60000).then(function (doc) {
+      if (day !== LAB.day) return;
+      var L = Object.keys(doc.preds || {}).map(function (k) { return doc.preds[k]; }).filter(function (x) { return x.pick; }).sort(function (a, b) { return String(a.st).localeCompare(String(b.st)); });
+      box.innerHTML = L.length ? '<div class="lab-grid">' + L.map(function (x) {
+        var pk = x.pick, who = pk.side === "a" ? x.a : x.b, opp = pk.side === "a" ? x.b : x.a, won = x.res === 0 || x.res === 1 ? ((pk.side === "a") === (x.res === 1)) : null;
+        var badge = won === true ? '<span class="lab-res win">' + T("r_won") + "</span>" : won === false ? '<span class="lab-res loss">' + T("r_lost") + "</span>" : x.res === "nv" ? '<span class="lab-res">' + T("lab_nv") + "</span>" : '<span class="lab-res">' + T("k_pending") + "</span>";
+        return '<div class="lab-pick"><div class="lab-top"><span class="tour-tag">' + esc((x.tour || "").toUpperCase()) + "</span><span class=\"muted small\">" + fmtTime(x.st) + " · " + esc(x.lg) + "</span>" + badge + "</div>" +
+          '<div class="lab-who"><b>' + esc(who) + '</b> <span class="muted">vs ' + esc(opp) + "</span></div>" +
+          '<div class="lab-nums"><span>' + T("lab_model") + " <b>" + Math.round(pk.p * 100) + "%</b></span><span>" + T("lab_market") + " <b>" + Math.round(pk.q * 100) + "%</b></span><span>" + T("lab_odds") + " <b>" + Number(pk.odds).toFixed(2) + "</b></span></div></div>";
+      }).join("") + "</div>" : empty(T("lab_none"));
+    }).catch(function (e) { fail(box, e); });
+    get("/lab/report", 120000).then(function (r) {
+      var a = r.all || {}, p = r.picks || {}, pc = function (v) { return v == null ? "—" : Math.round(v * 100) + "%"; };
+      if (!a.n && !p.n) { rb.innerHTML = empty(T("lab_rep_wait")); return; }
+      rb.innerHTML = '<h3 class="sub-title">' + T("lab_rep_picks") + "</h3><div class=\"kpis\">" + kpi(p.n || 0, T("lab_k_n")) + kpi(pc(p.hit), T("lab_k_hit"), "win") + kpi(pc(p.avg_p), T("lab_k_avgp")) + kpi(p.roi == null ? "—" : (p.roi >= 0 ? "+" : "") + Math.round(p.roi * 100) + "%", T("lab_k_roi")) + "</div>" +
+        '<h3 class="sub-title">' + T("lab_rep_all") + "</h3><div class=\"kpis\">" + kpi(a.n || 0, T("lab_k_all")) + kpi(pc(a.hit), T("lab_k_model")) + kpi(pc(a.market_hit), T("lab_k_mkt")) + kpi(a.brier == null ? "—" : a.brier.toFixed(3), T("lab_k_brier")) + "</div>" +
+        '<p class="small muted">' + T("lab_rep_note", { d: fmtDay(r.since || "") }) + "</p>";
+    }).catch(function () { rb.innerHTML = empty(T("lab_rep_wait")); });
+  }
+
   /* ---------- interruttore Calcio / Tennis (Home: anteprima; pagina Partite: liste complete) ---------- */
   var SWS = { hm: "fb", mt: "fb", pr: "fb" };
   var SWV = { hm: "view-home", mt: "view-matches", pr: "view-predictions" };
@@ -969,7 +994,7 @@
 
   /* ---------- navigazione a pagine ---------- */
   var VIEWS = ["home", "matches", "predictions", "lab", "report", "archive", "method"];
-  var LOADERS = { home: loadHome, matches: loadMatches, predictions: loadPredictions, report: loadReport, archive: loadArchive };
+  var LOADERS = { home: loadHome, matches: loadMatches, predictions: loadPredictions, lab: loadLab, report: loadReport, archive: loadArchive };
   var loaded = {}, current = null;
   function route(force) {
     var h = (location.hash || "#home").slice(1);
