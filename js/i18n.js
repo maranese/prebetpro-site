@@ -502,3 +502,7 @@ window.PBP_I18N = {
   var add = {"it": {"st_src_old": "Fonte in tempo reale momentaneamente non disponibile · mostriamo l'ultima classifica salvata ({t})"}, "en": {"st_src_old": "Live source temporarily unavailable · showing the last saved table ({t})"}, "es": {"st_src_old": "Fuente en tiempo real no disponible temporalmente · mostramos la última clasificación guardada ({t})"}, "pt": {"st_src_old": "Fonte em tempo real temporariamente indisponível · mostramos a última classificação salva ({t})"}};
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = {"it": {"st_src_old": "Classifica non aggiornata · ultimo aggiornamento il {t} · si aggiornerà automaticamente al prossimo controllo"}, "en": {"st_src_old": "Table not up to date · last updated on {t} · it will update automatically at the next check"}, "es": {"st_src_old": "Clasificación no actualizada · última actualización el {t} · se actualizará automáticamente en el próximo control"}, "pt": {"st_src_old": "Classificação não atualizada · última atualização em {t} · será atualizada automaticamente na próxima verificação"}};
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

@@ -186,7 +186,7 @@
       return (a.fixture.timestamp || 0) - (b.fixture.timestamp || 0);
     });
   }
-  var STAND = { 2: 1, 3: 1, 848: 1, 135: 1, 136: 1, 138: 1, 942: 1, 943: 1, 39: 1, 40: 1, 41: 1, 42: 1, 140: 1, 141: 1, 78: 1, 79: 1, 80: 1, 61: 1, 62: 1, 88: 1, 89: 1, 94: 1, 95: 1, 144: 1, 203: 1, 179: 1, 180: 1, 307: 1 };
+  var STAND = { 2: 1, 3: 1, 848: 1, 135: 1, 136: 1, 39: 1, 40: 1, 41: 1, 42: 1, 140: 1, 141: 1, 78: 1, 79: 1, 61: 1, 62: 1, 88: 1, 89: 1, 94: 1, 144: 1, 203: 1, 179: 1, 180: 1, 307: 1 };   // solo campionati con classifica ESPN (Serie C, 3. Liga e Liga Portugal 2 tolte il 25/11)
   function standBtn(lg) { return STAND[lg.id] ? '<button type="button" class="lg-st" data-stand="' + lg.id + '" data-lname="' + esc(leagueLabel(lg)) + '">📊 ' + T("st_btn") + "</button>" : ""; }
   function leagueHead(lg, n) {
     return '<div class="league-head"' + (STAND[lg.id] ? ' data-stand="' + lg.id + '" data-lname="' + esc(leagueLabel(lg)) + '"' : "") + ">" + logo(lg.logo, "llogo") + "<span>" + esc(leagueLabel(lg)) + "</span>" + standBtn(lg) + '<em class="lg-n">' + n + "</em></div>";
