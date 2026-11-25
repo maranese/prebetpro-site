@@ -533,3 +533,12 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = {
+    "it": {"sw_fb": "Calcio", "sw_tn": "Tennis", "see_all": "Vedi tutte le partite →", "tn_all_link": "Tutte le partite di tennis →"},
+    "en": {"sw_fb": "Football", "sw_tn": "Tennis", "see_all": "See all matches →", "tn_all_link": "All tennis matches →"},
+    "es": {"sw_fb": "Fútbol", "sw_tn": "Tenis", "see_all": "Ver todos los partidos →", "tn_all_link": "Todos los partidos de tenis →"},
+    "pt": {"sw_fb": "Futebol", "sw_tn": "Ténis", "see_all": "Ver todos os jogos →", "tn_all_link": "Todos os jogos de ténis →"}
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

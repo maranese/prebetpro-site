@@ -287,7 +287,7 @@
       fb.setAttribute("data-loaded", "1"); bindPicks(fb);
       tn.innerHTML = tp.length ? tp.map(tennisCard).join("") : empty(T("tn_none_picks"));
     }).catch(function (e) { fail(fb, e); });
-    loadLive();
+    renderHomeMatches();
   }
 
   /* ---------- partite (livescore) ---------- */
@@ -423,12 +423,66 @@
     return out + "</div>";
   }
   function goToMatch(day, fid) {
-    if (location.hash !== "#home" && location.hash !== "" && location.hash !== "#live") { pendingMatch = [day, fid]; location.hash = "#home"; return; }
+    if (current !== "matches" || SWS.mt !== "fb") { pendingMatch = [day, fid]; setSw("mt", "fb", true); if (current === "matches") { route(); } else location.hash = "#matches"; return; }
     M.day = day; M.chip = "all"; M.league = null; M.limit = 999; M.open = {}; M.open[fid] = true; $("m-search").value = "";
     loadLive(true);
     setTimeout(function () { var r = document.querySelector('.mrow[data-fid="' + fid + '"]'); if (r) r.scrollIntoView({ block: "center" }); loadDetails(day); }, 700);
   }
   var pendingMatch = null;
+
+  /* ---------- interruttore Calcio / Tennis (Home: anteprima; pagina Partite: liste complete) ---------- */
+  var SWS = { hm: "fb", mt: "fb" };
+  function setSw(where, sp, silent) {
+    if (sp !== "fb" && sp !== "tn") return;
+    var changed = SWS[where] !== sp; SWS[where] = sp;
+    var view = $(where === "hm" ? "view-home" : "view-matches"), btns = view.querySelectorAll(".sw-btn");
+    for (var i = 0; i < btns.length; i++) { var on = btns[i].getAttribute("data-sw") === sp; btns[i].classList.toggle("on", on); btns[i].setAttribute("aria-selected", on ? "true" : "false"); }
+    var flip = $(where + "-flip"), body = $(where + "-body"), ico = sp === "fb" ? "⚽" : "🎾";
+    if (where === "mt" && silent) loaded.matches = 0;
+    var swap = function () { if (where === "mt") { $("mt-fb").hidden = sp !== "fb"; $("mt-tn").hidden = sp !== "tn"; if (!silent) loadMatches(); } else { $("hm-all").setAttribute("href", sp === "fb" ? "#matches" : "#matches-tn"); renderHomeMatches(); } };
+    var reduce = silent || !changed || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (reduce) { flip.textContent = ico; swap(); return; }
+    flip.classList.remove("go"); void flip.offsetWidth; flip.classList.add("go"); body.classList.add("fade");
+    setTimeout(function () { flip.textContent = ico; swap(); body.classList.remove("fade"); }, 180);
+  }
+  function loadMatches(silent) {
+    $("mt-fb").hidden = SWS.mt !== "fb"; $("mt-tn").hidden = SWS.mt !== "tn";
+    if (SWS.mt === "fb") return loadLive(silent);
+    daySeg($("tnm-day"), [-1, 0, 1], TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loaded.tennis = 0; loadMatches(); });
+    chipBar($("tn-chips"), ["all", "live", "atpwta", "chall", "itf", "tnft"], TN, renderTennis);
+    var ml = $("tn-matches"), day = TN.day; if (!silent) loading(ml);
+    get("/tennis/matches?date=" + day, 60000).then(function (r) { if (day !== TN.day) return; TN.matches = (r && r.matches) || []; TN.updated = r && r.updated; renderTennis(); }).catch(function (e) { fail(ml, e); });
+  }
+  function prevOrder(st) { return st === "live" ? 0 : st === "ns" || st === "up" ? 1 : 2; }
+  function renderHomeMatches() {
+    var box = $("hm-list"), today = romeDate(0); if (!box.getAttribute("data-loaded")) loading(box);
+    if (SWS.hm === "fb") {
+      get("/day?date=" + today).then(function (d) {
+        if (SWS.hm !== "fb") return;
+        var fx = (d.fixtures || []).slice().sort(function (a, b) { var x = prevOrder(stateOf(a)), y = prevOrder(stateOf(b)); if (x !== y) return x - y; return x === 2 ? b.fixture.timestamp - a.fixture.timestamp : a.fixture.timestamp - b.fixture.timestamp; }).slice(0, 8);
+        box.innerHTML = fx.length ? groupByLeague(fx, function (f) { return liveRow(f, false, undefined, "hdet-"); }, countBy(d.fixtures || [])) : empty(T("no_matches"));
+        box.setAttribute("data-loaded", "1");
+        box.onclick = function (e) { var r = e.target.closest ? e.target.closest(".mrow") : null; if (r) goToMatch(today, r.getAttribute("data-fid")); };
+      }).catch(function (e) { fail(box, e); });
+    } else {
+      get("/tennis/matches?date=" + today, 60000).then(function (r) {
+        if (SWS.hm !== "tn") return;
+        var all = (r && r.matches) || [], ord = function (x) { var st = tnState(x); return st === "live" ? 0 : st === "ft" || st === "end" || st === "void" ? 2 : 1; };
+        var sing = all.filter(function (x) { return !/\//.test(x.p[0].n + x.p[1].n) && x.p[0].n && x.p[1].n; }), main = sing.filter(function (x) { return x.tour === "atp" || x.tour === "wta" || x.tour === "challenger"; });
+        var pool = main.length >= 8 ? main : (sing.length ? sing : all);   // anteprima: singolari dei tabelloni principali, poi il resto
+        var fx = pool.slice().sort(function (a, b) { var x = ord(a), y = ord(b); if (x !== y) return x - y; var ra = TOURS.indexOf(a.tour), rb = TOURS.indexOf(b.tour), t = (ra < 0 ? 9 : ra) - (rb < 0 ? 9 : rb); if (t) return t; return x === 2 ? String(b.ts).localeCompare(String(a.ts)) : String(a.ts).localeCompare(String(b.ts)); }).slice(0, 8);
+        var counts = {}, out = "", cur = null; fx.forEach(function (x) { counts[x.tn] = (counts[x.tn] || 0) + 1; });
+        fx.sort(function (a, b) { var ka = tnGroupKey(a), kb = tnGroupKey(b); return ka < kb ? -1 : ka > kb ? 1 : ord(a) - ord(b) || String(a.ts).localeCompare(String(b.ts)); }).forEach(function (x) {
+          if (x.tn !== cur) { if (cur !== null) out += "</div></div>"; cur = x.tn; out += '<div class="league" style="--lh:' + ({ atp: 210, wta: 320, challenger: 35, itf: 150 }[x.tour] || 260) + '"><div class="league-head"><span class="tour-tag">' + esc((x.tour || "tennis").toUpperCase()) + "</span><span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + '</em></div><div class="league-body">'; }
+          out += tnRow(x).replace(/tdet-/g, "htdet-");
+        });
+        if (cur !== null) out += "</div></div>";
+        box.innerHTML = fx.length ? out : empty(T("tn_no_matches"));
+        box.setAttribute("data-loaded", "1");
+        box.onclick = function (e) { if (e.target.closest && e.target.closest(".trow")) { TN.day = today; setSw("mt", "tn", true); location.hash = "#matches-tn"; } };
+      }).catch(function (e) { fail(box, e); });
+    }
+  }
 
   /* ================= PRONOSTICI ================= */
   var P = { day: romeDate(0), fixtures: [], chip: "all", league: null, limit: PAGE, sort: null, dir: -1, open: {} };
@@ -910,19 +964,19 @@
   }
 
   /* ---------- navigazione a pagine ---------- */
-  var VIEWS = ["home", "predictions", "tennis", "report", "archive", "method"];
-  var LOADERS = { home: loadHome, predictions: loadPred, tennis: loadTennis, report: loadReport, archive: loadArchive };
+  var VIEWS = ["home", "matches", "predictions", "tennis", "report", "archive", "method"];
+  var LOADERS = { home: loadHome, matches: loadMatches, predictions: loadPred, tennis: loadTennis, report: loadReport, archive: loadArchive };
   var loaded = {}, current = null;
   function route(force) {
     var h = (location.hash || "#home").slice(1);
-    var v = VIEWS.indexOf(h) >= 0 ? h : (h === "live" || h === "top-picks" ? "home" : "home");
+    if (h === "matches-tn") { setSw("mt", "tn", true); h = "matches"; } else if (h === "live") { setSw("mt", "fb", true); h = "matches"; }
+    var v = VIEWS.indexOf(h) >= 0 ? h : "home";
     VIEWS.forEach(function (x) { $("view-" + x).hidden = x !== v; });
     var links = document.querySelectorAll(".nav a");
     for (var i = 0; i < links.length; i++) links[i].classList.toggle("active", links[i].getAttribute("data-go") === v);
     closeNav();
     if (LOADERS[v] && (force === true || !loaded[v] || Date.now() - loaded[v] > 120000)) { loaded[v] = Date.now(); LOADERS[v](); }
-    if (v === "home" && pendingMatch) { var pm = pendingMatch; pendingMatch = null; setTimeout(function () { goToMatch(pm[0], pm[1]); }, 300); }
-    else if (h === "live") setTimeout(function () { $("live").scrollIntoView(); }, 50);
+    if (v === "matches" && pendingMatch) { var pm = pendingMatch; pendingMatch = null; setTimeout(function () { goToMatch(pm[0], pm[1]); }, 300); }
     else if (current !== v) window.scrollTo(0, 0);
     current = v;
   }
@@ -942,7 +996,8 @@
     $("p-search").addEventListener("input", function () { P.limit = PAGE; renderPred(); });
     $("tn-search").addEventListener("input", function () { TN.limit = PAGE; renderTennis(); });
     bindReport();
-    $("cta-live").addEventListener("click", function (e) { e.preventDefault(); $("live").scrollIntoView({ behavior: "smooth" }); });
+    $("cta-live").addEventListener("click", function (e) { e.preventDefault(); setSw("mt", "fb", true); location.hash = "#matches"; });
+    document.addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".sw-btn") : null; if (!b) return; var box = b.closest(".view"); setSw(box && box.id === "view-home" ? "hm" : "mt", b.getAttribute("data-sw")); });
     if (wide.addEventListener) wide.addEventListener("change", function () { if (current === "predictions") renderPred(); });
     var top = $("back-to-top");
     window.addEventListener("scroll", function () { top.classList.toggle("show", window.pageYOffset > 500); }, { passive: true });
@@ -955,8 +1010,8 @@
     }).catch(function () {});
     // aggiornamento automatico della home (i dati cambiano al massimo ogni 15')
     setInterval(function () {
-      if (document.hidden || (current !== "home" && current !== "tennis")) return;
-      cache = {}; if (current === "home") loadHome(); else loadTennis();
+      if (document.hidden || (current !== "home" && current !== "tennis" && current !== "matches")) return;
+      cache = {}; if (current === "home") loadHome(); else if (current === "matches") loadMatches(true); else loadTennis();
     }, 120000);
   }
   /* ---------- registrazione Telegram (Turnstile caricato solo quando serve) ---------- */
