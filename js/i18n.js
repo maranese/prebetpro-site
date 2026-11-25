@@ -573,3 +573,7 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = { "it": { "cal_btn": "Calendario" }, "en": { "cal_btn": "Calendar" }, "es": { "cal_btn": "Calendario" }, "pt": { "cal_btn": "Calendário" } };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

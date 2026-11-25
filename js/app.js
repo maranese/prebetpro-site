@@ -147,7 +147,7 @@
     };
   }
   function chipBar(el, keys, state, onChange) {
-    el.innerHTML = keys.map(function (k) { var go = k === "gopred" || k === "tnpick"; return '<button type="button" class="chip' + (go ? " chip-go" : "") + (state.chip === k ? " on" : "") + '" data-k="' + k + '">' + T("chip_" + k) + (go ? " →" : "") + "</button>"; }).join("");
+    el.innerHTML = keys.map(function (k) { var go = k === "gopred" || k === "tnpick"; return '<button type="button" class="chip' + (go ? " chip-go" : "") + (state.chip === k ? " on" : "") + '" data-k="' + k + '">' + T("chip_" + k) + "</button>"; }).join("");
     el.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-k]") : null; if (!b) return; var k0 = b.getAttribute("data-k");
       if (k0 === "gopred") { setSw("pr", "fb", true); location.hash = "#predictions"; return; } if (k0 === "tnpick") { setSw("pr", "tn", true); location.hash = "#predictions-tn"; return; }
       state.chip = k0; state.limit = PAGE; chipBar(el, keys, state, onChange); onChange(); };
@@ -516,7 +516,7 @@
   /* ================= PRONOSTICI ================= */
   var P = { day: romeDate(0), fixtures: [], chip: "all", league: null, limit: PAGE, sort: null, dir: -1, open: {} };
   function loadPred() {
-    daySeg($("pred-day"), [0, 1], P.day, function (d) { P.day = d; P.limit = PAGE; $("pred-list").removeAttribute("data-loaded"); loadPred(); });
+    daySeg($("pred-day"), [-1, 0, 1], P.day, function (d) { P.day = d; P.limit = PAGE; $("pred-list").removeAttribute("data-loaded"); loadPred(); });
     chipBar($("pred-chips"), ["all", "high", "top"], P, renderPred);
     var pp = $("pred-picks"); loading(pp);
     picksFor(romeDate(0)).then(function (r) { pp.innerHTML = r.cards.length ? r.cards.map(pickCard).join("") : empty(T("fb_none_picks")); pp.setAttribute("data-loaded", "1"); bindPicks(pp); }).catch(function (e) { fail(pp, e); });
