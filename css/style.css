@@ -609,3 +609,8 @@ body.st-open { overflow: hidden; }
 .ptable.tna .lg-row .tour-tag { margin-right: 6px; }
 .toolbar .cal-btn { margin-left: auto; white-space: nowrap; }
 @media (max-width: 560px) { .toolbar .cal-btn { margin-left: 0; } }
+
+/* v32: pronostici calcio/tennis unificati */
+.pill.ok { box-shadow: inset 0 -2px 0 var(--win); } .pill.ko { box-shadow: inset 0 -2px 0 var(--loss); opacity: .75; }
+.tna-cards .pcard-teams b { font-weight: 500; } .tna-cards .pcard-teams b.fav { font-weight: 800; }
+.tna-cards .pcard-head { cursor: default; }
