@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=29">
+  <link rel="stylesheet" href="css/style.css?v=30">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -185,7 +185,7 @@
   </div>
   <div class="lab-warn" role="note"><b data-i18n="lab_warn_t">⚠️ Solo studi, non consigli</b><span data-i18n="lab_warn">I pronostici di questa pagina sono esperimenti in corso di verifica. Non sono consigliati da seguire e non fanno parte dei Top Picks né del Report ufficiale.</span></div>
   <section class="lab-card">
-    <h2>🎾 <span data-i18n="lab_tn_title">Modello tennis indipendente</span> <span class="lab-tag" data-i18n="lab_status">In preparazione</span></h2>
+    <h2>🎾 <span data-i18n="lab_tn_title">Modello tennis indipendente</span> <span class="lab-tag" data-i18n="lab_status2">Attivo · in studio</span></h2>
     <p data-i18n="lab_tn_text">Un modello statistico tutto nostro, che non parte dalle quote dei bookmaker: valuta ogni giocatore in base ai risultati passati, alla superficie, allo stato di forma, agli scontri diretti e ai giorni di riposo.</p>
     <ul class="lab-list">
       <li data-i18n="lab_li1">Si aggiorna dopo ogni partita conclusa.</li>
@@ -196,11 +196,13 @@
   </section>
   <section class="lab-card">
     <h2>🔬 <span data-i18n="lab_picks_title">Pick sperimentali</span></h2>
-    <div class="empty" data-i18n="lab_soon">In arrivo: i primi pronostici sperimentali compariranno qui appena il modello sarà pronto.</div>
+    <p class="small muted" data-i18n="lab_picks_note">Scelti quando la probabilità del modello è almeno 55%, supera quella implicita nella quota di 3–15 punti e la quota è almeno 1.50. Registrati una sola volta prima dell'inizio.</p>
+    <div class="toolbar"><div class="seg" id="lab-day"></div></div>
+    <div id="lab-picks"></div>
   </section>
   <section class="lab-card">
     <h2>📈 <span data-i18n="lab_rep_title">Report dello studio</span></h2>
-    <div class="empty" data-i18n="lab_rep_soon">Qui seguirai, giorno per giorno, quanto il modello ci azzecca: percentuali, calibrazione e confronto con le quote.</div>
+    <div id="lab-report"><div class="empty" data-i18n="lab_rep_soon">Qui seguirai, giorno per giorno, quanto il modello ci azzecca: percentuali, calibrazione e confronto con le quote.</div></div>
   </section>
 </div>
 
@@ -314,7 +316,7 @@
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=29" defer></script>
-<script src="js/app.js?v=29" defer></script>
+<script src="js/i18n.js?v=30" defer></script>
+<script src="js/app.js?v=30" defer></script>
 </body>
 </html>
