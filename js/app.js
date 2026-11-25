@@ -968,7 +968,7 @@
   }
 
   /* ---------- navigazione a pagine ---------- */
-  var VIEWS = ["home", "matches", "predictions", "report", "archive", "method"];
+  var VIEWS = ["home", "matches", "predictions", "lab", "report", "archive", "method"];
   var LOADERS = { home: loadHome, matches: loadMatches, predictions: loadPredictions, report: loadReport, archive: loadArchive };
   var loaded = {}, current = null;
   function route(force) {
