@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=24">
+  <link rel="stylesheet" href="css/style.css?v=25">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -65,23 +65,6 @@
     </ul>
   </section>
 
-  <section class="sec tg-box" id="telegram" aria-labelledby="tg-title">
-    <div class="tg-main">
-      <h2 id="tg-title">✈️ <span data-i18n="tg_title">Top Picks gratis su Telegram</span></h2>
-      <p class="tg-text" data-i18n="tg_text">Ricevi ogni pick prima dell'inizio, gli esiti man mano e il resoconto di fine giornata. Registrazione gratuita: bastano due conferme e il tuo account Telegram.</p>
-    </div>
-    <div class="tg-form" id="tg-form">
-      <p class="tg-soon" id="tg-soon" data-i18n="tg_soon">Registrazione in arrivo a breve.</p>
-      <div id="tg-open" hidden>
-        <label class="tg-chk"><input type="checkbox" id="tg-age"> <span data-i18n="tg_age">Ho almeno 18 anni</span></label>
-        <label class="tg-chk"><input type="checkbox" id="tg-priv"> <span id="tg-priv-l"></span></label>
-        <div id="tg-ts" class="tg-ts"></div>
-        <button class="btn primary" type="button" id="tg-btn" disabled data-i18n="tg_btn">Ricevi l'accesso</button>
-        <p class="tg-msg" id="tg-msg" role="status" aria-live="polite"></p>
-      </div>
-    </div>
-  </section>
-
   <section class="sec" id="top-picks">
     <div class="sec-head">
       <h2>🔥 <span data-i18n="picks_title">Top Picks</span> <span class="count-badge" id="picks-count"></span></h2>
@@ -91,6 +74,23 @@
     <div class="hscroll" id="picks-football"></div>
     <h3 class="sub-title">🎾 <span data-i18n="tn_title">Tennis</span></h3>
     <div class="hscroll" id="picks-tennis"></div>
+  </section>
+
+  <section class="sec tg-box" id="telegram" aria-labelledby="tg-title">
+    <div class="tg-main">
+      <h2 id="tg-title">✈️ <span data-i18n="tg_title">Top Picks gratis su Telegram</span></h2>
+      <p class="tg-text" id="tg-text" data-i18n="tg_text2">Ricevi ogni pick prima dell'inizio, gli esiti man mano e il resoconto di fine giornata. Gratis.</p>
+    </div>
+    <div class="tg-form" id="tg-form">
+      <div id="tg-soon"><a class="btn primary tg-join" href="https://t.me/amicobet" target="_blank" rel="noopener" data-i18n="tg_join">Unisciti al canale Telegram</a></div>
+      <div id="tg-open" hidden>
+        <label class="tg-chk"><input type="checkbox" id="tg-age"> <span data-i18n="tg_age">Ho almeno 18 anni</span></label>
+        <label class="tg-chk"><input type="checkbox" id="tg-priv"> <span id="tg-priv-l"></span></label>
+        <div id="tg-ts" class="tg-ts"></div>
+        <button class="btn primary" type="button" id="tg-btn" disabled data-i18n="tg_btn">Ricevi l'accesso</button>
+        <p class="tg-msg" id="tg-msg" role="status" aria-live="polite"></p>
+      </div>
+    </div>
   </section>
 
   <section class="sec" id="live">
@@ -247,6 +247,7 @@
     <a href="/pronostici/champions-league">Champions League</a>
     <a href="/pronostici-tennis">Pronostici tennis</a>
     <a href="/risultati-pronostici">Risultati pronostici</a>
+    <a href="https://t.me/amicobet" target="_blank" rel="noopener">✈️ Canale Telegram</a>
     <a href="/en/predictions-today" hreflang="en">English</a>
     <a href="/es/pronosticos-hoy" hreflang="es">Español</a>
     <a href="/pt/palpites-hoje" hreflang="pt">Português</a>
@@ -258,7 +259,7 @@
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=24" defer></script>
-<script src="js/app.js?v=24" defer></script>
+<script src="js/i18n.js?v=25" defer></script>
+<script src="js/app.js?v=25" defer></script>
 </body>
 </html>
