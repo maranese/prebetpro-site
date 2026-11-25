@@ -209,6 +209,25 @@ def tennis():
         if m.get("isLive") or not (NOW < st < NOW + dt.timedelta(hours=30)):
             continue
         info[m["id"]] = dict(lg=lg, p1=n.get("home"), p2=n.get("away"), st=st)
+    # mercati extra (stessa risposta, nessuna chiamata in più): totale/handicap set sulla partita, totale/handicap game sulla sottopartita "Games"
+    gmap = {m["id"]: m["parent"]["id"] for m in M if m.get("parent") and (m.get("units") or "") == "Games" and m["parent"].get("id") in info}
+    EX = {}
+    for k in Kt:
+        if k.get("period") != 0 or k.get("isAlternate") or k.get("type") not in ("total", "spread"):
+            continue
+        mid = k.get("matchupId"); main = mid if mid in info else gmap.get(mid)
+        if main is None:
+            continue
+        pr = {p.get("designation"): p for p in k.get("prices", [])}
+        a, b = ("over", "under") if k["type"] == "total" else ("home", "away")
+        if a not in pr or b not in pr or pr[a].get("points") is None:
+            continue
+        oa, ob = dec(pr[a]["price"]), dec(pr[b]["price"])
+        mg = 1 / oa + 1 / ob - 1
+        if mg > 0.12:
+            continue
+        key = ("t" if k["type"] == "total" else "h") + ("s" if mid in info else "g")
+        EX.setdefault(main, {})[key] = [pr[a]["points"], int(round(100 * (1 / oa) / (1 + mg)))]
     new = []
     for k in Kt:
         r = info.get(k.get("matchupId"))
@@ -223,7 +242,7 @@ def tennis():
             st0 = rome(r["st"])
             ALL.append({"id": k["matchupId"], "date": st0.strftime("%Y-%m-%d"), "time": st0.strftime("%H:%M"), "start": r["st"].isoformat(),
                         "tn": r["lg"].replace(" - ", " · "), "a": r["p1"], "b": r["p2"], "pa": int(round(100 * ph)), "pb": 100 - int(round(100 * ph)),
-                        "oa": round(o["home"], 2), "ob": round(o["away"], 2)})
+                        "oa": round(o["home"], 2), "ob": round(o["away"], 2), **EX.get(k["matchupId"], {})})
         fav, opp, p = (r["p1"], r["p2"], ph) if ph >= .5 else (r["p2"], r["p1"], 1 - ph)
         L = r["lg"]
         ok_tour = any(t in L for t in ("ATP", "WTA", "Challenger"))
