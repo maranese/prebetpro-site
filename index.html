@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=25">
+  <link rel="stylesheet" href="css/style.css?v=26">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -28,6 +28,7 @@
     <a href="#home" class="logo" aria-label="PreBetPro"><span class="logo-mark">▶</span> PreBetPro</a>
     <nav class="nav" id="nav" aria-label="Menu">
       <a href="#home" data-go="home" data-i18n="nav_home">Home</a>
+      <a href="#matches" data-go="matches" data-i18n="nav_live">Partite</a>
       <a href="#predictions" data-go="predictions" data-i18n="nav_pred">Pronostici</a>
       <a href="#tennis" data-go="tennis" data-i18n="nav_tennis">Tennis</a>
       <a href="#report" data-go="report" data-i18n="nav_report">Report</a>
@@ -55,7 +56,7 @@
       <p class="hero-today" id="hero-today"></p>
       <div class="hero-cta">
         <a class="btn primary" href="#predictions" data-i18n="cta_pred">Pronostici di oggi</a>
-        <a class="btn ghost" href="#live" id="cta-live" data-i18n="cta_live">Partite live</a>
+        <a class="btn ghost" href="#matches" id="cta-live" data-i18n="cta_live">Partite live</a>
       </div>
     </div>
     <ul class="hero-points">
@@ -94,19 +95,15 @@
   </section>
 
   <section class="sec" id="live">
-    <div class="sec-head">
-      <h2>⚽ <span data-i18n="live_title">Partite del giorno</span></h2>
-      <p class="sub" data-i18n="live_sub">Risultati in diretta, primo tempo e finali dei campionati monitorati, con le probabilità principali del modello. Tocca una partita per i dettagli.</p>
+    <div class="sec-head sw-head">
+      <h2 class="sw-title"><span class="sw-flip" id="hm-flip">⚽</span> <span data-i18n="live_title">Partite del giorno</span></h2>
+      <div class="sw" role="tablist" aria-label="Sport">
+        <button type="button" class="sw-btn on" data-sw="fb" role="tab" aria-selected="true">⚽ <span data-i18n="sw_fb">Calcio</span></button>
+        <button type="button" class="sw-btn" data-sw="tn" role="tab" aria-selected="false">🎾 <span data-i18n="sw_tn">Tennis</span></button>
+      </div>
     </div>
-    <div class="toolbar">
-      <div class="seg" id="live-day"></div>
-      <input id="m-search" type="search" data-i18n-ph="search_team" aria-label="search">
-    </div>
-    <div class="chips filter-chips" id="live-chips"></div>
-    <div class="league-bar" id="live-leagues"></div>
-    <p class="updated" id="live-updated"></p>
-    <div id="live-list"></div>
-    <div class="more-wrap" id="live-more"></div>
+    <div class="sw-body" id="hm-body"><div id="hm-list"></div></div>
+    <div class="more-wrap"><a class="btn ghost" id="hm-all" href="#matches" data-i18n="see_all">Vedi tutte le partite →</a></div>
   </section>
 </div>
 
@@ -140,13 +137,41 @@
   <p class="small tn-hist"><a href="#report" data-i18n="tn_hist_link">Storico completo dei risultati nel Report →</a></p>
   <h2 class="sub-title">🔥 <span data-i18n="tn_picks_title">Pick tennis</span></h2>
   <div class="hscroll" id="tennis-list"></div>
-  <h2 class="sub-title">🎾 <span data-i18n="tn_all_title">Tutte le partite</span></h2>
-  <div class="toolbar"><input id="tn-search" type="search" data-i18n-ph="search_player" aria-label="search"></div>
-  <div class="chips filter-chips" id="tn-chips"></div>
-  <p class="updated" id="tn-updated"></p>
-  <div id="tn-matches"></div>
-  <div class="more-wrap" id="tn-more"></div>
-  <p class="info-box" data-i18n="tn_note">Dati da Live Tennis API: ATP, WTA, Challenger e ITF, aggiornati ogni 30 minuti dalle 8 alle 24. Alcuni match di primo piano possono mancare.</p>
+  <p class="more-wrap"><a class="btn ghost" href="#matches-tn" data-i18n="tn_all_link">Tutte le partite di tennis →</a></p>
+</div>
+
+<!-- ================= PARTITE ================= -->
+<div class="view" id="view-matches" hidden>
+  <div class="sec-head sw-head">
+    <h1 class="sw-title"><span class="sw-flip" id="mt-flip">⚽</span> <span data-i18n="live_title">Partite del giorno</span></h1>
+    <div class="sw" role="tablist" aria-label="Sport">
+      <button type="button" class="sw-btn on" data-sw="fb" role="tab" aria-selected="true">⚽ <span data-i18n="sw_fb">Calcio</span></button>
+      <button type="button" class="sw-btn" data-sw="tn" role="tab" aria-selected="false">🎾 <span data-i18n="sw_tn">Tennis</span></button>
+    </div>
+  </div>
+  <div class="sw-body" id="mt-body">
+    <div id="mt-fb">
+      <p class="sub" data-i18n="live_sub">Risultati in diretta, primo tempo e finali dei campionati monitorati, con le probabilità principali del modello. Tocca una partita per i dettagli.</p>
+      <div class="toolbar">
+        <div class="seg" id="live-day"></div>
+        <input id="m-search" type="search" data-i18n-ph="search_team" aria-label="search">
+      </div>
+      <div class="chips filter-chips" id="live-chips"></div>
+      <div class="league-bar" id="live-leagues"></div>
+      <p class="updated" id="live-updated"></p>
+      <div id="live-list"></div>
+      <div class="more-wrap" id="live-more"></div>
+    </div>
+    <div id="mt-tn" hidden>
+      <div class="toolbar"><div class="seg" id="tnm-day"></div></div>
+    <div class="toolbar"><input id="tn-search" type="search" data-i18n-ph="search_player" aria-label="search"></div>
+    <div class="chips filter-chips" id="tn-chips"></div>
+    <p class="updated" id="tn-updated"></p>
+    <div id="tn-matches"></div>
+    <div class="more-wrap" id="tn-more"></div>
+    <p class="info-box" data-i18n="tn_note">Dati da Live Tennis API: ATP, WTA, Challenger e ITF, aggiornati ogni 30 minuti dalle 8 alle 24. Alcuni match di primo piano possono mancare.</p>
+    </div>
+  </div>
 </div>
 
 <!-- ================= REPORT ================= -->
@@ -259,7 +284,7 @@
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=25" defer></script>
-<script src="js/app.js?v=25" defer></script>
+<script src="js/i18n.js?v=26" defer></script>
+<script src="js/app.js?v=26" defer></script>
 </body>
 </html>
