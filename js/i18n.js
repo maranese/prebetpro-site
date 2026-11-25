@@ -564,3 +564,12 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = {
+    "it": {"nav_lab": "Laboratorio", "lab_title": "Laboratorio", "chip_gopred": "Pronostici", "fb_all_link": "Tutte le partite di calcio →", "tn_allpred_title": "Tutti i pronostici", "tn_allpred_note": "Probabilità di vittoria di ogni giocatore ricavate dalle quote Pinnacle senza margine del bookmaker. In verde i pronostici forti (68–82%), la fascia dei Top Picks.", "tn_allpred_none": "Pronostici non ancora disponibili per questo giorno: le quote escono di solito il giorno prima.", "tn_fair": "Quota equa"},
+    "en": {"chip_gopred": "Predictions", "fb_all_link": "All football matches →", "tn_allpred_title": "All predictions", "tn_allpred_note": "Each player's win probability derived from Pinnacle odds without the bookmaker margin. Green marks strong predictions (68–82%), the Top Picks range.", "tn_allpred_none": "Predictions not yet available for this day: odds are usually published the day before.", "tn_fair": "Fair odds"},
+    "es": {"nav_lab": "Laboratorio", "chip_gopred": "Pronósticos", "fb_all_link": "Todos los partidos de fútbol →", "tn_allpred_title": "Todos los pronósticos", "tn_allpred_note": "Probabilidad de victoria de cada jugador obtenida de las cuotas de Pinnacle sin el margen de la casa. En verde los pronósticos fuertes (68–82%), el rango de los Top Picks.", "tn_allpred_none": "Pronósticos aún no disponibles para este día: las cuotas suelen publicarse el día anterior.", "tn_fair": "Cuota justa"},
+    "pt": {"chip_gopred": "Palpites", "fb_all_link": "Todos os jogos de futebol →", "tn_allpred_title": "Todos os palpites", "tn_allpred_note": "Probabilidade de vitória de cada jogador obtida das odds da Pinnacle sem a margem da casa. A verde os palpites fortes (68–82%), a faixa dos Top Picks.", "tn_allpred_none": "Palpites ainda não disponíveis para este dia: as odds costumam sair na véspera.", "tn_fair": "Odd justa"}
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

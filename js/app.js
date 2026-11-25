@@ -147,8 +147,10 @@
     };
   }
   function chipBar(el, keys, state, onChange) {
-    el.innerHTML = keys.map(function (k) { return '<button type="button" class="chip' + (state.chip === k ? " on" : "") + '" data-k="' + k + '">' + T("chip_" + k) + "</button>"; }).join("");
-    el.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-k]") : null; if (!b) return; state.chip = b.getAttribute("data-k"); state.limit = PAGE; chipBar(el, keys, state, onChange); onChange(); };
+    el.innerHTML = keys.map(function (k) { var go = k === "gopred" || k === "tnpick"; return '<button type="button" class="chip' + (go ? " chip-go" : "") + (state.chip === k ? " on" : "") + '" data-k="' + k + '">' + T("chip_" + k) + (go ? " →" : "") + "</button>"; }).join("");
+    el.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-k]") : null; if (!b) return; var k0 = b.getAttribute("data-k");
+      if (k0 === "gopred") { setSw("pr", "fb", true); location.hash = "#predictions"; return; } if (k0 === "tnpick") { setSw("pr", "tn", true); location.hash = "#predictions-tn"; return; }
+      state.chip = k0; state.limit = PAGE; chipBar(el, keys, state, onChange); onChange(); };
   }
   function leagueBar(el, fx, state, onChange) {
     var seen = {}, list = [];
@@ -295,7 +297,7 @@
   function injFor(I, id) { return (I && I[id]) || null; }
   function loadLive(silent) {
     daySeg($("live-day"), [-1, 0, 1], M.day, function (d) { M.day = d; M.open = {}; M.limit = PAGE; $("live-list").removeAttribute("data-loaded"); loadLive(); });
-    chipBar($("live-chips"), ["all", "live", "next3", "ft", "top", "strong"], M, renderLive);
+    chipBar($("live-chips"), ["all", "live", "next3", "ft", "top", "gopred"], M, renderLive);
     var list = $("live-list"); if (!silent) loading(list);
     var day = M.day;
     Promise.all([get("/day?date=" + day), day <= romeDate(0) ? get("/details?date=" + day, 60000).catch(function () { return null; }) : null]).then(function (r) {
@@ -634,6 +636,7 @@
     daySeg($("tennis-day"), [-1, 0, 1], TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loadTennis(); });
     chipBar($("tn-chips"), ["all", "live", "next3", "tnft", "tnpick"], TN, renderTennis);
     var list = $("tennis-list"), ml = $("tn-matches"); loading(list); loading(ml); var day = TN.day;
+    loadTennisAll(day);
     Promise.all([get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), Promise.resolve(null), get("/tennis/matches?date=" + day, 60000).catch(function () { return {}; })]).then(function (r) {
       if (day !== TN.day) return;
       var picks = (r[0] && r[0].date === day && r[0].picks) || [], s = r[1] && r[1].summary;
@@ -644,6 +647,35 @@
       list.setAttribute("data-loaded", "1");
       renderTennis();
     }).catch(function (e) { fail(list, e); });
+  }
+  var TA = { list: [], res: {}, limit: 40 };
+  function loadTennisAll(day) {
+    var box = $("tn-all"); loading(box);
+    Promise.all([get("/tennis/all?date=" + day, 60000).catch(function () { return {}; }), get("/tennis/matches?date=" + day, 60000).catch(function () { return {}; })]).then(function (r) {
+      if (day !== TN.day) return;
+      TA.list = (r[0] && r[0].matches) || []; TA.res = {}; TA.limit = 40;
+      ((r[1] && r[1].matches) || []).forEach(function (x) { if (x.fin && (x.w === 1 || x.w === 2) && x.p && x.p.length === 2) { var a = lastName(x.p[0].n), b = lastName(x.p[1].n); TA.res[a + "|" + b] = { w: x.w === 1 ? a : b, x: x }; TA.res[b + "|" + a] = TA.res[a + "|" + b]; } });
+      renderTennisAll();
+    }).catch(function (e) { fail(box, e); });
+  }
+  function renderTennisAll() {
+    var box = $("tn-all"), q = ($("tna-search").value || "").trim().toLowerCase();
+    var L = TA.list.filter(function (x) { return !q || (x.a + " " + x.b + " " + x.tn).toLowerCase().indexOf(q) >= 0; });
+    if (!L.length) { box.innerHTML = empty(TA.list.length ? T("no_matches") : T("tn_allpred_none")); $("tn-all-more").innerHTML = ""; return; }
+    var shown = L.slice().sort(function (a, b) { return a.tn === b.tn ? String(a.start).localeCompare(String(b.start)) : String(a.tn).localeCompare(String(b.tn)); }).slice(0, TA.limit);
+    var counts = {}; L.forEach(function (x) { counts[x.tn] = (counts[x.tn] || 0) + 1; });
+    var cell = function (v, won) { return '<td class="num' + (v >= 68 && v <= 82 ? " strong" : v >= 60 ? " hi" : "") + (won === true ? " ok" : won === false ? " ko" : "") + '">' + v + "%</td>"; };
+    var body = "", cur = null;
+    shown.forEach(function (x) {
+      if (x.tn !== cur) { cur = x.tn; var tour = /itf/i.test(x.tn) ? "itf" : /challenger/i.test(x.tn) ? "challenger" : /wta/i.test(x.tn) ? "wta" : /atp/i.test(x.tn) ? "atp" : "tennis";
+        body += '<tr class="lg-row" style="--lh:' + ({ atp: 210, wta: 320, challenger: 35, itf: 150 }[tour] || 260) + '"><td colspan="5"><span class="tour-tag">' + tour.toUpperCase() + "</span> <span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + "</em></td></tr>"; }
+      var r = TA.res[lastName(x.a) + "|" + lastName(x.b)], wa = r ? r.w === lastName(x.a) : null;
+      var started = Date.parse(x.start) <= Date.now();
+      body += "<tr><td>" + (r ? '<span class="badge ft">FT</span>' : started ? '<span class="badge">' + T("k_pending") + "</span>" : esc(fmtTime(x.start))) + '</td><td class="tm"><b' + (x.pa >= x.pb ? ' class="fav"' : "") + ">" + esc(x.a) + "</b> – <b" + (x.pb > x.pa ? ' class="fav"' : "") + ">" + esc(x.b) + "</b></td>" +
+        cell(x.pa, r ? wa : null) + cell(x.pb, r ? !wa : null) + '<td class="num small muted">' + (1 / Math.max(x.pa, x.pb) * 100).toFixed(2) + "</td></tr>";
+    });
+    box.innerHTML = '<div class="tbl-wrap"><table class="ptable tna"><thead><tr><th>' + T("col_time") + "</th><th>" + T("col_match") + '</th><th class="num">1</th><th class="num">2</th><th class="num">' + T("tn_fair") + "</th></tr></thead><tbody>" + body + "</tbody></table></div>";
+    moreBtn($("tn-all-more"), shown.length, L.length, TA, renderTennisAll);
   }
   function renderTennis() {
     var q = ($("tn-search").value || "").trim().toLowerCase();
@@ -1025,6 +1057,7 @@
     $("m-search").addEventListener("input", function () { M.limit = PAGE; renderLive(); });
     $("p-search").addEventListener("input", function () { P.limit = PAGE; renderPred(); });
     $("tn-search").addEventListener("input", function () { TN.limit = PAGE; renderTennis(); });
+    $("tna-search").addEventListener("input", function () { TA.limit = 40; renderTennisAll(); });
     bindReport();
     $("cta-live").addEventListener("click", function (e) { e.preventDefault(); setSw("mt", "fb", true); location.hash = "#matches"; });
     document.addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".sw-btn") : null; if (!b) return; var box = b.closest(".view"), w = box && box.id === "view-home" ? "hm" : box && box.id === "view-predictions" ? "pr" : "mt"; setSw(w, b.getAttribute("data-sw")); });
