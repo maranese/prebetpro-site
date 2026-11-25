@@ -50,6 +50,7 @@
     els = document.querySelectorAll("[data-i18n-ph]");
     for (i = 0; i < els.length; i++) els[i].setAttribute("placeholder", T(els[i].getAttribute("data-i18n-ph")));
     $("method-body").innerHTML = T("method_html");
+    if ($("tg-priv-l")) $("tg-priv-l").innerHTML = T("tg_priv", { l: '<a href="/privacy.html" target="_blank" rel="noopener">' + esc(T("tg_priv_l")) + "</a>" });
     document.title = "PreBetPro – " + T("hero_claim");
     if (rerender) { loaded = {}; route(true); }
   }
@@ -947,7 +948,7 @@
     window.addEventListener("scroll", function () { top.classList.toggle("show", window.pageYOffset > 500); }, { passive: true });
     top.addEventListener("click", function () { window.scrollTo(0, 0); });
     window.addEventListener("hashchange", function () { route(); });
-    pickLang(function (l) { setLang(l, false); route(); });
+    pickLang(function (l) { setLang(l, false); route(); tgInit(); });
     get("/status", 120000).then(function (s) {
       var t = s.last && (s.last.finished || s.last.started);
       $("api-status").textContent = t ? T("data_ref") + ": " + new Date(t).toLocaleString(loc(), { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
@@ -957,6 +958,38 @@
       if (document.hidden || (current !== "home" && current !== "tennis")) return;
       cache = {}; if (current === "home") loadHome(); else loadTennis();
     }, 120000);
+  }
+  /* ---------- registrazione Telegram (Turnstile caricato solo quando serve) ---------- */
+  var TG = { info: null, token: null, wid: null };
+  function tgUpdate() {
+    var ok = $("tg-age").checked && $("tg-priv").checked;
+    if (ok && !TG.wid && TG.info && TG.info.sitekey) tgLoadTs();
+    $("tg-btn").disabled = !(ok && TG.token);
+  }
+  function tgLoadTs() {
+    TG.wid = "loading";
+    window.pbpTsReady = function () {
+      TG.wid = window.turnstile.render("#tg-ts", { sitekey: TG.info.sitekey, language: L, theme: "auto",
+        callback: function (t) { TG.token = t; tgUpdate(); }, "expired-callback": function () { TG.token = null; tgUpdate(); }, "error-callback": function () { TG.token = null; $("tg-msg").textContent = T("tg_err"); tgUpdate(); } });
+    };
+    var sc = document.createElement("script"); sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=pbpTsReady"; sc.async = true; document.head.appendChild(sc);
+  }
+  function tgInit() {
+    $("tg-priv-l").innerHTML = T("tg_priv", { l: '<a href="/privacy.html" target="_blank" rel="noopener">' + esc(T("tg_priv_l")) + "</a>" });
+    if (TG.info) return;
+    fetch(API + "/reg/info").then(function (r) { return r.json(); }).then(function (i) {
+      TG.info = i; if (!i.open) return;
+      $("tg-soon").hidden = true; $("tg-open").hidden = false;
+      $("tg-age").addEventListener("change", tgUpdate); $("tg-priv").addEventListener("change", tgUpdate);
+      $("tg-btn").addEventListener("click", function () {
+        var b = this; b.disabled = true; $("tg-msg").textContent = T("tg_wait");
+        fetch(API + "/reg/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ age: $("tg-age").checked, privacy: $("tg-priv").checked, ts: TG.token, lang: L }) })
+          .then(function (r) { return r.json(); }).then(function (j) {
+            if (!j.url) throw new Error(j.error || "x");
+            $("tg-msg").innerHTML = esc(T("tg_go")) + ' <a class="btn primary" href="' + esc(j.url) + '" target="_blank" rel="noopener">' + esc(T("tg_open")) + "</a>";
+          }).catch(function () { $("tg-msg").textContent = T("tg_err"); TG.token = null; try { window.turnstile.reset(TG.wid); } catch (e) {} b.disabled = true; });
+      });
+    }).catch(function () {});
   }
   document.addEventListener("DOMContentLoaded", init);
 })();
