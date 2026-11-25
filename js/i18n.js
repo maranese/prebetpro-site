@@ -586,3 +586,21 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = {
+    "it": { "prev_day": "Giorno precedente", "next_day": "Giorno successivo", "pick_day": "Scegli una data", "tn_ts": "Set O/U", "tn_hs": "Hand. set", "tn_tg": "Game O/U", "tn_hg": "Hand. game", "tn_allpred_note2": "Probabilità ricavate dalle quote Pinnacle senza margine del bookmaker: vincente, totale set e game (Over/Under) e handicap. Per ogni mercato è indicato il lato più probabile. In verde la fascia 68–82%." },
+    "en": { "prev_day": "Previous day", "next_day": "Next day", "pick_day": "Pick a date", "tn_ts": "Sets O/U", "tn_hs": "Set hcp", "tn_tg": "Games O/U", "tn_hg": "Game hcp", "tn_allpred_note2": "Probabilities derived from Pinnacle odds without the bookmaker margin: winner, total sets and games (Over/Under) and handicaps. Each market shows its more likely side. Green marks the 68–82% range." },
+    "es": { "prev_day": "Día anterior", "next_day": "Día siguiente", "pick_day": "Elige una fecha", "tn_ts": "Sets O/U", "tn_hs": "Hánd. sets", "tn_tg": "Juegos O/U", "tn_hg": "Hánd. juegos", "tn_allpred_note2": "Probabilidades obtenidas de las cuotas de Pinnacle sin el margen de la casa: ganador, total de sets y juegos (Over/Under) y hándicaps. En cada mercado se indica el lado más probable. En verde el rango 68–82%." },
+    "pt": { "prev_day": "Dia anterior", "next_day": "Dia seguinte", "pick_day": "Escolha uma data", "tn_ts": "Sets O/U", "tn_hs": "Hand. sets", "tn_tg": "Games O/U", "tn_hg": "Hand. games", "tn_allpred_note2": "Probabilidades obtidas das odds da Pinnacle sem a margem da casa: vencedor, total de sets e games (Over/Under) e handicaps. Em cada mercado é indicado o lado mais provável. A verde a faixa 68–82%." }
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);
+(function (I) {
+  var add = {
+    "it": { "tn_ts_s": "Set", "tn_hs_s": "H. set", "tn_tg_s": "Game", "tn_hg_s": "H. game", "tn_other": "Altri" },
+    "en": { "tn_ts_s": "Sets", "tn_hs_s": "Set hcp", "tn_tg_s": "Games", "tn_hg_s": "Game hcp", "tn_other": "Other" },
+    "es": { "tn_ts_s": "Sets", "tn_hs_s": "Hánd. sets", "tn_tg_s": "Juegos", "tn_hg_s": "Hánd. juegos", "tn_other": "Otros" },
+    "pt": { "tn_ts_s": "Sets", "tn_hs_s": "Hand. sets", "tn_tg_s": "Games", "tn_hg_s": "Hand. games", "tn_other": "Outros" }
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

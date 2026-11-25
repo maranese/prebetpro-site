@@ -146,6 +146,18 @@
       onPick(b.getAttribute("data-d"));
     };
   }
+  var MIN_DAY = "2026-11-20";   // primo giorno con dati salvati (calcio e tennis)
+  function dayNav(el, current, onPick) {   // Partite: ◀ Ieri Oggi Domani ▶ + scelta data; nel passato fino al primo giorno salvato
+    var max = romeDate(1), near = [romeDate(-1), romeDate(0), max], out = near.indexOf(current) < 0;
+    el.classList.add("daynav");
+    el.innerHTML = '<button type="button" class="nav-arr" data-d="' + shiftDate(current, -1) + '"' + (current <= MIN_DAY ? " disabled" : "") + ' aria-label="' + esc(T("prev_day")) + '">◀</button>' +
+      (out ? '<button type="button" class="on" data-d="' + current + '">' + esc(fmtDay(current)) + "</button>" : "") +
+      near.map(function (d) { return '<button type="button" data-d="' + d + '" class="' + (d === current ? "on" : "") + '">' + dayLabel(d) + "</button>"; }).join("") +
+      '<button type="button" class="nav-arr" data-d="' + shiftDate(current, 1) + '"' + (current >= max ? " disabled" : "") + ' aria-label="' + esc(T("next_day")) + '">▶</button>' +
+      '<label class="nav-cal" title="' + esc(T("pick_day")) + '">📅<input type="date" min="' + MIN_DAY + '" max="' + max + '" value="' + current + '" aria-label="' + esc(T("pick_day")) + '"></label>';
+    el.onclick = function (e) { var b = e.target.closest ? e.target.closest("button[data-d]") : null; if (!b || b.disabled) return; var d = b.getAttribute("data-d"); if (d < MIN_DAY || d > max) return; dayNav(el, d, onPick); onPick(d); };
+    var inp = el.querySelector("input"); inp.onclick = function () { try { if (inp.showPicker) inp.showPicker(); } catch (e) {} }; inp.onchange = function () { var d = inp.value; if (!d || d < MIN_DAY || d > max) return; dayNav(el, d, onPick); onPick(d); };
+  }
   function chipBar(el, keys, state, onChange) {
     el.innerHTML = keys.map(function (k) { var go = k === "gopred" || k === "tnpick"; return '<button type="button" class="chip' + (go ? " chip-go" : "") + (state.chip === k ? " on" : "") + '" data-k="' + k + '">' + T("chip_" + k) + "</button>"; }).join("");
     el.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-k]") : null; if (!b) return; var k0 = b.getAttribute("data-k");
@@ -296,7 +308,7 @@
   var M = { day: romeDate(0), fixtures: [], open: {}, det: {}, inj: {}, chip: "all", league: null, limit: PAGE };
   function injFor(I, id) { return (I && I[id]) || null; }
   function loadLive(silent) {
-    daySeg($("live-day"), [-1, 0, 1], M.day, function (d) { M.day = d; M.open = {}; M.limit = PAGE; $("live-list").removeAttribute("data-loaded"); loadLive(); });
+    dayNav($("live-day"), M.day, function (d) { M.day = d; M.open = {}; M.limit = PAGE; $("live-list").removeAttribute("data-loaded"); loadLive(); });
     chipBar($("live-chips"), ["all", "live", "next3", "ft", "top", "gopred"], M, renderLive);
     var list = $("live-list"); if (!silent) loading(list);
     var day = M.day;
@@ -477,7 +489,7 @@
   function loadMatches(silent) {
     $("mt-fb").hidden = SWS.mt !== "fb"; $("mt-tn").hidden = SWS.mt !== "tn";
     if (SWS.mt === "fb") return loadLive(silent);
-    daySeg($("tnm-day"), [-1, 0, 1], TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loaded.tennis = 0; loadMatches(); });
+    dayNav($("tnm-day"), TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loaded.tennis = 0; loadMatches(); });
     chipBar($("tn-chips"), ["all", "live", "next3", "tnft", "tnpick"], TN, renderTennis);
     var ml = $("tn-matches"), day = TN.day; if (!silent) loading(ml);
     Promise.all([get("/tennis/matches?date=" + day, 60000), get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; })]).then(function (r) { if (day !== TN.day) return; TN.matches = (r[0] && r[0].matches) || []; TN.updated = r[0] && r[0].updated; TN.picks = (r[1] && r[1].date === day && r[1].picks) || []; renderTennis(); }).catch(function (e) { fail(ml, e); });
@@ -672,7 +684,7 @@
     if (m && (st === "ft" || st === "end") && (m.x.w === 1 || m.x.w === 2)) wa = (m.x.w === 1) !== m.flip;
     if (m && st !== "ns" && st !== "void" && m.x.s && m.x.s.sets) { var s = m.x.s.sets; score = m.flip ? s[1] + "-" + s[0] : s[0] + "-" + s[1]; }
     var badge = m && st !== "ns" ? tnBadge(m.x) : Date.parse(x.start) <= Date.now() ? '<span class="badge">' + T("k_pending") + "</span>" : '<span class="badge ns">' + esc(fmtTime(x.start)) + "</span>";
-    return { st: st, wa: wa, score: score, badge: badge };
+    return { st: st, wa: wa, score: score, badge: badge, m: m };
   }
   function renderTennisAll() {
     chipBar($("tna-chips"), ["all", "tnstrong", "tnft"], TA, renderTennisAll);
@@ -688,30 +700,39 @@
     tours.sort(function (a, b) { return TOURS.indexOf(a) - TOURS.indexOf(b); });
     if (TA.league && tours.indexOf(TA.league) < 0) TA.league = null;
     var tb = $("tna-tours");
-    tb.innerHTML = tours.length > 1 ? '<button type="button" class="lchip' + (!TA.league ? " on" : "") + '" data-l="">' + T("chip_all") + "</button>" + tours.map(function (t) { return '<button type="button" class="lchip' + (TA.league === t ? " on" : "") + '" data-l="' + t + '" style="--lh:' + ({ atp: 210, wta: 320, challenger: 35, itf: 150 }[t] || 260) + '"><span>' + t.toUpperCase() + "</span></button>"; }).join("") : "";
+    tb.innerHTML = tours.length > 1 ? '<button type="button" class="lchip' + (!TA.league ? " on" : "") + '" data-l="">' + T("chip_all") + "</button>" + tours.map(function (t) { return '<button type="button" class="lchip' + (TA.league === t ? " on" : "") + '" data-l="' + t + '" style="--lh:' + ({ atp: 210, wta: 320, challenger: 35, itf: 150 }[t] || 260) + '"><span>' + (t === "tennis" ? esc(T("tn_other")) : t.toUpperCase()) + "</span></button>"; }).join("") : "";
     tb.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-l]") : null; if (!b) return; TA.league = b.getAttribute("data-l") || null; TA.limit = 40; renderTennisAll(); };
     var L = TA.league ? base.filter(function (x) { return taTour(x.tn) === TA.league; }) : base;
     if (!L.length) { box.innerHTML = empty(TA.list.length ? T("no_matches") : T("tn_allpred_none")); $("tn-all-more").innerHTML = ""; return; }
     var shown = L.slice().sort(function (a, b) { var ta = TOURS.indexOf(taTour(a.tn)), tb2 = TOURS.indexOf(taTour(b.tn)); ta = ta < 0 ? 9 : ta; tb2 = tb2 < 0 ? 9 : tb2; if (ta !== tb2) return ta - tb2; return a.tn === b.tn ? String(a.start).localeCompare(String(b.start)) : String(a.tn).localeCompare(String(b.tn)); }).slice(0, TA.limit);
     var counts = {}; L.forEach(function (x) { counts[x.tn] = (counts[x.tn] || 0) + 1; });
+    var mk = function (x, i) {   // mercati extra: [linea, prob. lato principale] -> lato più probabile, esito
+      var sc = null; if (i.m && i.st === "ft" && !/retir|walk/i.test(i.m.x.es || "") && i.m.x.s && i.m.x.s.g && i.m.x.s.sets) { var g = i.m.x.s.g, ss = i.m.x.s.sets, A = i.m.flip ? 1 : 0, B = 1 - A, sum = function (a) { return (a || []).reduce(function (t, v) { return t + (+v || 0); }, 0); }; sc = { sa: ss[A], sb: ss[B], ga: sum(g[A]), gb: sum(g[B]) }; }
+      return ["ts", "hs", "tg", "hg"].map(function (k) {
+        var v = x[k]; if (!v) return null; var line = v[0], p = v[1], tot = k[0] === "t", first = p >= 50, pr = first ? p : 100 - p;
+        var lab = tot ? (first ? "O " : "U ") + line : (first ? "1 " : "2 ") + (first ? (line > 0 ? "+" : "") + line : (-line > 0 ? "+" : "") + (-line));
+        var won = null; if (sc) { if (tot) { var t = k === "ts" ? sc.sa + sc.sb : sc.ga + sc.gb; if (t !== line) won = first ? t > line : t < line; } else { var d = (k === "hs" ? sc.sa - sc.sb : sc.ga - sc.gb) + line; if (d !== 0) won = first ? d > 0 : d < 0; } }
+        return { k: k, lab: lab, p: pr, won: won };
+      });
+    };
     var cls = function (v, won) { return (v >= 68 && v <= 82 ? " strong" : v >= 60 ? " hi" : "") + (won === true ? " ok" : won === false ? " ko" : ""); };
     var hueOf = function (tn) { return { atp: 210, wta: 320, challenger: 35, itf: 150 }[taTour(tn)] || 260; };
     var out = "", cur = null;
     if (wide.matches) {
       shown.forEach(function (x) {
-        if (x.tn !== cur) { cur = x.tn; out += '<tr class="lg-row" style="--lh:' + hueOf(x.tn) + '"><td colspan="5"><span class="tour-tag">' + taTour(x.tn).toUpperCase() + "</span> <span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + "</em></td></tr>"; }
+        if (x.tn !== cur) { cur = x.tn; out += '<tr class="lg-row" style="--lh:' + hueOf(x.tn) + '"><td colspan="9"><span class="tour-tag">' + taTour(x.tn).toUpperCase() + "</span> <span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + "</em></td></tr>"; }
         var i = taInfo(x), done = i.wa !== null;
         out += "<tr><td>" + i.badge + '</td><td class="tm"><b' + (x.pa >= x.pb ? ' class="fav"' : "") + ">" + esc(x.a) + "</b> – <b" + (x.pb > x.pa ? ' class="fav"' : "") + ">" + esc(x.b) + "</b>" + (i.score ? ' <span class="score">' + esc(i.score) + "</span>" : "") + "</td>" +
-          '<td class="num' + cls(x.pa, done ? i.wa : null) + '">' + x.pa + '%</td><td class="num' + cls(x.pb, done ? !i.wa : null) + '">' + x.pb + "%</td>" + '<td class="num small muted">' + (100 / Math.max(x.pa, x.pb)).toFixed(2) + "</td></tr>";
+          '<td class="num' + cls(x.pa, done ? i.wa : null) + '">' + x.pa + '%</td><td class="num' + cls(x.pb, done ? !i.wa : null) + '">' + x.pb + "%</td>" + mk(x, i).map(function (c) { return c ? '<td class="num xm' + cls(c.p, c.won) + '">' + esc(c.lab) + " <b>" + c.p + "%</b></td>" : '<td class="num muted">—</td>'; }).join("") + '<td class="num small muted">' + (100 / Math.max(x.pa, x.pb)).toFixed(2) + "</td></tr>";
       });
-      box.innerHTML = '<div class="tbl-wrap"><table class="ptable tna"><thead><tr><th>' + T("col_time") + "</th><th>" + T("col_match") + '</th><th class="num">1</th><th class="num">2</th><th class="num">' + T("tn_fair") + "</th></tr></thead><tbody>" + out + "</tbody></table></div>";
+      box.innerHTML = '<div class="tbl-wrap"><table class="ptable tna"><thead><tr><th>' + T("col_time") + "</th><th>" + T("col_match") + '</th><th class="num">1</th><th class="num">2</th><th class="num">' + T("tn_ts") + '</th><th class="num">' + T("tn_hs") + '</th><th class="num">' + T("tn_tg") + '</th><th class="num">' + T("tn_hg") + '</th><th class="num">' + T("tn_fair") + "</th></tr></thead><tbody>" + out + "</tbody></table></div>";
     } else {
       shown.forEach(function (x) {
         if (x.tn !== cur) { if (cur !== null) out += "</div></div>"; cur = x.tn; out += '<div class="league" style="--lh:' + hueOf(x.tn) + '"><div class="league-head"><span class="tour-tag">' + taTour(x.tn).toUpperCase() + "</span><span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + '</em></div><div class="league-body">'; }
         var i = taInfo(x), done = i.wa !== null, pill = function (k, v, won) { return '<span class="pill' + (v >= 68 && v <= 82 ? " strong" : "") + (won === true ? " ok" : won === false ? " ko" : "") + '">' + k + " <b>" + v + "%</b></span>"; };
         out += '<div class="pcard"><div class="pcard-head"><div class="pcard-teams"><b' + (x.pa >= x.pb ? ' class="fav"' : "") + ">1 · " + esc(x.a) + "</b><b" + (x.pb > x.pa ? ' class="fav"' : "") + ">2 · " + esc(x.b) + "</b></div>" +
           '<div class="pcard-meta">' + (i.score ? '<span class="score">' + esc(i.score) + "</span>" : "") + i.badge + "</div></div>" +
-          '<div class="pcard-mk">' + pill("1", x.pa, done ? i.wa : null) + pill("2", x.pb, done ? !i.wa : null) + '<span class="pill">' + T("tn_fair") + " <b>" + (100 / Math.max(x.pa, x.pb)).toFixed(2) + "</b></span></div></div>";
+          '<div class="pcard-mk">' + pill("1", x.pa, done ? i.wa : null) + pill("2", x.pb, done ? !i.wa : null) + mk(x, i).map(function (c) { return c ? '<span class="pill' + (c.p >= 68 && c.p <= 82 ? " strong" : "") + (c.won === true ? " ok" : c.won === false ? " ko" : "") + '">' + T("tn_" + c.k + "_s") + " " + esc(c.lab) + " <b>" + c.p + "%</b></span>" : ""; }).join("") + '<span class="pill">' + T("tn_fair") + " <b>" + (100 / Math.max(x.pa, x.pb)).toFixed(2) + "</b></span></div></div>";
       });
       if (cur !== null) out += "</div></div>";
       box.innerHTML = '<div class="tna-cards">' + out + "</div>";
