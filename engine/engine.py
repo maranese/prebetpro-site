@@ -192,6 +192,9 @@ def same_player(a, b):
     return bool(A and B and A[-1] == B[-1] and (A[0][0] == B[0][0]))
 
 
+ALL = []
+
+
 def tennis():
     M = get(f"{PIN}/sports/33/matchups") or []
     Kt = get(f"{PIN}/sports/33/markets/straight?primaryOnly=false") or []
@@ -216,6 +219,11 @@ def tennis():
             continue
         mg = 1 / o["home"] + 1 / o["away"] - 1
         ph = (1 / o["home"]) / (1 + mg)
+        if "Doubles" not in r["lg"] and "/" not in (r["p1"] or "") + (r["p2"] or "") and mg <= 0.12:   # tutte le partite: probabilità di mercato senza margine
+            st0 = rome(r["st"])
+            ALL.append({"id": k["matchupId"], "date": st0.strftime("%Y-%m-%d"), "time": st0.strftime("%H:%M"), "start": r["st"].isoformat(),
+                        "tn": r["lg"].replace(" - ", " · "), "a": r["p1"], "b": r["p2"], "pa": int(round(100 * ph)), "pb": 100 - int(round(100 * ph)),
+                        "oa": round(o["home"], 2), "ob": round(o["away"], 2)})
         fav, opp, p = (r["p1"], r["p2"], ph) if ph >= .5 else (r["p2"], r["p1"], 1 - ph)
         L = r["lg"]
         ok_tour = any(t in L for t in ("ATP", "WTA", "Challenger"))
@@ -293,6 +301,15 @@ def main():
                     p["result"] = "void"; p["void_reason"] = "esito non verificabile"; changed = True
         if changed or (old and off >= 0):
             worker_post("/admin/tennis", {"date": d, "picks": legacy + sorted(old.values(), key=lambda x: x["start"])})
+    # tutte le partite di tennis (probabilità di mercato): le partite iniziate restano congelate
+    for off in (0, 1):
+        d = (today + dt.timedelta(days=off)).isoformat()
+        cur = worker_get(f"/tennis/all?date={d}") or {}
+        keep = {str(x["id"]): x for x in cur.get("matches", []) if dt.datetime.fromisoformat(x["start"]) <= NOW}
+        fresh = {str(x["id"]): x for x in ALL if x["date"] == d and str(x["id"]) not in keep}
+        allm_d = sorted({**{k: v for k, v in {str(x["id"]): x for x in cur.get("matches", [])}.items() if k not in fresh and k in keep}, **fresh}.values(), key=lambda x: (x["start"], x["tn"]))
+        if allm_d:
+            worker_post("/admin/tennis-all", {"date": d, "matches": allm_d})
     print("calcio:", {d: len(v) for d, v in days.items()}, "| tennis nuove:", len(new))
 
 
