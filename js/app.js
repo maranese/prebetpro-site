@@ -431,15 +431,17 @@
   var pendingMatch = null;
 
   /* ---------- interruttore Calcio / Tennis (Home: anteprima; pagina Partite: liste complete) ---------- */
-  var SWS = { hm: "fb", mt: "fb" };
+  var SWS = { hm: "fb", mt: "fb", pr: "fb" };
+  var SWV = { hm: "view-home", mt: "view-matches", pr: "view-predictions" };
+  function loadPredictions() { $("pr-fb").hidden = SWS.pr !== "fb"; $("pr-tn").hidden = SWS.pr !== "tn"; return SWS.pr === "fb" ? loadPred() : loadTennis(); }
   function setSw(where, sp, silent) {
     if (sp !== "fb" && sp !== "tn") return;
     var changed = SWS[where] !== sp; SWS[where] = sp;
-    var view = $(where === "hm" ? "view-home" : "view-matches"), btns = view.querySelectorAll(".sw-btn");
+    var view = $(SWV[where]), btns = view.querySelectorAll(".sw-btn");
     for (var i = 0; i < btns.length; i++) { var on = btns[i].getAttribute("data-sw") === sp; btns[i].classList.toggle("on", on); btns[i].setAttribute("aria-selected", on ? "true" : "false"); }
     var flip = $(where + "-flip"), body = $(where + "-body"), ico = sp === "fb" ? "⚽" : "🎾";
-    if (where === "mt" && silent) loaded.matches = 0;
-    var swap = function () { if (where === "mt") { $("mt-fb").hidden = sp !== "fb"; $("mt-tn").hidden = sp !== "tn"; if (!silent) loadMatches(); } else { $("hm-all").setAttribute("href", sp === "fb" ? "#matches" : "#matches-tn"); renderHomeMatches(); } };
+    if (where === "mt" && silent) loaded.matches = 0; if (where === "pr" && silent && changed) loaded.predictions = 0;
+    var swap = function () { if (where === "pr") { $("pr-fb").hidden = sp !== "fb"; $("pr-tn").hidden = sp !== "tn"; if (!silent) loadPredictions(); } else if (where === "mt") { $("mt-fb").hidden = sp !== "fb"; $("mt-tn").hidden = sp !== "tn"; if (!silent) loadMatches(); } else { $("hm-all").setAttribute("href", sp === "fb" ? "#matches" : "#matches-tn"); renderHomeMatches(); } };
     var reduce = silent || !changed || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     if (reduce) { flip.textContent = ico; swap(); return; }
     flip.classList.remove("go"); void flip.offsetWidth; flip.classList.add("go"); body.classList.add("fade");
@@ -966,11 +968,12 @@
   }
 
   /* ---------- navigazione a pagine ---------- */
-  var VIEWS = ["home", "matches", "predictions", "tennis", "report", "archive", "method"];
-  var LOADERS = { home: loadHome, matches: loadMatches, predictions: loadPred, tennis: loadTennis, report: loadReport, archive: loadArchive };
+  var VIEWS = ["home", "matches", "predictions", "report", "archive", "method"];
+  var LOADERS = { home: loadHome, matches: loadMatches, predictions: loadPredictions, report: loadReport, archive: loadArchive };
   var loaded = {}, current = null;
   function route(force) {
     var h = (location.hash || "#home").slice(1);
+    if (h === "tennis" || h === "predictions-tn") { setSw("pr", "tn", true); h = "predictions"; }
     if (h === "matches-tn") { setSw("mt", "tn", true); h = "matches"; } else if (h === "live") { setSw("mt", "fb", true); h = "matches"; }
     var v = VIEWS.indexOf(h) >= 0 ? h : "home";
     VIEWS.forEach(function (x) { $("view-" + x).hidden = x !== v; });
@@ -999,7 +1002,7 @@
     $("tn-search").addEventListener("input", function () { TN.limit = PAGE; renderTennis(); });
     bindReport();
     $("cta-live").addEventListener("click", function (e) { e.preventDefault(); setSw("mt", "fb", true); location.hash = "#matches"; });
-    document.addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".sw-btn") : null; if (!b) return; var box = b.closest(".view"); setSw(box && box.id === "view-home" ? "hm" : "mt", b.getAttribute("data-sw")); });
+    document.addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".sw-btn") : null; if (!b) return; var box = b.closest(".view"), w = box && box.id === "view-home" ? "hm" : box && box.id === "view-predictions" ? "pr" : "mt"; setSw(w, b.getAttribute("data-sw")); });
     if (wide.addEventListener) wide.addEventListener("change", function () { if (current === "predictions") renderPred(); });
     var top = $("back-to-top");
     window.addEventListener("scroll", function () { top.classList.toggle("show", window.pageYOffset > 500); }, { passive: true });
@@ -1012,7 +1015,7 @@
     }).catch(function () {});
     // aggiornamento automatico della home (i dati cambiano al massimo ogni 15')
     setInterval(function () {
-      if (document.hidden || (current !== "home" && current !== "tennis" && current !== "matches")) return;
+      if (document.hidden || (current !== "home" && current !== "matches" && !(current === "predictions" && SWS.pr === "tn"))) return;
       cache = {}; if (current === "home") loadHome(); else if (current === "matches") loadMatches(true); else loadTennis();
     }, 120000);
   }
