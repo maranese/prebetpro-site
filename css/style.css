@@ -583,3 +583,12 @@ body.st-open { overflow: hidden; }
 .sw-body { transition: opacity .18s ease; }
 .sw-body.fade { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .sw-flip.go { animation: none; } .sw-body { transition: none; } }
+
+/* v29: Sperimentazione */
+.lab-warn { display: flex; flex-direction: column; gap: 4px; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.45); border-left: 4px solid var(--live); border-radius: 10px; padding: 12px 14px; margin: 6px 0 16px; font-size: 14px; }
+.lab-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; margin: 0 0 14px; }
+.lab-card h2 { font-size: 1.1rem; margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lab-card p { margin: 0 0 8px; color: var(--muted); }
+.lab-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: .95rem; }
+.lab-list li { margin: 3px 0; }
+.lab-tag { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; background: var(--card2); border: 1px solid var(--line); color: var(--live); padding: 2px 8px; border-radius: 999px; }
