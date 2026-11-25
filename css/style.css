@@ -607,3 +607,5 @@ body.st-open { overflow: hidden; }
 .chip-go { border-style: dashed; }
 .ptable.tna td.tm b { font-weight: 500; } .ptable.tna td.tm b.fav { font-weight: 800; }
 .ptable.tna .lg-row .tour-tag { margin-right: 6px; }
+.toolbar .cal-btn { margin-left: auto; white-space: nowrap; }
+@media (max-width: 560px) { .toolbar .cal-btn { margin-left: 0; } }
