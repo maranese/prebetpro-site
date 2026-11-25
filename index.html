@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Cpath d='M22 16l26 16-26 16z' fill='%230b1220'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="stylesheet" href="css/style.css?v=31">
   <script>try{var t=localStorage.getItem("pbp-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -30,10 +30,10 @@
       <a href="#home" data-go="home" data-i18n="nav_home">Home</a>
       <a href="#matches" data-go="matches" data-i18n="nav_live">Partite</a>
       <a href="#predictions" data-go="predictions" data-i18n="nav_pred">Pronostici</a>
-      <a href="#lab" data-go="lab">🧪 <span data-i18n="nav_lab">Sperimentazione</span></a>
       <a href="#report" data-go="report" data-i18n="nav_report">Report</a>
       <a href="#archive" data-go="archive" data-i18n="nav_archive">Archivio</a>
       <a href="#method" data-go="method" data-i18n="nav_method">Metodo</a>
+      <a href="#lab" data-go="lab">🧪 <span data-i18n="nav_lab">Laboratorio</span></a>
     </nav>
     <div class="topbar-actions">
       <select id="lang" class="lang-select" aria-label="Language">
@@ -130,6 +130,7 @@
   <p class="updated small" id="pred-hint"></p>
   <div id="pred-list"></div>
   <div class="more-wrap" id="pred-more"></div>
+  <p class="more-wrap"><a class="btn ghost" href="#live" data-i18n="fb_all_link">Tutte le partite di calcio →</a></p>
   </div>
   <div id="pr-tn" hidden>
     <p class="sub" data-i18n="tennis_sub">Favoriti dei tabelloni principali ATP, WTA e Challenger con probabilità stimata tra 68% e 82%. Quota equa = 1 / probabilità; quota minima = prezzo più basso che conviene accettare.</p>
@@ -138,6 +139,11 @@
   <p class="small tn-hist"><a href="#report" data-i18n="tn_hist_link">Storico completo dei risultati nel Report →</a></p>
   <h2 class="sub-title">🔥 <span data-i18n="tn_picks_title">Pick tennis</span></h2>
   <div class="hscroll" id="tennis-list"></div>
+  <h2 class="sub-title">🎾 <span data-i18n="tn_allpred_title">Tutti i pronostici</span></h2>
+  <p class="small muted" data-i18n="tn_allpred_note">Probabilità di vittoria di ogni giocatore ricavate dalle quote Pinnacle senza margine del bookmaker. In verde i pronostici forti (68–82%), i Top Picks.</p>
+  <div class="toolbar"><input id="tna-search" type="search" data-i18n-ph="search_player" aria-label="search"></div>
+  <div id="tn-all"></div>
+  <div class="more-wrap" id="tn-all-more"></div>
   <p class="more-wrap"><a class="btn ghost" href="#matches-tn" data-i18n="tn_all_link">Tutte le partite di tennis →</a></p>
   </div>
   </div>
@@ -177,10 +183,10 @@
   </div>
 </div>
 
-<!-- ================= SPERIMENTAZIONE ================= -->
+<!-- ================= LABORATORIO ================= -->
 <div class="view" id="view-lab" hidden>
   <div class="sec-head">
-    <h1>🧪 <span data-i18n="lab_title">Sperimentazione</span></h1>
+    <h1>🧪 <span data-i18n="lab_title">Laboratorio</span></h1>
     <p class="sub" data-i18n="lab_sub">Il nostro laboratorio: qui mettiamo alla prova nuovi modelli prima di usarli nei pronostici ufficiali.</p>
   </div>
   <div class="lab-warn" role="note"><b data-i18n="lab_warn_t">⚠️ Solo studi, non consigli</b><span data-i18n="lab_warn">I pronostici di questa pagina sono esperimenti in corso di verifica. Non sono consigliati da seguire e non fanno parte dei Top Picks né del Report ufficiale.</span></div>
@@ -316,7 +322,7 @@
 
 <button id="back-to-top" class="icon-btn fab" type="button" aria-label="Top">↑</button>
 
-<script src="js/i18n.js?v=30" defer></script>
-<script src="js/app.js?v=30" defer></script>
+<script src="js/i18n.js?v=31" defer></script>
+<script src="js/app.js?v=31" defer></script>
 </body>
 </html>
