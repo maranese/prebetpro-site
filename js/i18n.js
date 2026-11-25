@@ -577,3 +577,12 @@ window.PBP_I18N = {
   var add = { "it": { "cal_btn": "Calendario" }, "en": { "cal_btn": "Calendar" }, "es": { "cal_btn": "Calendario" }, "pt": { "cal_btn": "Calendário" } };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = {
+    "it": { "chip_tnstrong": "Pronostici forti", "tennis_sub2": "Probabilità di vittoria per ogni partita di singolare. In evidenza i pronostici forti (68–82%): quelli dei tabelloni ATP, WTA e Challenger diventano Top Picks." },
+    "en": { "chip_tnstrong": "Strong predictions", "tennis_sub2": "Win probability for every singles match. Strong predictions (68–82%) are highlighted: those from ATP, WTA and Challenger main draws become Top Picks." },
+    "es": { "chip_tnstrong": "Pronósticos fuertes", "tennis_sub2": "Probabilidad de victoria de cada partido de individuales. Se destacan los pronósticos fuertes (68–82%): los de los cuadros ATP, WTA y Challenger se convierten en Top Picks." },
+    "pt": { "chip_tnstrong": "Palpites fortes", "tennis_sub2": "Probabilidade de vitória de cada jogo de simples. Em destaque os palpites fortes (68–82%): os das chaves ATP, WTA e Challenger tornam-se Top Picks." }
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

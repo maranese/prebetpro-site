@@ -236,13 +236,13 @@
   function countBy(fx) { var c = {}; fx.forEach(function (f) { c[f.league.id] = (c[f.league.id] || 0) + 1; }); return c; }
 
   /* ================= TOP PICKS (raggruppati per partita) ================= */
-  function picksFor(day) {
+  function picksFor(day, noFill) {
     return Promise.all([get("/history?date=" + day).catch(function () { return {}; }), get("/day?date=" + shiftDate(day, 1)).catch(function () { return {}; })]).then(function (r) {
       var hist = r[0] || {}, tom = r[1] || {}, seen = {}, rows = [];
       (hist.picks || []).forEach(function (p) { seen[p.af_id + ":" + p.market] = 1; rows.push({ fid: p.af_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.probability, result: p.void ? "void" : p.result, ft: p.ft, frozen: true, day: day }); });
       (hist.ranked_predictions || []).forEach(function (p) { if (seen[p.fixture_id + ":" + p.market]) return; seen[p.fixture_id + ":" + p.market] = 1; rows.push({ fid: p.fixture_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, day: day }); });
       var nToday = rows.length;
-      if (nToday < 5) (tom.ranked_predictions || []).forEach(function (p) { rows.push({ fid: p.fixture_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, day: shiftDate(day, 1) }); });
+      if (nToday < 5 && !noFill) (tom.ranked_predictions || []).forEach(function (p) { rows.push({ fid: p.fixture_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, day: shiftDate(day, 1) }); });
       var by = {}, cards = [];
       rows.forEach(function (r) { var c = by[r.fid]; if (!c) { c = by[r.fid] = { fid: r.fid, match: r.match, league: r.league, kickoff: r.kickoff, day: r.day, ft: r.ft, picks: [] }; cards.push(c); } c.picks.push(r); if (r.ft) c.ft = r.ft; });
       cards.forEach(function (c) { c.picks.sort(function (a, b) { return b.value - a.value; }); });
@@ -518,8 +518,15 @@
   function loadPred() {
     daySeg($("pred-day"), [-1, 0, 1], P.day, function (d) { P.day = d; P.limit = PAGE; $("pred-list").removeAttribute("data-loaded"); loadPred(); });
     chipBar($("pred-chips"), ["all", "high", "top"], P, renderPred);
-    var pp = $("pred-picks"); loading(pp);
-    picksFor(romeDate(0)).then(function (r) { pp.innerHTML = r.cards.length ? r.cards.map(pickCard).join("") : empty(T("fb_none_picks")); pp.setAttribute("data-loaded", "1"); bindPicks(pp); }).catch(function (e) { fail(pp, e); });
+    var pp = $("pred-picks"), pday = P.day; loading(pp); $("pred-picks-day").textContent = dayLabel(pday);
+    picksFor(pday, pday !== romeDate(0)).then(function (r) {
+      if (pday !== P.day) return;
+      var own = r.cards.filter(function (c) { return c.day === pday; }), all = [];
+      own.forEach(function (c) { c.picks.forEach(function (p) { if (p.result !== "void") all.push(p); }); });
+      var w = all.filter(function (p) { return p.result === true; }).length, l = all.filter(function (p) { return p.result === false; }).length;
+      $("pred-kpis").innerHTML = kpi(all.length, "Top Picks · " + dayLabel(pday).toLowerCase()) + kpi(w, T("r_won"), "win") + kpi(l, T("r_lost"), "loss") + kpi(all.length - w - l, T("k_pending"));
+      pp.innerHTML = r.cards.length ? r.cards.map(pickCard).join("") : empty(T("fb_none_picks")); pp.setAttribute("data-loaded", "1"); bindPicks(pp);
+    }).catch(function (e) { fail(pp, e); });
     var list = $("pred-list"); loading(list); var day = P.day;
     get("/day?date=" + day).then(function (d) {
       if (day !== P.day) return;
@@ -642,39 +649,73 @@
       var picks = (r[0] && r[0].date === day && r[0].picks) || [], s = r[1] && r[1].summary;
       TN.picks = picks; TN.matches = (r[2] && r[2].matches) || []; TN.updated = r[2] && r[2].updated;
       var dw = picks.filter(function (p) { return p.result === true; }).length, dl = picks.filter(function (p) { return p.result === false; }).length;
-      $("tennis-kpis").innerHTML = kpi(picks.length, T("k_picks") + " · " + dayLabel(day).toLowerCase()) + kpi(dw, T("r_won"), "win") + kpi(dl, T("r_lost"), "loss") + kpi(picks.length - dw - dl, T("k_pending"));
+      $("tennis-picks-day").textContent = dayLabel(day);
+      $("tennis-kpis").innerHTML = kpi(picks.length, "Top Picks · " + dayLabel(day).toLowerCase()) + kpi(dw, T("r_won"), "win") + kpi(dl, T("r_lost"), "loss") + kpi(picks.length - dw - dl, T("k_pending"));
       list.innerHTML = picks.length ? picks.slice().sort(function (a, b) { return String(a.start || a.time).localeCompare(String(b.start || b.time)); }).map(tennisCard).join("") : empty(T("tn_none_picks"));
       list.setAttribute("data-loaded", "1");
       renderTennis();
     }).catch(function (e) { fail(list, e); });
   }
-  var TA = { list: [], res: {}, limit: 40 };
+  var TA = { list: [], mx: {}, limit: 40, chip: "all", league: null };
+  function taTour(tn) { return /itf/i.test(tn) ? "itf" : /challenger/i.test(tn) ? "challenger" : /wta/i.test(tn) ? "wta" : /atp/i.test(tn) ? "atp" : "tennis"; }
   function loadTennisAll(day) {
     var box = $("tn-all"); loading(box);
     Promise.all([get("/tennis/all?date=" + day, 60000).catch(function () { return {}; }), get("/tennis/matches?date=" + day, 60000).catch(function () { return {}; })]).then(function (r) {
       if (day !== TN.day) return;
-      TA.list = (r[0] && r[0].matches) || []; TA.res = {}; TA.limit = 40;
-      ((r[1] && r[1].matches) || []).forEach(function (x) { if (x.fin && (x.w === 1 || x.w === 2) && x.p && x.p.length === 2) { var a = lastName(x.p[0].n), b = lastName(x.p[1].n); TA.res[a + "|" + b] = { w: x.w === 1 ? a : b, x: x }; TA.res[b + "|" + a] = TA.res[a + "|" + b]; } });
+      TA.list = (r[0] && r[0].matches) || []; TA.mx = {}; TA.limit = 40;
+      ((r[1] && r[1].matches) || []).forEach(function (x) { if (x.p && x.p.length === 2) { var a = lastName(x.p[0].n), b = lastName(x.p[1].n); TA.mx[a + "|" + b] = { x: x, flip: false }; TA.mx[b + "|" + a] = { x: x, flip: true }; } });
       renderTennisAll();
     }).catch(function (e) { fail(box, e); });
   }
+  function taInfo(x) {   // stato reale della partita (da Live Tennis API) ed esito per il giocatore A
+    var m = TA.mx[lastName(x.a) + "|" + lastName(x.b)], st = m ? tnState(m.x) : null, wa = null, score = "";
+    if (m && (st === "ft" || st === "end") && (m.x.w === 1 || m.x.w === 2)) wa = (m.x.w === 1) !== m.flip;
+    if (m && st !== "ns" && st !== "void" && m.x.s && m.x.s.sets) { var s = m.x.s.sets; score = m.flip ? s[1] + "-" + s[0] : s[0] + "-" + s[1]; }
+    var badge = m && st !== "ns" ? tnBadge(m.x) : Date.parse(x.start) <= Date.now() ? '<span class="badge">' + T("k_pending") + "</span>" : '<span class="badge ns">' + esc(fmtTime(x.start)) + "</span>";
+    return { st: st, wa: wa, score: score, badge: badge };
+  }
   function renderTennisAll() {
+    chipBar($("tna-chips"), ["all", "tnstrong", "tnft"], TA, renderTennisAll);
     var box = $("tn-all"), q = ($("tna-search").value || "").trim().toLowerCase();
-    var L = TA.list.filter(function (x) { return !q || (x.a + " " + x.b + " " + x.tn).toLowerCase().indexOf(q) >= 0; });
-    if (!L.length) { box.innerHTML = empty(TA.list.length ? T("no_matches") : T("tn_allpred_none")); $("tn-all-more").innerHTML = ""; return; }
-    var shown = L.slice().sort(function (a, b) { return a.tn === b.tn ? String(a.start).localeCompare(String(b.start)) : String(a.tn).localeCompare(String(b.tn)); }).slice(0, TA.limit);
-    var counts = {}; L.forEach(function (x) { counts[x.tn] = (counts[x.tn] || 0) + 1; });
-    var cell = function (v, won) { return '<td class="num' + (v >= 68 && v <= 82 ? " strong" : v >= 60 ? " hi" : "") + (won === true ? " ok" : won === false ? " ko" : "") + '">' + v + "%</td>"; };
-    var body = "", cur = null;
-    shown.forEach(function (x) {
-      if (x.tn !== cur) { cur = x.tn; var tour = /itf/i.test(x.tn) ? "itf" : /challenger/i.test(x.tn) ? "challenger" : /wta/i.test(x.tn) ? "wta" : /atp/i.test(x.tn) ? "atp" : "tennis";
-        body += '<tr class="lg-row" style="--lh:' + ({ atp: 210, wta: 320, challenger: 35, itf: 150 }[tour] || 260) + '"><td colspan="5"><span class="tour-tag">' + tour.toUpperCase() + "</span> <span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + "</em></td></tr>"; }
-      var r = TA.res[lastName(x.a) + "|" + lastName(x.b)], wa = r ? r.w === lastName(x.a) : null;
-      var started = Date.parse(x.start) <= Date.now();
-      body += "<tr><td>" + (r ? '<span class="badge ft">FT</span>' : started ? '<span class="badge">' + T("k_pending") + "</span>" : esc(fmtTime(x.start))) + '</td><td class="tm"><b' + (x.pa >= x.pb ? ' class="fav"' : "") + ">" + esc(x.a) + "</b> – <b" + (x.pb > x.pa ? ' class="fav"' : "") + ">" + esc(x.b) + "</b></td>" +
-        cell(x.pa, r ? wa : null) + cell(x.pb, r ? !wa : null) + '<td class="num small muted">' + (1 / Math.max(x.pa, x.pb) * 100).toFixed(2) + "</td></tr>";
+    var base = TA.list.filter(function (x) {
+      if (q && (x.a + " " + x.b + " " + x.tn).toLowerCase().indexOf(q) < 0) return false;
+      var mx = Math.max(x.pa, x.pb);
+      if (TA.chip === "tnstrong" && !(mx >= 68 && mx <= 82)) return false;
+      if (TA.chip === "tnft") { var i = taInfo(x); if (i.st !== "ft" && i.st !== "end") return false; }
+      return true;
     });
-    box.innerHTML = '<div class="tbl-wrap"><table class="ptable tna"><thead><tr><th>' + T("col_time") + "</th><th>" + T("col_match") + '</th><th class="num">1</th><th class="num">2</th><th class="num">' + T("tn_fair") + "</th></tr></thead><tbody>" + body + "</tbody></table></div>";
+    var tours = []; base.forEach(function (x) { var t = taTour(x.tn); if (tours.indexOf(t) < 0) tours.push(t); });
+    tours.sort(function (a, b) { return TOURS.indexOf(a) - TOURS.indexOf(b); });
+    if (TA.league && tours.indexOf(TA.league) < 0) TA.league = null;
+    var tb = $("tna-tours");
+    tb.innerHTML = tours.length > 1 ? '<button type="button" class="lchip' + (!TA.league ? " on" : "") + '" data-l="">' + T("chip_all") + "</button>" + tours.map(function (t) { return '<button type="button" class="lchip' + (TA.league === t ? " on" : "") + '" data-l="' + t + '" style="--lh:' + ({ atp: 210, wta: 320, challenger: 35, itf: 150 }[t] || 260) + '"><span>' + t.toUpperCase() + "</span></button>"; }).join("") : "";
+    tb.onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-l]") : null; if (!b) return; TA.league = b.getAttribute("data-l") || null; TA.limit = 40; renderTennisAll(); };
+    var L = TA.league ? base.filter(function (x) { return taTour(x.tn) === TA.league; }) : base;
+    if (!L.length) { box.innerHTML = empty(TA.list.length ? T("no_matches") : T("tn_allpred_none")); $("tn-all-more").innerHTML = ""; return; }
+    var shown = L.slice().sort(function (a, b) { var ta = TOURS.indexOf(taTour(a.tn)), tb2 = TOURS.indexOf(taTour(b.tn)); ta = ta < 0 ? 9 : ta; tb2 = tb2 < 0 ? 9 : tb2; if (ta !== tb2) return ta - tb2; return a.tn === b.tn ? String(a.start).localeCompare(String(b.start)) : String(a.tn).localeCompare(String(b.tn)); }).slice(0, TA.limit);
+    var counts = {}; L.forEach(function (x) { counts[x.tn] = (counts[x.tn] || 0) + 1; });
+    var cls = function (v, won) { return (v >= 68 && v <= 82 ? " strong" : v >= 60 ? " hi" : "") + (won === true ? " ok" : won === false ? " ko" : ""); };
+    var hueOf = function (tn) { return { atp: 210, wta: 320, challenger: 35, itf: 150 }[taTour(tn)] || 260; };
+    var out = "", cur = null;
+    if (wide.matches) {
+      shown.forEach(function (x) {
+        if (x.tn !== cur) { cur = x.tn; out += '<tr class="lg-row" style="--lh:' + hueOf(x.tn) + '"><td colspan="5"><span class="tour-tag">' + taTour(x.tn).toUpperCase() + "</span> <span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + "</em></td></tr>"; }
+        var i = taInfo(x), done = i.wa !== null;
+        out += "<tr><td>" + i.badge + '</td><td class="tm"><b' + (x.pa >= x.pb ? ' class="fav"' : "") + ">" + esc(x.a) + "</b> – <b" + (x.pb > x.pa ? ' class="fav"' : "") + ">" + esc(x.b) + "</b>" + (i.score ? ' <span class="score">' + esc(i.score) + "</span>" : "") + "</td>" +
+          '<td class="num' + cls(x.pa, done ? i.wa : null) + '">' + x.pa + '%</td><td class="num' + cls(x.pb, done ? !i.wa : null) + '">' + x.pb + "%</td>" + '<td class="num small muted">' + (100 / Math.max(x.pa, x.pb)).toFixed(2) + "</td></tr>";
+      });
+      box.innerHTML = '<div class="tbl-wrap"><table class="ptable tna"><thead><tr><th>' + T("col_time") + "</th><th>" + T("col_match") + '</th><th class="num">1</th><th class="num">2</th><th class="num">' + T("tn_fair") + "</th></tr></thead><tbody>" + out + "</tbody></table></div>";
+    } else {
+      shown.forEach(function (x) {
+        if (x.tn !== cur) { if (cur !== null) out += "</div></div>"; cur = x.tn; out += '<div class="league" style="--lh:' + hueOf(x.tn) + '"><div class="league-head"><span class="tour-tag">' + taTour(x.tn).toUpperCase() + "</span><span>" + esc(x.tn) + '</span><em class="lg-n">' + counts[x.tn] + '</em></div><div class="league-body">'; }
+        var i = taInfo(x), done = i.wa !== null, pill = function (k, v, won) { return '<span class="pill' + (v >= 68 && v <= 82 ? " strong" : "") + (won === true ? " ok" : won === false ? " ko" : "") + '">' + k + " <b>" + v + "%</b></span>"; };
+        out += '<div class="pcard"><div class="pcard-head"><div class="pcard-teams"><b' + (x.pa >= x.pb ? ' class="fav"' : "") + ">1 · " + esc(x.a) + "</b><b" + (x.pb > x.pa ? ' class="fav"' : "") + ">2 · " + esc(x.b) + "</b></div>" +
+          '<div class="pcard-meta">' + (i.score ? '<span class="score">' + esc(i.score) + "</span>" : "") + i.badge + "</div></div>" +
+          '<div class="pcard-mk">' + pill("1", x.pa, done ? i.wa : null) + pill("2", x.pb, done ? !i.wa : null) + '<span class="pill">' + T("tn_fair") + " <b>" + (100 / Math.max(x.pa, x.pb)).toFixed(2) + "</b></span></div></div>";
+      });
+      if (cur !== null) out += "</div></div>";
+      box.innerHTML = '<div class="tna-cards">' + out + "</div>";
+    }
     moreBtn($("tn-all-more"), shown.length, L.length, TA, renderTennisAll);
   }
   function renderTennis() {
@@ -744,8 +785,10 @@
   }
   function multiChart(bks, unit, sers, wide) {
     var W = wide ? 760 : 340, H = wide ? 190 : 160, pl = 30, pr = 10, pt = 12, pb = 24, n = bks.length;
-    var X = function (i) { return n === 1 ? (pl + W - pr) / 2 : pl + i * (W - pl - pr) / (n - 1); }, Y = function (v) { return H - pb - v * (H - pt - pb); };
-    var g = '<line x1="' + pl + '" y1="' + Y(0) + '" x2="' + (W - pr) + '" y2="' + Y(0) + '" class="ax"/>' + [0.5, 1].map(function (v) { return '<line x1="' + pl + '" y1="' + Y(v) + '" x2="' + (W - pr) + '" y2="' + Y(v) + '" class="grid"/><text x="2" y="' + (Y(v) + 3) + '" class="lbl">' + v * 100 + "%</text>"; }).join("") + '<text x="8" y="' + (Y(0) + 3) + '" class="lbl">0%</text>';
+    var lo = 0.5; sers.forEach(function (s) { s.vals.forEach(function (p) { if (p && p.v < lo) lo = Math.floor(p.v * 10) / 10; }); });   // asse da 50%; scende solo se un valore è più basso
+    var X = function (i) { return n === 1 ? (pl + W - pr) / 2 : pl + i * (W - pl - pr) / (n - 1); }, Y = function (v) { return H - pb - (v - lo) / (1 - lo) * (H - pt - pb); };
+    var ticks = lo === 0.5 ? [0.75, 1] : [(lo + 1) / 2, 1];
+    var g = '<line x1="' + pl + '" y1="' + Y(lo) + '" x2="' + (W - pr) + '" y2="' + Y(lo) + '" class="ax"/>' + ticks.map(function (v) { return '<line x1="' + pl + '" y1="' + Y(v) + '" x2="' + (W - pr) + '" y2="' + Y(v) + '" class="grid"/><text x="2" y="' + (Y(v) + 3) + '" class="lbl">' + Math.round(v * 100) + "%</text>"; }).join("") + '<text x="2" y="' + (Y(lo) + 3) + '" class="lbl">' + Math.round(lo * 100) + "%</text>";
     var step = Math.max(1, Math.ceil(n / 8));
     g += bks.map(function (b, i) { return i % step === 0 || i === n - 1 ? '<text x="' + X(i).toFixed(1) + '" y="' + (H - 6) + '" class="lbl" text-anchor="middle">' + bucketLabel(b, unit) + "</text>" : ""; }).join("");
     sers.forEach(function (s) {
@@ -1061,7 +1104,7 @@
     bindReport();
     $("cta-live").addEventListener("click", function (e) { e.preventDefault(); setSw("mt", "fb", true); location.hash = "#matches"; });
     document.addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".sw-btn") : null; if (!b) return; var box = b.closest(".view"), w = box && box.id === "view-home" ? "hm" : box && box.id === "view-predictions" ? "pr" : "mt"; setSw(w, b.getAttribute("data-sw")); });
-    if (wide.addEventListener) wide.addEventListener("change", function () { if (current === "predictions") renderPred(); });
+    if (wide.addEventListener) wide.addEventListener("change", function () { if (current === "predictions") { renderPred(); if (TA.list.length) renderTennisAll(); } });
     var top = $("back-to-top");
     window.addEventListener("scroll", function () { top.classList.toggle("show", window.pageYOffset > 500); }, { passive: true });
     top.addEventListener("click", function () { window.scrollTo(0, 0); });
