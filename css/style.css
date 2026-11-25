@@ -602,3 +602,8 @@ body.st-open { overflow: hidden; }
 .lab-res.win { color: var(--win); border-color: var(--win); } .lab-res.loss { color: var(--loss); border-color: var(--loss); }
 .lab-nums { display: flex; gap: 12px; flex-wrap: wrap; font-size: .88rem; color: var(--muted); }
 .lab-nums b { color: var(--text); }
+
+/* v31: collegamenti e pronostici tennis */
+.chip-go { border-style: dashed; }
+.ptable.tna td.tm b { font-weight: 500; } .ptable.tna td.tm b.fav { font-weight: 800; }
+.ptable.tna .lg-row .tour-tag { margin-right: 6px; }
