@@ -979,6 +979,7 @@
     if (TG.info) return;
     fetch(API + "/reg/info").then(function (r) { return r.json(); }).then(function (i) {
       TG.info = i; if (!i.open) return;
+      $("tg-text").textContent = T("tg_text");
       $("tg-soon").hidden = true; $("tg-open").hidden = false;
       $("tg-age").addEventListener("change", tgUpdate); $("tg-priv").addEventListener("change", tgUpdate);
       $("tg-btn").addEventListener("click", function () {

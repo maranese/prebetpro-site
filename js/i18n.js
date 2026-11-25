@@ -524,3 +524,12 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = {
+    "it": {"tg_join": "Unisciti al canale Telegram", "tg_text2": "Ricevi ogni pick prima dell'inizio, gli esiti man mano e il resoconto di fine giornata. Gratis."},
+    "en": {"tg_join": "Join the Telegram channel", "tg_text2": "Get every pick before kick-off, results as they come in and an end-of-day summary. Free."},
+    "es": {"tg_join": "Únete al canal de Telegram", "tg_text2": "Recibe cada pick antes del inicio, los resultados al momento y el resumen del día. Gratis."},
+    "pt": {"tg_join": "Junta-te ao canal do Telegram", "tg_text2": "Recebe cada pick antes do início, os resultados à medida que saem e o resumo do dia. Grátis."}
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);
