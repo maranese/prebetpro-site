@@ -1,0 +1,38 @@
+name: PreBetPro Lab (tennis sperimentale)
+
+# Motore SPERIMENTALE: 3 giri al giorno (06:30, 14:30, 22:30 ora italiana d'inverno). Studio, non consiglio.
+on:
+  schedule:
+    - cron: "30 5,13,21 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: prebetpro-lab
+  cancel-in-progress: false
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: engine/requirements.txt
+      - run: pip install -r engine/requirements.txt
+      - id: ym
+        run: echo "ym=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: engine/lab_data
+          key: lab-data-${{ steps.ym.outputs.ym }}
+          restore-keys: lab-data-
+      - name: Run lab engine
+        working-directory: engine
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          WORKER_URL: https://prebetpro-api.vincenzodiguida.workers.dev
+          LAB_DATA: lab_data
+        run: python lab.py
