@@ -681,10 +681,12 @@
   }
   function taInfo(x) {   // stato reale della partita (da Live Tennis API) ed esito per il giocatore A
     var m = TA.mx[lastName(x.a) + "|" + lastName(x.b)], st = m ? tnState(m.x) : null, wa = null, score = "";
-    if (m && (st === "ft" || st === "end") && (m.x.w === 1 || m.x.w === 2)) wa = (m.x.w === 1) !== m.flip;
+    var wn = 0; if (m && !/cancel|retir|walk|interr|abandon/i.test(m.x.es || "")) { var ss0 = m.x.s && m.x.s.sets, need = m.x.fmt === "BO5" ? 3 : 2;   // come la verifica nel Worker
+      wn = st === "ft" && (m.x.w === 1 || m.x.w === 2) ? m.x.w : ss0 && +ss0[0] === need && +ss0[1] < need ? 1 : ss0 && +ss0[1] === need && +ss0[0] < need ? 2 : 0; }
+    if (wn) wa = (wn === 1) !== m.flip;
     if (m && st !== "ns" && st !== "void" && m.x.s && m.x.s.sets) { var s = m.x.s.sets; score = m.flip ? s[1] + "-" + s[0] : s[0] + "-" + s[1]; }
     var badge = m && st !== "ns" ? tnBadge(m.x) : Date.parse(x.start) <= Date.now() ? '<span class="badge">' + T("k_pending") + "</span>" : '<span class="badge ns">' + esc(fmtTime(x.start)) + "</span>";
-    return { st: st, wa: wa, score: score, badge: badge, m: m };
+    return { st: st, wa: wa, score: score, badge: badge, m: m, wn: wn };
   }
   function renderTennisAll() {
     chipBar($("tna-chips"), ["all", "tnstrong", "tnft"], TA, renderTennisAll);
@@ -707,7 +709,7 @@
     var shown = L.slice().sort(function (a, b) { var ta = TOURS.indexOf(taTour(a.tn)), tb2 = TOURS.indexOf(taTour(b.tn)); ta = ta < 0 ? 9 : ta; tb2 = tb2 < 0 ? 9 : tb2; if (ta !== tb2) return ta - tb2; return a.tn === b.tn ? String(a.start).localeCompare(String(b.start)) : String(a.tn).localeCompare(String(b.tn)); }).slice(0, TA.limit);
     var counts = {}; L.forEach(function (x) { counts[x.tn] = (counts[x.tn] || 0) + 1; });
     var mk = function (x, i) {   // mercati extra: [linea, prob. lato principale] -> lato più probabile, esito
-      var sc = null; if (i.m && i.st === "ft" && !/retir|walk/i.test(i.m.x.es || "") && i.m.x.s && i.m.x.s.g && i.m.x.s.sets) { var g = i.m.x.s.g, ss = i.m.x.s.sets, A = i.m.flip ? 1 : 0, B = 1 - A, sum = function (a) { return (a || []).reduce(function (t, v) { return t + (+v || 0); }, 0); }; sc = { sa: ss[A], sb: ss[B], ga: sum(g[A]), gb: sum(g[B]) }; }
+      var sc = null; if (i.wn && i.m.x.s && i.m.x.s.g && i.m.x.s.sets) { var g = i.m.x.s.g, ss = i.m.x.s.sets, A = i.m.flip ? 1 : 0, B = 1 - A, sum = function (a) { return (a || []).reduce(function (t, v) { return t + (+v || 0); }, 0); }; sc = { sa: ss[A], sb: ss[B], ga: sum(g[A]), gb: sum(g[B]) }; }
       return ["ts", "hs", "tg", "hg"].map(function (k) {
         var v = x[k]; if (!v) return null; var line = v[0], p = v[1], tot = k[0] === "t", first = p >= 50, pr = first ? p : 100 - p;
         var lab = tot ? (first ? "O " : "U ") + line : (first ? "1 " : "2 ") + (first ? (line > 0 ? "+" : "") + line : (-line > 0 ? "+" : "") + (-line));
@@ -806,16 +808,15 @@
   }
   function multiChart(bks, unit, sers, wide) {
     var W = wide ? 760 : 340, H = wide ? 190 : 160, pl = 30, pr = 10, pt = 12, pb = 24, n = bks.length;
-    var lo = 0.5; sers.forEach(function (s) { s.vals.forEach(function (p) { if (p && p.v < lo) lo = Math.floor(p.v * 10) / 10; }); });   // asse da 50%; scende solo se un valore è più basso
-    var X = function (i) { return n === 1 ? (pl + W - pr) / 2 : pl + i * (W - pl - pr) / (n - 1); }, Y = function (v) { return H - pb - (v - lo) / (1 - lo) * (H - pt - pb); };
-    var ticks = lo === 0.5 ? [0.75, 1] : [(lo + 1) / 2, 1];
-    var g = '<line x1="' + pl + '" y1="' + Y(lo) + '" x2="' + (W - pr) + '" y2="' + Y(lo) + '" class="ax"/>' + ticks.map(function (v) { return '<line x1="' + pl + '" y1="' + Y(v) + '" x2="' + (W - pr) + '" y2="' + Y(v) + '" class="grid"/><text x="2" y="' + (Y(v) + 3) + '" class="lbl">' + Math.round(v * 100) + "%</text>"; }).join("") + '<text x="2" y="' + (Y(lo) + 3) + '" class="lbl">' + Math.round(lo * 100) + "%</text>";
+    // asse 0–100% (griglia 25/50/75/100); ogni linea parte visivamente dal 50% in un punto iniziale senza dati
+    var X = function (i) { return pl + (i + 1) * (W - pl - pr) / Math.max(1, n); }, Y = function (v) { return H - pb - v * (H - pt - pb); };
+    var g = '<line x1="' + pl + '" y1="' + Y(0) + '" x2="' + (W - pr) + '" y2="' + Y(0) + '" class="ax"/>' + [0.25, 0.5, 0.75, 1].map(function (v) { return '<line x1="' + pl + '" y1="' + Y(v) + '" x2="' + (W - pr) + '" y2="' + Y(v) + '" class="grid"/><text x="2" y="' + (Y(v) + 3) + '" class="lbl">' + v * 100 + "%</text>"; }).join("") + '<text x="8" y="' + (Y(0) + 3) + '" class="lbl">0%</text>';
     var step = Math.max(1, Math.ceil(n / 8));
     g += bks.map(function (b, i) { return i % step === 0 || i === n - 1 ? '<text x="' + X(i).toFixed(1) + '" y="' + (H - 6) + '" class="lbl" text-anchor="middle">' + bucketLabel(b, unit) + "</text>" : ""; }).join("");
     sers.forEach(function (s) {
-      var segs = [], cur = "";
-      s.vals.forEach(function (p, i) { if (!p) return; cur += (cur ? "L" : "M") + X(i).toFixed(1) + " " + Y(p.v).toFixed(1); });
-      if (cur && s.vals.filter(Boolean).length > 1) g += '<path d="' + cur + '" class="ln ' + s.cls + '"/>';
+      var cur = "M" + X(-1).toFixed(1) + " " + Y(0.5).toFixed(1);
+      s.vals.forEach(function (p, i) { if (!p) return; cur += "L" + X(i).toFixed(1) + " " + Y(p.v).toFixed(1); });
+      if (s.vals.filter(Boolean).length) g += '<path d="' + cur + '" class="ln ' + s.cls + '"/>';
       g += s.vals.map(function (p, i) { return p ? '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(p.v).toFixed(1) + '" r="3.2" class="pt ' + s.cls + '"><title>' + esc(s.name) + " · " + bucketLabel(bks[i], unit) + ": " + p.w + "/" + p.n + " (" + Math.round(p.v * 100) + "%)</title></circle>" : ""; }).join("");
     });
     var leg = sers.length > 1 ? '<div class="ch-leg">' + sers.map(function (s) { return '<span class="' + s.cls + '"><i></i>' + esc(s.name) + "</span>"; }).join("") + "</div>" : "";
@@ -962,6 +963,25 @@
     $("chart-comb").innerHTML = fb.length + tn.length ? multiChart(bks, unit, [{ name: T("r_football"), cls: "fb", vals: series(fb, bks, unit) }, { name: T("r_tennis_s"), cls: "tn", vals: series(tn, bks, unit) }, { name: T("r_total_s"), cls: "tot", vals: series(fb.concat(tn), bks, unit) }], wide.matches) : '<div class="muted small">' + T("r_empty") + "</div>";
     needEv(R); renderFb(R, unit, bks, fb);
     $("rep-tn").innerHTML = sportBlock("tn", tn, R, unit, bks, "tn");
+    renderTnx(R);
+  }
+  function renderTnx(R) {   // tennis: verifica di tutti i mercati (Worker /tennis/eval, nessuna chiamata API)
+    var box = $("rep-tnx"), to = R.to >= romeDate(0) ? romeDate(-1) : R.to; if (!box.getAttribute("data-loaded")) loading(box);
+    if (to < R.from) { box.innerHTML = empty(T("r_tnx_wait")); return; }
+    get("/tennis/eval?from=" + R.from + "&to=" + to, 600000).then(function (d) {
+      var M = d.markets || {}, keys = ["ml", "ts", "hs", "tg", "hg"], name = function (k) { return k === "ml" ? T("r_tnx_ml") : T("tn_" + k); };
+      var row = function (lbl, x) { return "<tr><td>" + lbl + "</td><td>" + x.n + '</td><td class="c-win">' + x.w + '</td><td class="c-loss">' + (x.n - x.w) + "</td><td><b>" + pctS(x.w, x.n) + "</b></td><td>" + (x.n ? Math.round(x.p / x.n) + "%" : "—") + "</td></tr>"; };
+      var head = '<thead><tr><th></th><th>' + T("r_total") + "</th><th>" + T("r_won") + "</th><th>" + T("r_lost") + "</th><th>" + T("r_acc") + "</th><th>" + T("r_avgp") + "</th></tr></thead>";
+      var tot = keys.reduce(function (t, k) { return t + (M[k] ? M[k].n : 0); }, 0);
+      if (!tot) { box.innerHTML = empty(T("r_tnx_wait")); box.setAttribute("data-loaded", "1"); return; }
+      var all = keys.filter(function (k) { return M[k] && M[k].n; }).map(function (k) { return row(name(k), M[k]); }).join("");
+      var band = keys.filter(function (k) { return M[k] && M[k].b && M[k].b["68"]; }).map(function (k) { var x = M[k].b["68"], ok = x.n >= 300 && Math.abs(x.w / x.n * 100 - x.p / x.n) <= 3;
+        return "<tr><td>" + name(k) + "</td><td>" + x.n + '</td><td class="c-win">' + x.w + '</td><td class="c-loss">' + (x.n - x.w) + "</td><td><b>" + pctS(x.w, x.n) + "</b></td><td>" + Math.round(x.p / x.n) + "%</td><td>" + (ok ? "✅" : Math.min(100, Math.round(x.n / 3)) + "%") + "</td></tr>"; }).join("");
+      box.innerHTML = '<div class="panel"><h3>' + T("r_tnx_all") + '</h3><table class="tbl rep-ov">' + head + "<tbody>" + all + "</tbody></table></div>" +
+        '<div class="panel"><h3>' + T("r_tnx_band") + '</h3><table class="tbl rep-ov">' + head.replace("</tr></thead>", "<th>" + T("r_tnx_prog") + "</th></tr></thead>") + "<tbody>" + (band || '<tr><td colspan="7" class="muted">—</td></tr>') + "</tbody></table>" +
+        '<p class="muted small">' + T("r_tnx_since", { d: fmtDay(d.first || R.from) }) + "</p></div>";
+      box.setAttribute("data-loaded", "1");
+    }).catch(function (e) { fail(box, e); });
   }
   function loadReport() {
     var box = $("rep-fb"); loading(box);
