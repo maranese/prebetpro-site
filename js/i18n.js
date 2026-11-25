@@ -515,3 +515,12 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = {
+    "it": {"min8": "Per questa partita non pubblichiamo un pronostico: lo facciamo solo quando i dati disponibili permettono una stima affidabile."},
+    "en": {"min8": "We don't publish a prediction for this match: we only do so when the available data allow a reliable estimate."},
+    "es": {"min8": "No publicamos un pronóstico para este partido: solo lo hacemos cuando los datos disponibles permiten una estimación fiable."},
+    "pt": {"min8": "Não publicamos um palpite para este jogo: só o fazemos quando os dados disponíveis permitem uma estimativa fiável."}
+  };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);
