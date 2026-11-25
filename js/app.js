@@ -449,9 +449,9 @@
     $("mt-fb").hidden = SWS.mt !== "fb"; $("mt-tn").hidden = SWS.mt !== "tn";
     if (SWS.mt === "fb") return loadLive(silent);
     daySeg($("tnm-day"), [-1, 0, 1], TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loaded.tennis = 0; loadMatches(); });
-    chipBar($("tn-chips"), ["all", "live", "atpwta", "chall", "itf", "tnft"], TN, renderTennis);
+    chipBar($("tn-chips"), ["all", "live", "next3", "tnft", "tnpick"], TN, renderTennis);
     var ml = $("tn-matches"), day = TN.day; if (!silent) loading(ml);
-    get("/tennis/matches?date=" + day, 60000).then(function (r) { if (day !== TN.day) return; TN.matches = (r && r.matches) || []; TN.updated = r && r.updated; renderTennis(); }).catch(function (e) { fail(ml, e); });
+    Promise.all([get("/tennis/matches?date=" + day, 60000), get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; })]).then(function (r) { if (day !== TN.day) return; TN.matches = (r[0] && r[0].matches) || []; TN.updated = r[0] && r[0].updated; TN.picks = (r[1] && r[1].date === day && r[1].picks) || []; renderTennis(); }).catch(function (e) { fail(ml, e); });
   }
   function prevOrder(st) { return st === "live" ? 0 : st === "ns" || st === "up" ? 1 : 2; }
   function renderHomeMatches() {
@@ -605,7 +605,7 @@
   }
   function loadTennis() {
     daySeg($("tennis-day"), [-1, 0, 1], TN.day, function (d) { TN.day = d; TN.limit = PAGE; TN.open = {}; loadTennis(); });
-    chipBar($("tn-chips"), ["all", "live", "atpwta", "chall", "itf", "tnft"], TN, renderTennis);
+    chipBar($("tn-chips"), ["all", "live", "next3", "tnft", "tnpick"], TN, renderTennis);
     var list = $("tennis-list"), ml = $("tn-matches"); loading(list); loading(ml); var day = TN.day;
     Promise.all([get("/tennis?date=" + day + "&exact=1").catch(function () { return {}; }), Promise.resolve(null), get("/tennis/matches?date=" + day, 60000).catch(function () { return {}; })]).then(function (r) {
       if (day !== TN.day) return;
@@ -628,6 +628,8 @@
         case "chall": if (x.tour !== "challenger") return false; break;
         case "itf": if (x.tour !== "itf") return false; break;
         case "tnft": if (st !== "ft" && st !== "end") return false; break;
+        case "next3": { var dt = Date.parse(x.ts) - Date.now(); if (st === "live" || st === "ft" || st === "end" || st === "void" || !(dt <= 3 * 3600e3 && dt > -900e3)) return false; break; }
+        case "tnpick": if (!tnIsPick(x)) return false; break;
       }
       return !q || (x.p[0].n + " " + x.p[1].n + " " + x.tn).toLowerCase().indexOf(q) >= 0;
     }).sort(function (a, b) { var ka = tnGroupKey(a), kb = tnGroupKey(b); if (ka !== kb) return ka < kb ? -1 : 1; var la = tnState(a) === "live" ? 0 : 1, lb = tnState(b) === "live" ? 0 : 1; return la - lb || String(a.ts).localeCompare(String(b.ts)); });

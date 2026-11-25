@@ -542,3 +542,7 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {
+  var add = { "it": {"chip_tnpick": "Pronostici", "chip_tnft": "Terminate"}, "en": {"chip_tnpick": "Predictions", "chip_tnft": "Finished"}, "es": {"chip_tnpick": "Pronósticos", "chip_tnft": "Finalizados"}, "pt": {"chip_tnpick": "Palpites", "chip_tnft": "Encerrados"} };
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);
