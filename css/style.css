@@ -555,3 +555,17 @@ body.st-open { overflow: hidden; }
 .st-tbl td.st-r { font-weight: 700; }
 .st-leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: var(--muted); margin: 8px 2px 14px; }
 .st-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+/* v23: riquadro Telegram */
+.tg-box { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; align-items: center; background: linear-gradient(135deg, rgba(42,171,238,.14), var(--accent-soft)); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+.tg-box h2 { margin: 0 0 6px; }
+.tg-text { margin: 0; color: var(--muted); }
+.tg-form { display: flex; flex-direction: column; gap: 8px; }
+.tg-chk { display: flex; gap: 8px; align-items: center; font-size: .95rem; cursor: pointer; }
+.tg-chk input { width: 18px; height: 18px; accent-color: var(--accent); }
+.tg-chk a { color: var(--blue); }
+.tg-ts:empty { display: none; }
+.tg-msg { margin: 0; font-size: .92rem; }
+.tg-msg .btn { margin-top: 8px; display: block; width: fit-content; }
+.tg-soon { margin: 0; font-weight: 600; }
+@media (max-width: 720px) { .tg-box { grid-template-columns: 1fr; padding: 16px; } }
