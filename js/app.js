@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var API = "https://prebetpro-api.vincenzodiguida.workers.dev";
+  var API = "https://prebetpro.com/api";
   var TZ = "Europe/Rome";
   var FINAL = ["FT", "AET", "PEN"];
   var LIVE = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE", "INT", "SUSP"];
