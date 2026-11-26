@@ -623,3 +623,4 @@ body.st-open { overflow: hidden; }
 @media (max-width: 560px) { .seg.daynav button, .seg.daynav .nav-cal { padding: 7px 8px; } .seg.daynav { gap: 0; } }
 /* v36: claim nel footer */
 .foot-claim { font-weight: 700; font-size: 14px; margin: 4px 0 8px; color: var(--text); letter-spacing: .2px; }
+.hero-sub b, .foot-claim b { color: var(--accent, #22c55e); font-weight: 800; }
