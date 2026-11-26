@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 PIN = "https://guest.api.arcadia.pinnacle.com/0.1"
-WORKER = os.environ.get("WORKER_URL", "https://prebetpro-api.vincenzodiguida.workers.dev").rstrip("/")
+WORKER = os.environ.get("WORKER_URL", "https://prebetpro.com/api").rstrip("/")
 TOKEN = os.environ.get("ADMIN_TOKEN", "")
 TZ = ZoneInfo("Europe/Rome")
 NOW = dt.datetime.now(dt.timezone.utc)

@@ -12,7 +12,7 @@ import numpy as np
 import requests
 from lab_model import load_archive, build, fit_lr, sigmoid, norm, surf_code, State
 
-WORKER = os.environ.get("WORKER_URL", "https://prebetpro-api.vincenzodiguida.workers.dev").rstrip("/")
+WORKER = os.environ.get("WORKER_URL", "https://prebetpro.com/api").rstrip("/")
 TOKEN = os.environ.get("ADMIN_TOKEN", "")
 DATA = os.environ.get("LAB_DATA", "lab_data")
 HF = "https://huggingface.co/datasets/Aneeshers/tennis-sackmann-archive/resolve/main/"
