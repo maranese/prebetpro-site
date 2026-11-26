@@ -613,3 +613,7 @@ window.PBP_I18N = {
   };
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+(function (I) {   // 26/11: claim "Noi le analizziamo, tu scegli" (sottotitolo Home + footer)
+  var add = { "it": "Noi le analizziamo, tu scegli.", "en": "We analyse, you choose.", "es": "Nosotros analizamos, tú eliges.", "pt": "Nós analisamos, você escolhe." };
+  for (var l in add) { I[l].hero_sub = add[l]; I[l].claim = add[l]; }
+})(window.PBP_I18N);
