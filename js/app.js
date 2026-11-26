@@ -47,6 +47,7 @@
     $("lang").value = L;
     var els = document.querySelectorAll("[data-i18n]");
     for (var i = 0; i < els.length; i++) els[i].textContent = T(els[i].getAttribute("data-i18n"));
+    ["hero_sub", "claim"].forEach(function (k) { [].forEach.call(document.querySelectorAll('[data-i18n="' + k + '"]'), function (e) { e.innerHTML = T(k); }); });   // claim con "tu" in grassetto
     els = document.querySelectorAll("[data-i18n-ph]");
     for (i = 0; i < els.length; i++) els[i].setAttribute("placeholder", T(els[i].getAttribute("data-i18n-ph")));
     $("method-body").innerHTML = T("method_html");
