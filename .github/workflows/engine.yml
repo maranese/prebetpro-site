@@ -27,7 +27,7 @@ jobs:
       - name: Run engine
         env:
           ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-          WORKER_URL: https://prebetpro-api.vincenzodiguida.workers.dev
+          WORKER_URL: https://prebetpro.com/api
         run: python engine/engine.py
 
   keepalive:

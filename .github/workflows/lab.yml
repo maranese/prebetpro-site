@@ -33,6 +33,6 @@ jobs:
         working-directory: engine
         env:
           ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-          WORKER_URL: https://prebetpro-api.vincenzodiguida.workers.dev
+          WORKER_URL: https://prebetpro.com/api
           LAB_DATA: lab_data
         run: python lab.py
