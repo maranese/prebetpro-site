@@ -15,8 +15,8 @@
 - Le probabilità sono stime statistiche, non garanzie. Contenuti per maggiori di 18 anni.
 
 ## Dati in formato JSON (pubblici, sola lettura)
-- Partite e pronostici del giorno: https://prebetpro-api.vincenzodiguida.workers.dev/day?date=AAAA-MM-GG
-- Top Picks e storico del giorno: https://prebetpro-api.vincenzodiguida.workers.dev/history?date=AAAA-MM-GG
-- Report dei risultati: https://prebetpro-api.vincenzodiguida.workers.dev/report/summary?range=30
-- Tennis (pick): https://prebetpro-api.vincenzodiguida.workers.dev/tennis?date=AAAA-MM-GG
-- Tennis (tutte le partite): https://prebetpro-api.vincenzodiguida.workers.dev/tennis/matches?date=AAAA-MM-GG
+- Partite e pronostici del giorno: https://prebetpro.com/api/day?date=AAAA-MM-GG
+- Top Picks e storico del giorno: https://prebetpro.com/api/history?date=AAAA-MM-GG
+- Report dei risultati: https://prebetpro.com/api/report/summary?range=30
+- Tennis (pick): https://prebetpro.com/api/tennis?date=AAAA-MM-GG
+- Tennis (tutte le partite): https://prebetpro.com/api/tennis/matches?date=AAAA-MM-GG
