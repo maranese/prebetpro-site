@@ -621,3 +621,5 @@ body.st-open { overflow: hidden; }
 .ptable.tna td.xm { white-space: nowrap; font-size: 12.5px; } .ptable.tna td.xm b { font-weight: 700; }
 .seg.daynav { flex-wrap: wrap; overflow: visible; }
 @media (max-width: 560px) { .seg.daynav button, .seg.daynav .nav-cal { padding: 7px 8px; } .seg.daynav { gap: 0; } }
+/* v36: claim nel footer */
+.foot-claim { font-weight: 700; font-size: 14px; margin: 4px 0 8px; color: var(--text); letter-spacing: .2px; }
