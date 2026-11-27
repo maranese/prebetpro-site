@@ -250,12 +250,10 @@
 
   /* ================= TOP PICKS (raggruppati per partita) ================= */
   function picksFor(day, noFill) {
-    return Promise.all([get("/history?date=" + day).catch(function () { return {}; }), get("/day?date=" + shiftDate(day, 1)).catch(function () { return {}; })]).then(function (r) {
-      var hist = r[0] || {}, tom = r[1] || {}, seen = {}, rows = [];
+    return get("/history?date=" + day).catch(function () { return {}; }).then(function (r) {
+      var hist = r || {}, seen = {}, rows = [];
       (hist.picks || []).forEach(function (p) { seen[p.af_id + ":" + p.market] = 1; rows.push({ fid: p.af_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.probability, result: p.void ? "void" : p.result, ft: p.ft, frozen: true, day: day }); });
       (hist.ranked_predictions || []).forEach(function (p) { if (seen[p.fixture_id + ":" + p.market]) return; seen[p.fixture_id + ":" + p.market] = 1; rows.push({ fid: p.fixture_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, day: day }); });
-      var nToday = rows.length;
-      if (nToday < 5 && !noFill) (tom.ranked_predictions || []).forEach(function (p) { rows.push({ fid: p.fixture_id, match: p.match, league: p.league, kickoff: p.kickoff, market: p.market, value: p.value, day: shiftDate(day, 1) }); });
       var by = {}, cards = [];
       rows.forEach(function (r) { var c = by[r.fid]; if (!c) { c = by[r.fid] = { fid: r.fid, match: r.match, league: r.league, kickoff: r.kickoff, day: r.day, ft: r.ft, picks: [] }; cards.push(c); } c.picks.push(r); if (r.ft) c.ft = r.ft; });
       cards.forEach(function (c) { c.picks.sort(function (a, b) { return b.value - a.value; }); });
