@@ -617,3 +617,12 @@ window.PBP_I18N = {
   var add = { "it": "Noi analizziamo, <b>tu</b> scegli.", "en": "We analyse, <b>you</b> choose.", "es": "Nosotros analizamos, <b>tú</b> eliges.", "pt": "Nós analisamos, <b>você</b> escolhe." };   // con grassetto: applicato come HTML (testo fisso, non dati esterni)
   for (var l in add) { I[l].hero_sub = add[l]; I[l].claim = add[l]; }
 })(window.PBP_I18N);
+
+/* v39: home, due righe separate per calcio e tennis; conteggio calcio sulle partite con pronostico */
+(function (I) {
+  var add = {"it": {"hero_fb_none": "Calcio: nessuna partita con pronostico oggi.", "hero_fb0": "Calcio: {n} partite con pronostico oggi, nessuna supera i nostri filtri: meglio nessun pronostico che uno debole.", "hero_fb": "Calcio: {k} Top Picks oggi su {n} partite con pronostico.", "hero_fb1": "Calcio: 1 Top Pick oggi su {n} partite con pronostico."},
+    "en": {"hero_fb_none": "Football: no match with a prediction today.", "hero_fb0": "Football: {n} matches with a prediction today, none passes our filters: better no prediction than a weak one.", "hero_fb": "Football: {k} Top Picks today out of {n} matches with a prediction.", "hero_fb1": "Football: 1 Top Pick today out of {n} matches with a prediction."},
+    "es": {"hero_fb_none": "Fútbol: hoy ningún partido con pronóstico.", "hero_fb0": "Fútbol: hoy {n} partidos con pronóstico, ninguno supera nuestros filtros: mejor ningún pronóstico que uno débil.", "hero_fb": "Fútbol: hoy {k} Top Picks de {n} partidos con pronóstico.", "hero_fb1": "Fútbol: hoy 1 Top Pick de {n} partidos con pronóstico."},
+    "pt": {"hero_fb_none": "Futebol: nenhum jogo com palpite hoje.", "hero_fb0": "Futebol: hoje {n} jogos com palpite, nenhum passa nos nossos filtros: melhor nenhum palpite do que um fraco.", "hero_fb": "Futebol: hoje {k} Top Picks de {n} jogos com palpite.", "hero_fb1": "Futebol: hoje 1 Top Pick de {n} jogos com palpite."}};
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);

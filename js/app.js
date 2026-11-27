@@ -291,10 +291,12 @@
   function loadHome() {
     var today = romeDate(0), fb = $("picks-football"), tn = $("picks-tennis");
     loading(fb);
-    Promise.all([picksFor(today), get("/tennis?date=" + today).catch(function () { return {}; })]).then(function (r) {
+    Promise.all([picksFor(today), get("/tennis?date=" + today).catch(function () { return {}; }), get("/day?date=" + today).catch(function () { return {}; })]).then(function (r) {
       var P0 = r[0], ten = r[1] || {}, tp = (ten.date === today && ten.picks) || [];
-      var n = P0.fixtures.length, k = P0.todayMatches;
-      var tk = tp.length; $("hero-today").textContent = [n ? T(k ? (k === 1 ? "hero_today1" : "hero_today") : "hero_today0", { n: n, k: k }) : "", ten.date === today ? T(tk ? (tk === 1 ? "hero_tn1" : "hero_tn") : "hero_tn0", { k: tk }) : ""].filter(Boolean).join(" ");
+      var np = ((r[2] || {}).fixtures || []).filter(function (f) { return f.predictions; }).length, k = P0.todayMatches;
+      var tk = tp.length;
+      $("hero-fb").textContent = np ? T(k ? (k === 1 ? "hero_fb1" : "hero_fb") : "hero_fb0", { n: np, k: k }) : T("hero_fb_none");
+      $("hero-tn").textContent = ten.date === today ? T(tk ? (tk === 1 ? "hero_tn1" : "hero_tn") : "hero_tn0", { k: tk }) : "";
       $("picks-count").textContent = n ? T("picks_count", { k: k, n: n }) : "";
       fb.innerHTML = P0.cards.length ? P0.cards.map(pickCard).join("") : empty(T("fb_none_picks"));
       fb.setAttribute("data-loaded", "1"); bindPicks(fb);
