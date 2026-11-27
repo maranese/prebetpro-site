@@ -626,3 +626,11 @@ window.PBP_I18N = {
     "pt": {"hero_fb_none": "Futebol: nenhum jogo com palpite hoje.", "hero_fb0": "Futebol: hoje {n} jogos com palpite, nenhum passa nos nossos filtros: melhor nenhum palpite do que um fraco.", "hero_fb": "Futebol: hoje {k} Top Picks de {n} jogos com palpite.", "hero_fb1": "Futebol: hoje 1 Top Pick de {n} jogos com palpite."}};
   for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
 })(window.PBP_I18N);
+/* v40: tennis con totale partite con pronostico, come il calcio */
+(function (I) {
+  var add = {"it": {"hero_tn": "Tennis: {k} Top Picks oggi su {n} partite con pronostico.", "hero_tn1": "Tennis: 1 Top Pick oggi su {n} partite con pronostico.", "hero_tn0": "Tennis: nessun Top Pick oggi su {n} partite con pronostico: meglio nessun pronostico che uno debole."},
+    "en": {"hero_tn": "Tennis: {k} Top Picks today out of {n} matches with a prediction.", "hero_tn1": "Tennis: 1 Top Pick today out of {n} matches with a prediction.", "hero_tn0": "Tennis: no Top Pick today out of {n} matches with a prediction: better no prediction than a weak one."},
+    "es": {"hero_tn": "Tenis: hoy {k} Top Picks de {n} partidos con pronóstico.", "hero_tn1": "Tenis: hoy 1 Top Pick de {n} partidos con pronóstico.", "hero_tn0": "Tenis: hoy ningún Top Pick de {n} partidos con pronóstico: mejor ningún pronóstico que uno débil."},
+    "pt": {"hero_tn": "Tênis: hoje {k} Top Picks de {n} jogos com palpite.", "hero_tn1": "Tênis: hoje 1 Top Pick de {n} jogos com palpite.", "hero_tn0": "Tênis: hoje nenhum Top Pick de {n} jogos com palpite: melhor nenhum palpite do que um fraco."}};
+  for (var l in add) for (var k in add[l]) I[l][k] = add[l][k];
+})(window.PBP_I18N);
